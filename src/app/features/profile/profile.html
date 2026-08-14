@@ -1,0 +1,60 @@
+<section class="fp-container fp-profile">
+  <h1 class="fp-display">{{ 'MY_PROFILE' | translate }}</h1>
+
+  <mat-tab-group animationDuration="0ms">
+    <mat-tab [label]="'EDIT_PROFILE' | translate">
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="fp-profile__form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'FULL_NAME' | translate }}</mat-label>
+          <input matInput formControlName="fullName" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'MOBILE_NUMBER' | translate }}</mat-label>
+          <input matInput formControlName="mobile" maxlength="10" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'EMAIL_OPTIONAL' | translate }}</mat-label>
+          <input matInput formControlName="email" type="email" />
+        </mat-form-field>
+        <button mat-flat-button class="fp-btn-primary" type="submit" [disabled]="savingProfile()">
+          {{ 'SAVE_CHANGES' | translate }}
+        </button>
+      </form>
+    </mat-tab>
+
+     <mat-tab [label]="'ADDRESSES' | translate">
+      <div class="fp-profile__addresses">
+        <ng-container *ngIf="user()?.addresses?.length; else noAddressTpl">
+          <div class="fp-card fp-profile__address-card" *ngFor="let address of user()?.addresses">
+            <strong>{{ address.fullName }}</strong>
+            <p>{{ address.village }}, {{ address.taluka }}, {{ address.district }}, {{ address.state }} - {{ address.pin }}</p>
+            <p>{{ address.mobile }}</p>
+          </div>
+        </ng-container>
+        <ng-template #noAddressTpl>
+         <app-empty-state icon="home" titleKey="NO_ADDRESS_TITLE" messageKey="NO_ADDRESS_MESSAGE"></app-empty-state>
+        </ng-template>
+      </div>
+    </mat-tab> 
+
+    <mat-tab [label]="'CHANGE_PASSWORD' | translate">
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="fp-profile__form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'CURRENT_PASSWORD' | translate }}</mat-label>
+          <input matInput type="password" formControlName="currentPassword" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'NEW_PASSWORD' | translate }}</mat-label>
+          <input matInput type="password" formControlName="newPassword" />
+        </mat-form-field>
+        <button mat-flat-button class="fp-btn-primary" type="submit" [disabled]="savingPassword()">
+          {{ 'UPDATE_PASSWORD' | translate }}
+        </button>
+      </form>
+    </mat-tab>
+  </mat-tab-group>
+
+  <button mat-stroked-button color="warn" class="fp-profile__logout" (click)="logout()">
+    {{ 'LOGOUT' | translate }}
+  </button>
+</section>

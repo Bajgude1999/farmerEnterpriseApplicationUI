@@ -1,0 +1,4 @@
+<span class="fp-star-rating" [attr.aria-label]="'Rating ' + rating">
+  <mat-icon *ngFor="let star of stars()">{{ star }}</mat-icon>
+  <span class="fp-star-rating__count" *ngIf="count != null">({{ count }})</span>
+</span>

@@ -1,0 +1,21 @@
+<div class="admin-shell">
+  <!-- <header class="admin-shell__header">
+    <span class="admin-shell__brand">{{ 'BRAND_NAME' | translate }} — {{ 'ADMIN_PANEL' | translate }}</span>
+  </header> -->
+
+  <nav class="admin-shell__tabs">
+    <a routerLink="/admin/master" routerLinkActive="admin-shell__tab--active" class="admin-shell__tab">
+      {{ 'ADMIN_TAB_MASTER' | translate }}
+    </a>
+    <a routerLink="/admin/transaction" routerLinkActive="admin-shell__tab--active" class="admin-shell__tab">
+      {{ 'ADMIN_TAB_TRANSACTION' | translate }}
+    </a>
+    <a routerLink="/admin/report" routerLinkActive="admin-shell__tab--active" class="admin-shell__tab">
+      {{ 'ADMIN_TAB_REPORT' | translate }}
+    </a>
+  </nav>
+
+  <main class="admin-shell__content">
+    <router-outlet />
+  </main>
+</div>

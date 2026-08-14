@@ -1,0 +1,8 @@
+.fp-status-page {
+  text-align: center;
+  padding: 96px 16px;
+
+  &__code { font-size: 72px; font-weight: 800; color: var(--brand-green-100); display: block; }
+  h1 { margin: 8px 0; }
+  p { color: var(--text-muted); margin-bottom: 24px; }
+}

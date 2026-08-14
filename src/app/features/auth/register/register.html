@@ -1,0 +1,164 @@
+<div class="fp-auth__card fp-card">
+  <h2 class="fp-display">{{ 'REGISTER_TITLE' | translate }}</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-auth__form">
+    <!-- Row 1 -->
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'FULL_NAME' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="fullName" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'MOBILE_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="mobNo" maxlength="10" />
+        </mat-form-field>
+      </div>
+      <div class="field-group">
+        <label>{{ 'OPTIONAL_PHONE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            formControlName="optionalMobNo"
+            [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'EMAIL_OPTIONAL' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="email" type="email" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'PASSWORD' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="password" formControlName="password" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'ADHAR_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="adharNo" maxlength="12" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'ROLE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="roleCd">
+            <mat-option *ngFor="let role of roles()" [value]="role.roleCd">
+              {{ role.roleName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="field-group">
+        <label class="field-label">{{ 'ADDRESS' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="address" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Row 3 -->
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'STATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="state" (selectionChange)="onStateChange($event.value)">
+            <mat-option *ngFor="let state of states" [value]="state.name">
+              {{ state.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'DISTRICT' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="district" (selectionChange)="onDistrictChange($event.value)">
+            <mat-option *ngFor="let district of districts()" [value]="district.name">
+              {{ district.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'TALUKA' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="taluka">
+            <mat-option *ngFor="let taluka of talukas()" [value]="taluka">
+              {{ taluka }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="field-group">
+        <label class="field-label">{{ 'VILLAGE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="village" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Row 4 -->
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'LANDMARK' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="landmark" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'PIN' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="pin" maxlength="6" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group photo-upload">
+        <label class="field-label">{{ 'PROFILE_PHOTO' | translate }}</label>
+        <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+        <img *ngIf="photoPreview()" [src]="photoPreview()" class="fp-auth__photo-preview" />
+      </div>
+    </div>
+
+    <div class="fp-auth__admin-fields" *ngIf="isAdminRole()">
+      <mat-checkbox formControlName="verified">
+        {{ 'VERIFIED' | translate }}
+      </mat-checkbox>
+
+      <mat-checkbox formControlName="block">
+        {{ 'BLOCKED' | translate }}
+      </mat-checkbox>
+    </div>
+
+    <p class="fp-auth__error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
+
+    <!-- Submit row -->
+    <div class="form-row">
+      <div></div>
+      <button mat-flat-button class="fp-btn-primary" type="submit" [disabled]="submitting">
+        {{ 'CREATE_ACCOUNT' | translate }}
+      </button>
+      <div></div>
+    </div>
+  </form>
+
+  <p class="fp-auth__register-hint">
+    {{ 'ALREADY_HAVE_ACCOUNT' | translate }}
+    <a routerLink="/login">{{ 'LOGIN' | translate }}</a>
+  </p>
+</div>

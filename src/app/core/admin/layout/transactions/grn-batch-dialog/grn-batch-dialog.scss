@@ -1,0 +1,34 @@
+.grn-batch-dialog {
+  &__header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  &__field {
+    width: 160px;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+
+  &__field--date {
+    width: 180px;
+  }
+
+  &__uom-field {
+    width: 150px;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+/* Center table header names */
+.admin-table {
+  .mat-mdc-header-cell {
+    text-align: center;
+  }
+}

@@ -1,0 +1,336 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ (isEdit() ? 'EDIT_GRN' : 'ADD_GRN') | translate }}</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card grn-form">
+    <input type="hidden" formControlName="grnCd" />
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'GRN_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="grnNo" />
+        </mat-form-field>
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+          {{ 'GRN_DATE' | translate }}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            [matDatepicker]="grnDatePicker"
+            formControlName="grnDate"
+            placeholder="DD/MM/YYYY"
+          />
+
+          <mat-datepicker-toggle matIconSuffix [for]="grnDatePicker"> </mat-datepicker-toggle>
+
+          <mat-datepicker #grnDatePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          {{ 'SUPPLIER_NAME' | translate }}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="supplierName">
+            <mat-option [value]="null"> Select Supplier </mat-option>
+
+            <mat-option *ngFor="let supplier of suppliers()" [value]="supplier.fullName">
+              {{ supplier.fullName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <!-- <div class="field-group">
+        <label class="field-label">{{ 'INVOICE_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="invoiceNo" />
+        </mat-form-field>
+      </div> -->
+
+      <!-- <div class="field-group">
+        <label class="field-label">{{ 'INVOICE_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="invoiceDate" />
+        </mat-form-field>
+      </div> -->
+
+      <div class="field-group">
+        <label class="field-label">{{ 'TOTAL_AMOUNT' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="totalAmount" />
+        </mat-form-field>
+      </div>
+      <div class="field-group">
+        <label class="field-label">{{ 'REMARKS' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="remarks" />
+        </mat-form-field>
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+        GRN Status
+        </label>
+
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="grnStatus">
+            <mat-option [value]="null"> Select Status </mat-option>
+
+            <mat-option *ngFor="let grnStatus of grnStatuses" [value]="grnStatus">
+           {{grnStatus}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <!-- 
+    <div class="field-group grn-form__remarks">
+      <mat-form-field appearance="outline">
+        <textarea matInput formControlName="remarks" rows="2"></textarea>
+      </mat-form-field>
+    </div> -->
+
+    <!-- Line items -->
+    <div class="grn-form__items-section">
+      <div class="grn-form__items-header">
+        <h3>{{ 'GRN_ITEMS' | translate }}</h3>
+        <button type="button" mat-stroked-button color="primary" (click)="addItemRow()">
+          <mat-icon>add</mat-icon> {{ 'ADD_ITEM' | translate }}
+        </button>
+      </div>
+
+      <table mat-table [dataSource]="itemTableRows" formArrayName="grnDtlList" class="admin-table">
+        <ng-container matColumnDef="productCd">
+          <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCT' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [formGroup]="row">
+            <mat-form-field appearance="outline" class="grn-form__product-field">
+              <mat-select formControlName="productCd">>
+                <mat-option [value]="null">Select Product</mat-option>
+                <mat-option *ngFor="let product of products()" [value]="product.productCd" >
+                  {{ product.productName }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="row.get('productCd')?.hasError('required')"
+                >Product is required</mat-error
+              >
+            </mat-form-field>
+          </td>
+        </ng-container>
+        
+        <ng-container matColumnDef="packSize">
+          <th mat-header-cell *matHeaderCellDef>Pack Size</th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline"class="grn-form__inline-field pack-size-field">
+              <input
+                matInput
+                type="number"
+                formControlName="packSize"
+                (click)="$event.stopPropagation()"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="UOM">
+          <th mat-header-cell *matHeaderCellDef>UOM</th>
+          <td mat-cell *matCellDef="let row" [formGroup]="row">
+            <mat-form-field appearance="outline" class="grn-form__uom-field">
+              <mat-select formControlName="uomCd">
+                <mat-option [value]="null">Select UOM</mat-option>
+                <mat-option *ngFor="let unit of units()" [value]="unit.unitCd">
+                  {{ unit.unitName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="qty">
+          <th mat-header-cell *matHeaderCellDef>{{ 'QTY' | translate }}</th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="grn-form__inline-field pack-size-field">
+              <input
+                matInput
+                type="number"
+                formControlName="qty"
+                (click)="$event.stopPropagation()"
+                (input)="calculateLineAmount(i)"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="freeQty">
+          <th mat-header-cell *matHeaderCellDef>{{ 'FREE_QTY' | translate }}</th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="grn-form__inline-field pack-size-field">
+              <input
+                matInput
+                type="number"
+                formControlName="freeQty"
+                (click)="$event.stopPropagation()"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="purchaseRate">
+          <th mat-header-cell *matHeaderCellDef>{{ 'PURCHASE_RATE' | translate }}</th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="grn-form__inline-field pack-size-field">
+              <input
+                matInput
+                type="number"
+                formControlName="purchaseRate"
+                (click)="$event.stopPropagation()"
+                (input)="calculateLineAmount(i)"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="mrp">
+          <th mat-header-cell *matHeaderCellDef>{{ 'MRP' | translate }}</th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="grn-form__inline-field">
+              <input
+                matInput
+                type="number"
+                formControlName="mrp"
+                (click)="$event.stopPropagation()"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
+            <mat-form-field appearance="outline" class="grn-form__inline-field">
+              <input
+                matInput
+                type="number"
+                formControlName="lineAmount"
+                (click)="$event.stopPropagation()"
+                (input)="calculateTaxes()"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="expand">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <button
+              type="button"
+              mat-stroked-button
+              [color]="hasBatches(i) ? 'primary' : undefined"
+              (click)="openBatchDialog(i); $event.stopPropagation()"
+              class="grn-form__batch-btn"
+            >
+              B
+            </button>
+
+            <button
+              type="button"
+              mat-icon-button
+              (click)="toggleItemExpand(i); $event.stopPropagation()"
+            >
+              <mat-icon>{{ expandedItemIndex() === i ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+            <button
+              type="button"
+              mat-icon-button
+              (click)="removeItemRow(i); $event.stopPropagation()"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: itemColumns"
+          (click)="toggleItemExpand(itemRows.controls.indexOf(row))"
+        ></tr>
+      </table>
+
+      <!-- Tax sub-table for the expanded line item -->
+      <div
+        class="grn-form__tax-panel"
+        *ngIf="expandedItemIndex() !== null"
+        [formGroup]="itemRows.at(expandedItemIndex()!)"
+      >
+        <div class="grn-form__tax-header">
+          <h4>
+            {{ 'TAXES_FOR_ITEM' | translate }}:
+            {{ itemRows.at(expandedItemIndex()!).get('batchNo')?.value }}
+          </h4>
+          <button
+            type="button"
+            mat-stroked-button
+            color="primary"
+            (click)="addTaxRow(expandedItemIndex()!)"
+          >
+            <mat-icon>add</mat-icon> {{ 'ADD_TAX' | translate }}
+          </button>
+        </div>
+
+        <table mat-table [dataSource]="taxTableRows" formArrayName="grnGstDtos" class="admin-table">
+          <ng-container matColumnDef="taxName">
+            <th mat-header-cell *matHeaderCellDef>{{ 'TAX_NAME' | translate }}</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <input type="hidden" formControlName="grnGstId" />
+              <input type="hidden" formControlName="grnCd" />
+              <mat-form-field appearance="outline" class="grn-form__tax-field">
+                <mat-select formControlName="taxName">
+                  <mat-option [value]="''">Select Tax</mat-option>
+                  <mat-option *ngFor="let taxName of taxNameOptions" [value]="taxName">{{
+                    taxName
+                  }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="taxRate">
+            <th mat-header-cell *matHeaderCellDef>{{ 'TAX_RATE' | translate }}</th>
+            <td mat-cell *matCellDef="let row; let j = index" [formGroupName]="j">
+              <mat-form-field appearance="outline" class="grn-form__inline-field">
+                <input
+                  matInput
+                  type="number"
+                  formControlName="taxRate"
+                  (input)="calculateTaxes()"
+                />
+              </mat-form-field>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="taxAmount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'TAX_AMOUNT' | translate }}</th>
+            <td mat-cell *matCellDef="let row; let j = index" [formGroupName]="j">
+              <mat-form-field appearance="outline" class="grn-form__inline-field">
+                <input matInput type="number" formControlName="taxAmount" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="taxColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: taxColumns"></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="grn-form__actions">
+      <button type="button" mat-stroked-button (click)="cancel()">
+        {{ 'CANCEL' | translate }}
+      </button>
+      <button type="submit" mat-flat-button class="fp-btn-primary" [disabled]="saving()">
+        {{ (isEdit() ? 'UPDATE_GRN' : 'SAVE_GRN') | translate }}
+      </button>
+    </div>
+  </form>
+</div>

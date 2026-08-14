@@ -1,0 +1,56 @@
+<section class="fp-container fp-cart">
+  <h1 class="fp-display">{{ 'MY_CART' | translate }}</h1>
+
+  <ng-container *ngIf="cart.items().length; else emptyCart">
+    <div class="fp-cart__layout">
+      <div class="fp-cart__items">
+        <div class="fp-cart__item fp-card" *ngFor="let item of cart.items()">
+          <img [src]="item.product.images[0]?.thumbnail" [alt]="item.product.name" />
+          <div class="fp-cart__item-info">
+            <h4>{{ item.product.name }}</h4>
+            <p class="fp-cart__item-unit">{{ item.product.unit }}</p>
+            <p class="fp-cart__item-price">₹{{ item.product.price }}</p>
+          </div>
+          <div class="fp-cart__item-qty">
+            <button mat-icon-button (click)="updateQuantity(item.product.id, item.quantity - 1)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span>{{ item.quantity }}</span>
+            <button mat-icon-button (click)="updateQuantity(item.product.id, item.quantity + 1)" [disabled]="item.quantity >= item.product.stock">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+          <div class="fp-cart__item-subtotal">₹{{ item.product.price * item.quantity }}</div>
+          <button mat-icon-button (click)="removeItem(item.product.id)" [attr.aria-label]="'REMOVE' | translate">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <aside class="fp-cart__summary fp-card">
+        <h3>{{ 'ORDER_SUMMARY' | translate }}</h3>
+        <div class="fp-cart__summary-row">
+          <span>{{ 'SUBTOTAL' | translate }}</span>
+          <span>₹{{ cart.subtotal() }}</span>
+        </div>
+        <div class="fp-cart__summary-row">
+          <span>{{ 'DELIVERY_CHARGES' | translate }}</span>
+          <span>{{ cart.deliveryCharge() === 0 ? ('FREE' | translate) : '₹' + cart.deliveryCharge() }}</span>
+        </div>
+        <div class="fp-cart__summary-row fp-cart__summary-row--total">
+          <span>{{ 'TOTAL' | translate }}</span>
+          <span>₹{{ cart.total() }}</span>
+        </div>
+        <button mat-flat-button class="fp-btn-primary fp-cart__checkout-btn" (click)="goToCheckout()">
+          {{ 'CHECKOUT' | translate }}
+        </button>
+      </aside>
+    </div>
+  </ng-container>
+
+<ng-template #emptyCart>
+    <app-empty-state icon="shopping_cart" titleKey="CART_EMPTY_TITLE" messageKey="CART_EMPTY_MESSAGE">
+      <a routerLink="/products" mat-flat-button class="fp-btn-primary">{{ 'CONTINUE_SHOPPING' | translate }}</a>
+    </app-empty-state>
+  </ng-template>
+</section>

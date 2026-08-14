@@ -1,0 +1,51 @@
+.fp-orders {
+  padding: 24px 16px 48px;
+
+  h1 { margin-bottom: 16px; }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  &__item {
+    padding: 16px;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    &-body { font-size: 14px; display: flex; flex-direction: column; gap: 2px; }
+
+    &-footer {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+  }
+
+  &__number { font-weight: 700; color: var(--text-primary); }
+
+  &__status {
+    margin-left: auto;
+    padding: 2px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-transform: capitalize;
+    background: var(--neutral-100);
+
+    &[data-status='DELIVERED'] { background: var(--brand-green-100); color: var(--color-success); }
+    &[data-status='CANCELLED'] { background: #fdeaea; color: var(--color-danger); }
+    &[data-status='PENDING'] { background: var(--brand-orange-100); color: var(--brand-orange-700); }
+  }
+
+  &__loading { color: var(--text-muted); padding: 24px 0; }
+}

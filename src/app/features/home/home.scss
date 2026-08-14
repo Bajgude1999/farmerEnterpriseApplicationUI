@@ -1,0 +1,124 @@
+.fp-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--brand-green-700);
+  box-shadow: var(--shadow-md);
+
+  &__row {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    flex-shrink: 0;
+
+    &-mark { font-size: 24px; }
+    &-text { color: #fff; font-size: 20px; }
+  }
+
+  &__search {
+    flex: 1;
+    display: flex;
+    max-width: 560px;
+    background: var(--neutral-0);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 10px 14px;
+      font-family: var(--font-body);
+    }
+
+    button {
+      border: none;
+      background: var(--brand-orange-600);
+      color: #fff;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    margin-left: auto;
+
+    ::ng-deep .mat-icon { color: #fff; }
+  }
+
+  &__cart {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #fff;
+    font-size: 14px;
+  }
+
+  &__login {
+    background: var(--brand-orange-600);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+  }
+
+  &__categories {
+    display: flex;
+    gap: 28px;
+    background: var(--brand-green-900);
+    padding: 8px 16px;
+    overflow-x: auto;
+
+    a {
+      color: var(--brand-green-100);
+      font-size: 14px;
+      white-space: nowrap;
+
+      &:hover { color: #fff; }
+    }
+  }
+
+  @media (max-width: 768px) {
+    &__row { gap: 12px; flex-wrap: wrap; height: auto; padding: 8px 12px; }
+    &__search { order: 3; width: 100%; max-width: none; }
+    &__categories { gap: 16px; }
+  }
+}
+.fp-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.fp-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

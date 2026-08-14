@@ -1,0 +1,49 @@
+.fp-static-page {
+  padding: 32px 16px 48px;
+  max-width: 900px;
+  margin: 0 auto;
+
+  h1 { margin-bottom: 24px; }
+}
+
+.fp-contact {
+  &__layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 16px;
+
+    @media (max-width: 768px) { grid-template-columns: 1fr; }
+  }
+
+  &__info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: fit-content;
+
+    &-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+
+      mat-icon { color: var(--brand-green-700); }
+    }
+  }
+
+  &__form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    mat-form-field { width: 100%; }
+    button { align-self: flex-start; margin-top: 8px; }
+  }
+
+  &__thanks {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+}

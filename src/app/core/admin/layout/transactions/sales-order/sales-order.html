@@ -1,0 +1,355 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ (isEdit() ? 'EDIT_SALES_ORDER' : 'ADD_SALES_ORDER') | translate }}</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card sales-order-form">
+    <input type="hidden" formControlName="orderCd" />
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'ORDER_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="orderNo" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'CUSTOMER' | translate }}</label>
+
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="userCd" placeholder="Select Customer">
+            <mat-option *ngFor="let user of users" [value]="user.userId">
+              {{ user.fullName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'MOBILE_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="mobileNo" maxlength="10" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'PAYMENT_MODE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="paymentMode">
+            <mat-option *ngFor="let mode of paymentModes" [value]="mode">{{ mode }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'ORDER_STATUS' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="orderStatus">
+            <mat-option *ngFor="let status of orderStatuses" [value]="status">{{
+              status
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'EMAIL_OPTIONAL' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="email" formControlName="email" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="field-group sales-order-form__address">
+      <label class="field-label">{{ 'DELIVERY_ADDRESS' | translate }}</label>
+      <mat-form-field appearance="outline">
+        <textarea matInput formControlName="deliveryAddress" rows="2"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'GROSS_AMOUNT' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="grossAmount" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'DISCOUNT_AMOUNT' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="discountAmount" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'NET_AMOUNT' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="netAmount" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'INVOICE_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="invoiceNo" />
+        </mat-form-field>
+      </div>
+      <div class="field-group">
+        <label class="field-label">
+          {{ 'INVOICE_DATE' | translate }}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            [matDatepicker]="invoiceDatePicker"
+            formControlName="invoiceDate"
+            placeholder="DD/MM/YYYY"
+          />
+
+          <mat-datepicker-toggle matIconSuffix [for]="invoiceDatePicker"> </mat-datepicker-toggle>
+
+          <mat-datepicker #invoiceDatePicker> </mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Line items -->
+    <!-- Line items -->
+    <div class="sales-order-form__items-section">
+      <div class="sales-order-form__items-header">
+        <h3>{{ 'ORDER_ITEMS' | translate }}</h3>
+
+        <button type="button" mat-stroked-button color="primary" (click)="addItemRow()">
+          <mat-icon>add</mat-icon>
+          {{ 'ADD_ITEM' | translate }}
+        </button>
+      </div>
+
+      <table mat-table [dataSource]="itemTableRows" class="admin-table">
+        <!-- PRODUCT -->
+        <ng-container matColumnDef="productName">
+          <!-- <input type="hidden" [formControl]="row.get('orderDtlCd')" />
+            <input type="hidden" [formControl]="row.get('orderCd')" /> -->
+          <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCT' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [formGroup]="row">
+            <mat-form-field appearance="outline" class="sales-order-form__product-field">
+              <mat-select formControlName="productCd"
+                >>
+                <mat-option [value]="null">Select Product</mat-option>
+                <mat-option *ngFor="let product of products()" [value]="product.productCd">
+                  {{ product.productName }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="row.get('productCd')?.hasError('required')"
+                >Product is required</mat-error
+              >
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="packSize">
+          <th mat-header-cell *matHeaderCellDef>Pack Size</th>
+          <td mat-cell *matCellDef="let row" [formGroup]="row">
+            <mat-form-field
+              appearance="outline"
+              class="sales-order-form__inline-field pack-size-field"
+            >
+              <input
+                matInput
+                type="number"
+                formControlName="packSize"
+                (click)="$event.stopPropagation()"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="uomCd">
+          <th mat-header-cell *matHeaderCellDef>UOM</th>
+          <td mat-cell *matCellDef="let row" [formGroup]="row">
+            <mat-form-field appearance="outline" class="sales-order-form__uom-field">
+              <mat-select formControlName="uomCd">
+                <mat-option [value]="null">Select UOM</mat-option>
+                <mat-option *ngFor="let unit of units()" [value]="unit.unitCd">
+                  {{ unit.unitName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- QTY -->
+        <ng-container matColumnDef="qty">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'QTY' | translate }}
+          </th>
+
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline" class="sales-order-form__inline-field">
+              <input matInput type="number" [formControl]="row.get('qty')" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- RATE -->
+        <ng-container matColumnDef="rate">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'RATE' | translate }}
+          </th>
+
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline" class="sales-order-form__inline-field">
+              <input matInput type="number" [formControl]="row.get('rate')" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- DISCOUNT -->
+        <ng-container matColumnDef="discount">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'DISCOUNT' | translate }}
+          </th>
+
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline" class="sales-order-form__inline-field">
+              <input matInput type="number" [formControl]="row.get('discount')" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- AMOUNT -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'AMOUNT' | translate }}
+          </th>
+
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline" class="sales-order-form__inline-field">
+              <input matInput type="number" [formControl]="row.get('amount')" />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- EXPAND / DELETE -->
+        <ng-container matColumnDef="expand">
+          
+          <th mat-header-cell *matHeaderCellDef>Taxes</th>
+
+          <td mat-cell *matCellDef="let row; let i = index">
+                <button
+              type="button"
+              mat-stroked-button
+              [color]="hasBatches(i) ? 'primary' : undefined"
+              (click)="openBatchDialog(i); $event.stopPropagation()"
+              class="grn-form__batch-btn"
+            >
+              B
+            </button>
+            <button type="button" mat-icon-button (click)="toggleItemExpand(i)">
+              <mat-icon>
+                {{ expandedItemIndex() === i ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </button>
+
+            <button type="button" mat-icon-button (click)="removeItemRow(i)">
+              <mat-icon> delete_outline </mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
+
+        <tr mat-row *matRowDef="let row; columns: itemColumns"></tr>
+      </table>
+
+      <!-- TAX PANEL -->
+      <div class="sales-order-form__tax-panel" *ngIf="expandedItemIndex() !== null">
+        <ng-container *ngIf="itemTableRows.at(expandedItemIndex()!) as item">
+          <div class="sales-order-form__tax-header">
+            <h4>
+              {{ 'TAXES_FOR_ITEM' | translate }}:
+              {{ item.get('productName')?.value }}
+            </h4>
+
+            <button
+              type="button"
+              mat-stroked-button
+              color="primary"
+              (click)="addTaxRow(expandedItemIndex()!)"
+            >
+              <mat-icon>add</mat-icon>
+              {{ 'ADD_TAX' | translate }}
+            </button>
+          </div>
+
+          <table
+            mat-table
+            [dataSource]="taxTableRows" formArrayName="taxes" 
+            class="admin-table"
+          >
+            <!-- TAX NAME -->
+            <ng-container matColumnDef="taxName">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'TAX_NAME' | translate }}
+              </th>
+
+              <td mat-cell *matCellDef="let row">
+                <input type="hidden" [formControl]="row.get('salesOrderGstId')" />
+
+                <input type="hidden" [formControl]="row.get('orderdtlcd')" />
+
+                <mat-form-field appearance="outline" class="sales-order-form__tax-field">
+                  <input matInput [formControl]="row.get('taxName')" />
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <!-- TAX RATE -->
+            <ng-container matColumnDef="taxRate">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'TAX_RATE' | translate }}
+              </th>
+
+              <td mat-cell *matCellDef="let row">
+                <mat-form-field appearance="outline" class="sales-order-form__tax-field">
+                  <input matInput type="number" [formControl]="row.get('taxRate')" />
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <!-- TAX AMOUNT -->
+            <ng-container matColumnDef="taxAmount">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'TAX_AMOUNT' | translate }}
+              </th>
+
+              <td mat-cell *matCellDef="let row">
+                <mat-form-field appearance="outline" class="sales-order-form__tax-field">
+                  <input matInput type="number" [formControl]="row.get('taxAmount')" />
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="taxColumns"></tr>
+
+            <tr mat-row *matRowDef="let row; columns: taxColumns"></tr>
+          </table>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="sales-order-form__actions">
+      <button type="button" mat-stroked-button (click)="cancel()">
+        {{ 'CANCEL' | translate }}
+      </button>
+      <button type="submit" mat-flat-button class="fp-btn-primary" [disabled]="saving()">
+        {{ (isEdit() ? 'UPDATE_SALES_ORDER' : 'SAVE_SALES_ORDER') | translate }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,49 @@
+<!-- <section class="fp-banner">
+  <div class="fp-container fp-banner__track">
+    <div class="fp-banner__slide" *ngFor="let banner of banners">
+      <span class="fp-banner__icon">{{ banner.icon }}</span>
+      <span>{{ banner.key | translate }}</span>
+    </div>
+  </div>
+</section> -->
+
+<section class="fp-container fp-section" *ngIf="!loading(); else loadingTpl">
+  <ng-container *ngIf="sections().featured.length; else noFeatured">
+    <h2 class="fp-display fp-section__title">{{ 'FEATURED_PRODUCTS' | translate }}</h2>
+    <div class="fp-product-grid">
+      <fp-product-card *ngFor="let product of sections().featured" [product]="product"></fp-product-card>
+    </div>
+  </ng-container>
+  <ng-template #noFeatured>
+    <app-empty-state icon="storefront" titleKey="NO_PRODUCTS_TITLE" messageKey="NO_PRODUCTS_MESSAGE"></app-empty-state>
+  </ng-template>
+
+  <ng-container *ngIf="sections().trending.length">
+    <h2 class="fp-display fp-section__title">{{ 'TRENDING_PRODUCTS' | translate }}</h2>
+    <div class="fp-product-grid">
+      <fp-product-card *ngFor="let product of sections().trending" [product]="product"></fp-product-card>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="sections().recentlyAdded.length">
+    <h2 class="fp-display fp-section__title">{{ 'RECENTLY_ADDED' | translate }}</h2>
+    <div class="fp-product-grid">
+      <fp-product-card *ngFor="let product of sections().recentlyAdded" [product]="product"></fp-product-card>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="sections().bestSellers.length">
+    <h2 class="fp-display fp-section__title">{{ 'BEST_SELLERS' | translate }}</h2>
+    <div class="fp-product-grid">
+      <fp-product-card *ngFor="let product of sections().bestSellers" [product]="product"></fp-product-card>
+    </div>
+  </ng-container>
+</section>
+
+<ng-template #loadingTpl>
+  <div class="fp-container fp-section">
+    <div class="fp-skeleton-grid">
+      <div class="fp-skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+    </div>
+  </div>
+</ng-template>

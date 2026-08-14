@@ -1,0 +1,18 @@
+.fp-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--text-muted);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--neutral-300);
+    margin-bottom: 12px;
+  }
+
+  h3 { color: var(--text-primary); margin-bottom: 4px; }
+}

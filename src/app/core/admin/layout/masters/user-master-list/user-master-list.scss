@@ -1,0 +1,21 @@
+.user-master-list {
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+
+    &--placeholder {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--brand-green-100);
+      color: var(--brand-green-700);
+      font-weight: 700;
+      font-size: 14px;
+    }
+  }
+
+  &__yes { color: var(--color-success); }
+  &__no { color: var(--color-danger); }
+}

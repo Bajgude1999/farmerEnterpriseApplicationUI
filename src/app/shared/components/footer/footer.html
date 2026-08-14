@@ -1,0 +1,21 @@
+<footer class="fp-footer">
+  <div class="fp-container fp-footer__grid">
+    <div>
+      <h4 class="fp-display">{{ 'BRAND_NAME' | translate }}</h4>
+      <p>{{ 'FOOTER_TAGLINE' | translate }}</p>
+    </div>
+    <div>
+      <h5>{{ 'FOOTER_QUICK_LINKS' | translate }}</h5>
+      <a routerLink="/products">{{ 'PRODUCTS' | translate }}</a>
+      <a routerLink="/my-orders">{{ 'MY_ORDERS' | translate }}</a>
+      <a routerLink="/profile">{{ 'PROFILE' | translate }}</a>
+    </div>
+    <div>
+      <h5>{{ 'FOOTER_SUPPORT' | translate }}</h5>
+      <span>{{ 'FOOTER_HELPLINE' | translate }}: 1800-000-000</span>
+    </div>
+  </div>
+  <div class="fp-footer__bottom fp-container">
+    <span>&copy; {{ year }} {{ 'BRAND_NAME' | translate }}</span>
+  </div>
+</footer>

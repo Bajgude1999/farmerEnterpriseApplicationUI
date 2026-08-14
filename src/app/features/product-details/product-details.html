@@ -1,0 +1,142 @@
+<section class="fp-container fp-details" *ngIf="product() as p">
+  <div class="fp-details__gallery">
+    <div class="fp-details__main-image">
+      <img [src]="p.imagePath" [alt]="p.name" />
+    </div>
+
+    <div class="fp-details__thumbs">
+      <button type="button" class="fp-details__thumb--active" (click)="selectImage(0)">
+        <img [src]="p.imagePath" [alt]="p.name" />
+      </button>
+    </div>
+  </div>
+
+  <div class="fp-details__info">
+    <p class="fp-details__brand">{{ p.brand }}</p>
+    <h1 class="fp-display">{{ p.name }}</h1>
+  <div class="fp-details__pack-size" *ngIf="p.packsizes?.length">
+
+  <div class="fp-details__pack-size-header">
+    <span class="fp-details__pack-size-label">
+      Pack Size
+    </span>
+
+    <span
+      class="fp-details__selected-pack"
+      *ngIf="selectedPackSize() as selected"
+    >
+      Selected: {{ selected.packSize }} {{ selected.unitName }}
+    </span>
+  </div>
+
+  <div class="fp-details__pack-size-options">
+
+    <button
+      type="button"
+      *ngFor="let pack of p.packsizes"
+      class="fp-details__pack-size-option"
+      [class.fp-details__pack-size-option--active]="
+        selectedPackSize()?.packPriceId === pack.packPriceId
+      "
+      [class.fp-details__pack-size-option--out]="!pack.inStock"
+      [disabled]="!pack.inStock"
+      (click)="selectPackSize(pack)"
+    >
+
+      <span class="fp-details__pack-size-value">
+        {{ pack.packSize }} {{ pack.unitName }}
+      </span>
+
+      <span class="fp-details__pack-size-price">
+        ₹{{ pack.sellingPrice }}
+      </span>
+
+      <span
+        class="fp-details__pack-size-stock"
+        [class.fp-details__pack-size-stock--out]="!pack.inStock"
+      >
+        {{ pack.inStock ? 'In Stock' : 'Out of Stock' }}
+      </span>
+
+    </button>
+
+  </div>
+</div>
+    <fp-star-rating [rating]="p.rating" [count]="p.ratingCount"></fp-star-rating>
+
+    <div class="fp-details__price">
+
+  <span class="fp-details__price-current">
+    ₹{{ getSelectedPrice() }}
+  </span>
+
+  <span
+    class="fp-details__price-mrp"
+    *ngIf="getSelectedMrp() > getSelectedPrice()"
+  >
+    ₹{{ getSelectedMrp() }}
+  </span>
+
+  <span
+    class="fp-details__discount"
+    *ngIf="getDiscountPercent() > 0"
+  >
+    {{ getDiscountPercent() }}% OFF
+  </span>
+
+  <span class="fp-details__unit">
+    / {{ selectedPackSize()?.unitName || p.unit }}
+  </span>
+
+</div>
+
+   <div
+  class="fp-details__stock"
+  [class.fp-details__stock--out]="!isSelectedPackInStock()"
+>
+  <span class="fp-details__stock-dot"></span>
+{{ 'IN_STOCK' | translate }}
+</div>
+
+    <div class="fp-details__quantity">
+      <span>{{ 'QUANTITY' | translate }}</span>
+      <button mat-icon-button (click)="decrementQuantity()" [disabled]="quantity() <= 1">
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="fp-details__quantity-value">{{ quantity() }}</span>
+      <button mat-icon-button (click)="incrementQuantity()" [disabled]="quantity() >= p.stock">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <div class="fp-details__actions">
+      <button mat-stroked-button color="primary" (click)="addToCart()" [disabled]="p.stock === 0">
+        {{ 'ADD_TO_CART' | translate }}
+      </button>
+      <button mat-flat-button class="fp-btn-accent" (click)="buyNow()" [disabled]="p.stock === 0">
+        {{ 'BUY_NOW' | translate }}
+      </button>
+    </div>
+
+    <mat-tab-group animationDuration="0ms" class="fp-details__tabs">
+      <mat-tab [label]="'DESCRIPTION' | translate">
+        <p>{{ p.productDesc }}</p>
+      </mat-tab>
+      <mat-tab [label]="'SPECIFICATIONS' | translate">
+        <table class="fp-details__specs">
+          <tr *ngFor="let spec of p.specifications">
+            <td>{{ spec.label }}</td>
+            <td>{{ spec.value }}</td>
+          </tr>
+        </table>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</section>
+
+<section class="fp-container fp-details__related" *ngIf="related().length">
+  <h2 class="fp-display">{{ 'RELATED_PRODUCTS' | translate }}</h2>
+  <div class="fp-product-grid">
+    <fp-product-card *ngFor="let item of related()" [product]="item"></fp-product-card>
+  </div>
+</section>

@@ -1,0 +1,142 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ (isEdit() ? 'EDIT_USER' : 'ADD_USER') | translate }}</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card user-master-form">
+
+    <input type="hidden" formControlName="userId" />
+
+    <div class="user-master-form__photo-section">
+      <div class="user-master-form__photo-preview">
+        <img *ngIf="photoUrl()" [src]="photoUrl()" alt="" />
+        <mat-icon *ngIf="!photoUrl()">person</mat-icon>
+      </div>
+      <div class="field-group">
+        <label class="field-label">{{ 'PROFILE_PHOTO' | translate }}</label>
+        <input type="file" accept="image/*" (change)="onPhotoSelected($event)" [disabled]="uploadingPhoto()" />
+        <span *ngIf="uploadingPhoto()" class="user-master-form__uploading">{{ 'UPLOADING' | translate }}...</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'FULL_NAME' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="fullName" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'MOBILE_NUMBER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="mobNo" maxlength="10" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'OPTIONAL_MOBILE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="optionalMobNo" maxlength="10" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'EMAIL_OPTIONAL' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="email" formControlName="email" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'PASSWORD' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="password" formControlName="password" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'ROLE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="roleCd" (selectionChange)="onRoleChange($event.value)">
+            <mat-option *ngFor="let role of roles()" [value]="role.roleCd">{{ role.roleName }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'STATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="state" (selectionChange)="onStateChange($event.value)">
+            <mat-option *ngFor="let state of states" [value]="state.name">{{ state.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'DISTRICT' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="district" (selectionChange)="onDistrictChange($event.value)">
+            <mat-option *ngFor="let district of districts()" [value]="district.name">{{ district.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'TALUKA' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="taluka">
+            <mat-option *ngFor="let taluka of talukas()" [value]="taluka">{{ taluka }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'VILLAGE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="village" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'PIN' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="pin" maxlength="6" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'LANDMARK' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="landmark" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="field-group user-master-form__address">
+      <label class="field-label">{{ 'ADDRESS' | translate }}</label>
+      <mat-form-field appearance="outline">
+        <textarea matInput formControlName="address" rows="2"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="user-master-form__checkboxes">
+      <mat-checkbox formControlName="verified">{{ 'VERIFIED' | translate }}</mat-checkbox>
+      <mat-checkbox formControlName="block">{{ 'BLOCKED' | translate }}</mat-checkbox>
+      <mat-checkbox formControlName="active">{{ 'ACTIVE' | translate }}</mat-checkbox>
+    </div>
+
+    <div class="user-master-form__actions">
+      <button type="button" mat-stroked-button (click)="cancel()">{{ 'CANCEL' | translate }}</button>
+      <button type="submit" mat-flat-button class="fp-btn-primary" [disabled]="saving() || uploadingPhoto()">
+        {{ (isEdit() ? 'UPDATE_USER' : 'SAVE_USER') | translate }}
+      </button>
+    </div>
+  </form>
+</div>

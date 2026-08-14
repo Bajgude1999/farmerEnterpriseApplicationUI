@@ -1,0 +1,37 @@
+.admin-shell {
+  min-height: 100vh;
+  background: var(--surface-alt);
+
+  &__header {
+    background: var(--brand-green-700);
+    color: #fff;
+    padding: 14px 24px;
+    font-weight: 600;
+    font-family: var(--font-display);
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 24px;
+  }
+
+  &__tab {
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+
+    &--active {
+      color: var(--brand-green-700);
+      border-bottom-color: var(--brand-green-700);
+    }
+  }
+
+  &__content {
+    padding: 24px;
+  }
+}

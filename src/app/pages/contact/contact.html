@@ -1,0 +1,46 @@
+<section class="fp-container fp-static-page">
+  <h1 class="fp-display">{{ 'CONTACT_TITLE' | translate }}</h1>
+
+  <div class="fp-contact__layout">
+    <div class="fp-card fp-contact__info">
+      <div class="fp-contact__info-row">
+        <mat-icon>location_on</mat-icon>
+        <span>{{ 'CONTACT_ADDRESS' | translate }}</span>
+      </div>
+      <div class="fp-contact__info-row">
+        <mat-icon>call</mat-icon>
+        <span>9130897676 / 8530447077</span>
+      </div>
+      <div class="fp-contact__info-row">
+        <mat-icon>schedule</mat-icon>
+        <span>{{ 'CONTACT_HOURS' | translate }}</span>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card fp-contact__form">
+      <ng-container *ngIf="!submitted(); else thanksTpl">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'FULL_NAME' | translate }}</mat-label>
+          <input matInput formControlName="name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'MOBILE_NUMBER' | translate }}</mat-label>
+          <input matInput formControlName="mobile" maxlength="10" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'CONTACT_MESSAGE' | translate }}</mat-label>
+          <textarea matInput formControlName="message" rows="4"></textarea>
+        </mat-form-field>
+
+        <button mat-flat-button class="fp-btn-primary" type="submit">
+          {{ 'CONTACT_SEND' | translate }}
+        </button>
+      </ng-container>
+      <ng-template #thanksTpl>
+        <p class="fp-contact__thanks">{{ 'CONTACT_THANKS' | translate }}</p>
+      </ng-template>
+    </form>
+  </div>
+</section>

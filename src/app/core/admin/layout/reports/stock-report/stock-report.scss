@@ -1,0 +1,59 @@
+.stock-report-form {
+  padding: 20px 20px 4px;
+  margin-bottom: 16px;
+
+  &__mode {
+    margin-bottom: 16px;
+
+    mat-radio-button {
+      margin-right: 24px;
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 4px;
+
+    @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    mat-form-field { width: 100%; }
+  }
+
+  .field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 16px;
+
+ &__top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  mat-radio-button {
+    margin-right: 24px;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+  }
+}

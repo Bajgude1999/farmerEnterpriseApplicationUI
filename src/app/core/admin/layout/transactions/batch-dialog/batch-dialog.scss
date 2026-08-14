@@ -1,0 +1,26 @@
+.batch-dialog {
+  &__header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  &__field {
+    width: 130px;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  }
+
+  &__error {
+    color: var(--color-danger);
+    font-size: 11px;
+    margin: 2px 0 0;
+  }
+  &__uom-field {
+    width: 150px;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}

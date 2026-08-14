@@ -1,0 +1,117 @@
+.admin-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 { font-family: var(--font-display); font-size: 20px; }
+}
+
+.grn-form {
+  padding: 24px;
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+
+    @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    mat-form-field { width: 100%; }
+  }
+
+  .field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__remarks { margin-bottom: 16px; }
+
+  &__items-section {
+    margin: 24px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  &__items-header, &__tax-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    h3, h4 { font-size: 15px; }
+  }
+&__inline-field {
+  width: 100%;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+  // Wider variant specifically for the product dropdown column —
+  // product names are long and would clip inside the default 100px inline-field width.
+  &__product-field {
+    width: 200px;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  }
+  &__uom-field {
+    width: 150px;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  }
+
+  &__tax-panel {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--surface-alt);
+    border-radius: var(--radius-md);
+  }
+
+  &__batch-btn {
+    min-width: 32px;
+    padding: 0 8px;
+    margin-right: 4px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+ &__product-field,
+&__tax-field {
+  width: 100%;
+  min-width: 180px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+
+}
+.pack-size-column {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.pack-size-field {
+  width: 120px;
+}
+
+.admin-table {
+  width: 100%;
+
+  tr[mat-row] { cursor: pointer; }
+}

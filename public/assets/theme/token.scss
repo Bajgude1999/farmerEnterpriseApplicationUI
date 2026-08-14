@@ -1,0 +1,57 @@
+// =============================================================
+// Design tokens — sourced from the "Jai Shree Ram Krishi Seva
+// Kendra" letterhead: deep field-green wordmark, turmeric/harvest
+// orange accent, soil-brown detailing, warm off-white ground.
+// =============================================================
+
+:root {
+  // Brand — greens (leaf / field)
+  --brand-green-900: #123822;
+  --brand-green-700: #1c5c34;
+  --brand-green-600: #237a41;
+  --brand-green-500: #2f9950;
+  --brand-green-100: #e3f3e6;
+
+  // Brand — accent (turmeric / harvest orange, from the vegetable band + "Shree Ram")
+  --brand-orange-700: #c1560f;
+  --brand-orange-600: #e06e1f;
+  --brand-orange-500: #f2872e;
+  --brand-orange-100: #fdeadb;
+
+  // Neutrals — warm paper tone rather than clinical white/grey
+  --neutral-0: #fffdf9;
+  --neutral-50: #faf7f0;
+  --neutral-100: #f2ede1;
+  --neutral-300: #d8d0bf;
+  --neutral-500: #8a8371;
+  --neutral-700: #4a4638;
+  --neutral-900: #241f18;
+
+  // Semantic
+  --color-success: #237a41;
+  --color-warning: #e0a51b;
+  --color-danger: #c23b2f;
+  --color-info: #2a6f97;
+
+  --surface: var(--neutral-0);
+  --surface-alt: var(--neutral-50);
+  --text-primary: var(--neutral-900);
+  --text-muted: var(--neutral-500);
+  --border-color: var(--neutral-300);
+
+  // Typography — Poppins for the display voice (matches the bold
+  // rounded letterhead wordmark), Inter for body/data legibility,
+  // Noto Sans Devanagari so Hindi/Marathi copy renders correctly.
+  --font-display: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+  --font-body: 'Inter', 'Noto Sans Devanagari', sans-serif;
+
+  // Radius / elevation — rounded, soft, matches the rounded logo mark
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 3px rgba(36, 31, 24, 0.08);
+  --shadow-md: 0 4px 16px rgba(36, 31, 24, 0.10);
+  --shadow-lg: 0 12px 32px rgba(36, 31, 24, 0.14);
+
+  --header-height: 64px;
+}

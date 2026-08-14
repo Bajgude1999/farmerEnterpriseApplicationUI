@@ -1,0 +1,63 @@
+<section class="fp-auth fp-container">
+  <div class="fp-auth__card fp-card">
+    <h2 class="fp-display">{{ 'LOGIN_TITLE' | translate }}</h2>
+
+    <mat-tab-group animationDuration="0ms">
+      <mat-tab [label]="'LOGIN_WITH_PASSWORD' | translate">
+        <form [formGroup]="passwordForm" (ngSubmit)="submitPasswordLogin()" class="fp-auth__form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'MOBILE_OR_EMAIL' | translate }}</mat-label>
+            <input matInput formControlName="identifier" autocomplete="username" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PASSWORD' | translate }}</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          </mat-form-field>
+
+          <a routerLink="/forgot-password" class="fp-auth__forgot">{{ 'FORGOT_PASSWORD' | translate }}</a>
+
+          <p class="fp-auth__error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
+
+          <button mat-flat-button class="fp-btn-primary" type="submit" [disabled]="submitting">
+            {{ 'LOGIN' | translate }}
+          </button>
+        </form>
+      </mat-tab>
+
+      <mat-tab [label]="'LOGIN_WITH_OTP' | translate">
+        <form [formGroup]="otpForm" (ngSubmit)="submitOtpLogin()" class="fp-auth__form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'MOBILE_NUMBER' | translate }}</mat-label>
+            <input matInput formControlName="mobile" maxlength="10" />
+          </mat-form-field>
+
+          <button
+            type="button"
+            mat-stroked-button
+            color="primary"
+            (click)="requestOtp()"
+            [disabled]="submitting || otpSent">
+            {{ (otpSent ? 'OTP_SENT' : 'SEND_OTP') | translate }}
+          </button>
+
+          <mat-form-field appearance="outline" *ngIf="otpSent">
+            <mat-label>{{ 'ENTER_OTP' | translate }}</mat-label>
+            <input matInput formControlName="otp" maxlength="6" />
+          </mat-form-field>
+
+          <p class="fp-auth__error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
+
+          <button mat-flat-button class="fp-btn-primary" type="submit" *ngIf="otpSent" [disabled]="submitting">
+            {{ 'VERIFY_AND_LOGIN' | translate }}
+          </button>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+
+    <p class="fp-auth__register-hint">
+      {{ 'NEW_HERE' | translate }}
+      <a routerLink="/register">{{ 'CREATE_ACCOUNT' | translate }}</a>
+    </p>
+  </div>
+</section>

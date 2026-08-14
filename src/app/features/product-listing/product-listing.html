@@ -1,0 +1,75 @@
+<section class="fp-listing fp-container">
+  <!-- <aside class="fp-listing__filters fp-card">
+    <h3>{{ 'FILTERS' | translate }}</h3>
+
+    <div class="fp-listing__filter-group">
+      <h4>{{ 'CATEGORY' | translate }}</h4>
+      <mat-checkbox
+        *ngFor="let category of categories"
+        [checked]="filter.category?.includes(category)"
+        (change)="toggleCategory(category, $event.checked)">
+        {{ ('CATEGORY_' + category.toUpperCase()) | translate }}
+      </mat-checkbox>
+    </div>
+
+    <div class="fp-listing__filter-group">
+      <h4>{{ 'BRAND' | translate }}</h4>
+      <mat-checkbox
+        *ngFor="let brand of brands"
+        [checked]="filter.brand?.includes(brand)"
+        (change)="toggleBrand(brand, $event.checked)">
+        {{ brand | translate }}
+      </mat-checkbox>
+    </div>
+
+    <div class="fp-listing__filter-group">
+      <h4>{{ 'PRICE_RANGE' | translate }}</h4>
+      <mat-slider [min]="0" [max]="50000" [step]="100" discrete>
+        <input matSliderStartThumb [(ngModel)]="filter.minPrice" (change)="onFilterChange()" />
+        <input matSliderEndThumb [(ngModel)]="filter.maxPrice" (change)="onFilterChange()" />
+      </mat-slider>
+    </div>
+
+    <div class="fp-listing__filter-group">
+      <mat-checkbox [(ngModel)]="filter.inStockOnly" (change)="onFilterChange()">
+        {{ 'AVAILABILITY_IN_STOCK' | translate }}
+      </mat-checkbox>
+    </div>
+  </aside> -->
+
+  <div class="fp-listing__results">
+    <div class="fp-listing__toolbar">
+      <span>{{ total() }} {{ 'RESULTS' | translate }}</span>
+      <mat-select [(ngModel)]="sort" (selectionChange)="onSortChange()">
+        <mat-option value="POPULARITY">{{ 'SORT_POPULARITY' | translate }}</mat-option>
+        <mat-option value="PRICE_LOW_HIGH">{{ 'SORT_PRICE_LOW_HIGH' | translate }}</mat-option>
+        <mat-option value="PRICE_HIGH_LOW">{{ 'SORT_PRICE_HIGH_LOW' | translate }}</mat-option>
+        <mat-option value="NEWEST">{{ 'SORT_NEWEST' | translate }}</mat-option>
+      </mat-select>
+    </div>
+
+    <ng-container *ngIf="!loading(); else loadingTpl">
+      <div class="fp-product-grid" *ngIf="products().length; else emptyTpl">
+       <fp-product-card *ngFor="let product of products()" [product]="product"></fp-product-card>
+      </div>
+      <ng-template #emptyTpl>
+        <app-empty-state icon="search_off" titleKey="NO_PRODUCTS_TITLE" messageKey="NO_PRODUCTS_MESSAGE"></app-empty-state>
+      </ng-template>
+
+      <mat-paginator
+        *ngIf="total() > pageSize()"
+        [length]="total()"
+        [pageSize]="pageSize()"
+        [pageIndex]="page()"
+        [pageSizeOptions]="[12, 24, 48]"
+        (page)="onPageChange($event)">
+      </mat-paginator>
+    </ng-container>
+
+    <ng-template #loadingTpl>
+      <div class="fp-skeleton-grid">
+        <div class="fp-skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+      </div>
+    </ng-template>
+  </div>
+</section>

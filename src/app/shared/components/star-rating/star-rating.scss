@@ -1,0 +1,18 @@
+.fp-star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--brand-orange-600);
+  }
+
+  &__count {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+}

@@ -1,0 +1,93 @@
+.fp-auth {
+  padding: 32px 24px 48px;
+
+  &__card {
+    width: 100%;
+    padding: 32px;
+
+    h2 { margin-bottom: 16px; text-align: center; }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__error {
+    color: var(--color-danger);
+    font-size: 13px;
+  }
+
+  &__register-hint {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+
+    a { color: var(--brand-orange-600); font-weight: 600; margin-left: 4px; }
+  }
+
+  &__admin-fields {
+    display: flex;
+    gap: 24px;
+    margin: 8px 0 16px;
+  }
+
+  &__photo-preview {
+    margin-top: 8px;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+
+  &__submit-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+
+    button {
+      min-width: 220px;
+    }
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 20px;
+  align-items: center;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.photo-upload {
+  gap: 4px;
+}

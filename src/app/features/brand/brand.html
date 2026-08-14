@@ -1,0 +1,26 @@
+<section class="fp-container fp-brand-page">
+  <h1 class="fp-display">{{ 'SHOP_BY_BRAND' | translate }}</h1>
+
+  <ng-container *ngIf="!loading(); else loadingTpl">
+    <div class="fp-brand-grid" *ngIf="brands().length; else emptyTpl">
+      <button
+        type="button"
+        class="fp-brand-card fp-card"
+        *ngFor="let brand of brands()"
+        (click)="viewBrandProducts(brand)">
+        <img *ngIf="brand.logo" [src]="brand.logo" [alt]="brand.brandName" />
+        <span *ngIf="!brand.logo" class="fp-brand-card__initial">{{ brand.brandName.charAt(0) }}</span>
+        <p>{{ brand.brandName }}</p>
+      </button>
+    </div>
+    <ng-template #emptyTpl>
+      <app-empty-state icon="storefront" titleKey="NO_BRANDS_TITLE" messageKey="NO_BRANDS_MESSAGE"></app-empty-state>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #loadingTpl>
+    <div class="fp-brand-grid">
+      <div class="fp-brand-card fp-card fp-brand-card--skeleton" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+    </div>
+  </ng-template>
+</section>

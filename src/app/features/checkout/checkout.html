@@ -1,0 +1,177 @@
+<section class="fp-container fp-checkout" *ngIf="!orderPlaced(); else confirmationTpl">
+  <h1 class="fp-display">{{ 'CHECKOUT' | translate }}</h1>
+
+  <div class="fp-checkout__layout">
+    <form [formGroup]="addressForm" class="fp-checkout__address fp-card">
+      <h3>{{ 'DELIVERY_ADDRESS' | translate }}</h3>
+
+      <div class="fp-checkout__row fp-checkout__row--three">
+        <div class="fp-checkout__field">
+          <label>{{ 'MOBILE_NUMBER' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input
+              matInput
+              formControlName="mobNo"
+              maxlength="10"
+              [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
+               (input)="onMobileNumber($any($event.target).value)"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="fp-checkout__field">
+          <label>{{ 'OPTIONAL_PHONE' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input
+              matInput
+              formControlName="optionalMobNo"
+              maxlength="10"
+              [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="fp-checkout__field">
+          <label>{{ 'EMAIL' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input matInput formControlName="email" [placeholder]="'ENTER_EMAIL' | translate" />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="fp-checkout__row">
+        <div class="fp-checkout__field">
+          <label>{{ 'FULL_NAME' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input
+              matInput
+              formControlName="fullName"
+              [placeholder]="'ENTER_FULL_NAME' | translate"
+            />
+          </mat-form-field>
+        </div>
+        <div class="fp-checkout__field">
+          <label>{{ 'ADDRESS' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input matInput formControlName="address" [placeholder]="'ENTER_ADDRESS' | translate" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="fp-checkout__row fp-checkout__row--three">
+        <div class="fp-checkout__field">
+          <label>{{ 'STATE' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <mat-select formControlName="state" (selectionChange)="onStateChange($event.value)">
+              <mat-option *ngFor="let state of states" [value]="state.name">
+                {{ state.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="fp-checkout__field">
+          <label>{{ 'DISTRICT' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <mat-select
+              formControlName="district"
+              (selectionChange)="onDistrictChange($event.value)"
+            >
+              <mat-option *ngFor="let district of districts()" [value]="district.name">
+                {{ district.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="fp-checkout__field">
+          <label>{{ 'TALUKA' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <mat-select formControlName="taluka">
+              <mat-option *ngFor="let taluka of talukas()" [value]="taluka">
+                {{ taluka }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="fp-checkout__row fp-checkout__row--three">
+        <div class="fp-checkout__field">
+          <label>{{ 'VILLAGE' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input matInput formControlName="village" [placeholder]="'ENTER_VILLAGE' | translate" />
+          </mat-form-field>
+        </div>
+        <div class="fp-checkout__field">
+          <label>{{ 'LANDMARK' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input
+              matInput
+              formControlName="landmark"
+              [placeholder]="'ENTER_LANDMARK' | translate"
+            />
+          </mat-form-field>
+        </div>
+        <div class="fp-checkout__field">
+          <label>{{ 'PIN' | translate }}</label>
+          <mat-form-field appearance="outline">
+            <input
+              matInput
+              formControlName="pin"
+              maxlength="6"
+              inputmode="numeric"
+              [placeholder]="'ENTER_PIN' | translate"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="fp-checkout__payment">
+        <h4>{{ 'PAYMENT_MODE' | translate }}</h4>
+        <mat-radio-group value="COD">
+          <mat-radio-button value="COD">{{ 'CASH_ON_DELIVERY' | translate }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </form>
+
+    <aside class="fp-checkout__summary fp-card">
+      <h3>{{ 'ORDER_SUMMARY' | translate }}</h3>
+      <div class="fp-checkout__summary-item" *ngFor="let item of cart.items()">
+        <span>{{ item.product.name }} × {{ item.quantity }}</span>
+        <span>₹{{ item.product.price * item.quantity }}</span>
+      </div>
+      <div class="fp-checkout__summary-row">
+        <span>{{ 'SUBTOTAL' | translate }}</span>
+        <span>₹{{ cart.subtotal() }}</span>
+      </div>
+      <div class="fp-checkout__summary-row">
+        <span>{{ 'DELIVERY_CHARGES' | translate }}</span>
+        <span>{{
+          cart.deliveryCharge() === 0 ? ('FREE' | translate) : '₹' + cart.deliveryCharge()
+        }}</span>
+      </div>
+      <div class="fp-checkout__summary-row fp-checkout__summary-row--total">
+        <span>{{ 'TOTAL' | translate }}</span>
+        <span>₹{{ cart.total() }}</span>
+      </div>
+      <button
+        mat-flat-button
+        class="fp-btn-primary fp-checkout__place-btn"
+        (click)="placeOrder()"
+        [disabled]="placingOrder()"
+      >
+        {{ 'PLACE_ORDER' | translate }}
+      </button>
+    </aside>
+  </div>
+</section>
+
+<ng-template #confirmationTpl>
+  <section class="fp-container fp-checkout__confirmation">
+    <h1 class="fp-display">{{ 'ORDER_PLACED_TITLE' | translate }}</h1>
+    <p>
+      {{ 'ORDER_PLACED_MESSAGE' | translate }} — <strong>{{ orderNumber() }}</strong>
+    </p>
+    <button mat-flat-button class="fp-btn-primary" (click)="goToOrders()">
+      {{ 'VIEW_MY_ORDERS' | translate }}
+    </button>
+  </section>
+</ng-template>

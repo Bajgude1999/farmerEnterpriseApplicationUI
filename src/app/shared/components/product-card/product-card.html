@@ -1,0 +1,47 @@
+<article class="fp-product-card fp-card">
+  <a [routerLink]="['/products', product.id]" class="fp-product-card__media">
+    <img [src]="product.images[0]?.medium" [alt]="product.name" loading="lazy" />
+    <span class="fp-product-card__discount" *ngIf="discountPercent > 0">{{ discountPercent }}% {{ 'OFF' | translate }}</span>
+   <button
+  type="button"
+  class="fp-product-card__wishlist"
+  (click)="onWishlistClick($event)"
+  [disabled]="wishlistSaving()"
+  [attr.aria-label]="'WISHLIST' | translate">
+  <mat-icon>{{ wishlisted() ? 'favorite' : 'favorite_border' }}</mat-icon>
+</button>
+  </a>
+
+  <div class="fp-product-card__body">
+    <a [routerLink]="['/products', product.id]" class="fp-product-card__name">{{ product.name }}</a>
+    <fp-star-rating [rating]="product.rating" [count]="product.ratingCount"></fp-star-rating>
+
+    <div class="fp-product-card__price">
+      <span class="fp-product-card__price-current">₹{{ product.price }}</span>
+      <span class="fp-product-card__price-mrp" *ngIf="product.mrp > product.price">₹{{ product.mrp }}</span>
+      <span class="fp-product-card__unit">/ {{ product.unit }}</span>
+    </div>
+
+    <p class="fp-product-card__stock" [class.fp-product-card__stock--low]="product.stock < 10">
+      <ng-container *ngIf="product.stock > 0; else outOfStock">
+        {{ 'IN_STOCK' | translate }}
+      </ng-container>
+      <ng-template #outOfStock>{{ 'OUT_OF_STOCK' | translate }}</ng-template>
+    </p>
+
+    <div class="fp-product-card__actions">
+      <button
+  mat-stroked-button
+  color="primary"
+  [disabled]="product.stock === 0"
+  (click)="isInCart ? goToCart() : addToCart()">
+
+  {{ isInCart ? ('GO_TO_CART' | translate) : ('ADD_TO_CART' | translate) }}
+
+</button>
+      <button mat-flat-button class="fp-btn-accent" (click)="buyNow()" [disabled]="product.stock === 0">
+        {{ 'BUY_NOW' | translate }}
+      </button>
+    </div>
+  </div>
+</article>
