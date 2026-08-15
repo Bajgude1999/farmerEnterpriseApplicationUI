@@ -50,27 +50,88 @@
   </div>
 
   <div class="fp-header__nav fp-container">
-    <a routerLink="/">{{ 'NAV_HOME' | translate }}</a>
+  <a routerLink="/">
+    {{ 'NAV_HOME' | translate }}
+  </a>
 
-    <span class="fp-header__nav-dropdown" [matMenuTriggerFor]="categoryMenu">
-      {{ 'NAV_SHOP' | translate }}
-      <mat-icon class="fp-header__nav-caret">expand_more</mat-icon>
-    </span>
-    <mat-menu #categoryMenu="matMenu" class="fp-header__category-menu">
-      <a mat-menu-item routerLink="/products">{{ 'ALL_CATEGORIES' | translate }}</a>
-      <a mat-menu-item routerLink="/products" *ngFor="let category of categories()"
-         [queryParams]="{ category: category.categoryName, categoryCd: category.categoryCd }">
-        {{ category.categoryName }}
-      </a>
-    </mat-menu>
+  <span
+    class="fp-header__nav-dropdown"
+    [matMenuTriggerFor]="categoryMenu"
+  >
+    {{ 'NAV_SHOP' | translate }}
+    <mat-icon class="fp-header__nav-caret">expand_more</mat-icon>
+  </span>
 
-    <a routerLink="/brands">{{ 'NAV_SHOP_BY_BRAND' | translate }}</a>
-    <a routerLink="/about">{{ 'NAV_ABOUT' | translate }}</a>
-    <a routerLink="/policy">{{ 'NAV_POLICY' | translate }}</a>
-    <a routerLink="/contact">{{ 'NAV_CONTACT' | translate }}</a>
-  </div>
+  <mat-menu #categoryMenu="matMenu" class="fp-header__category-menu">
+    <a
+      mat-menu-item
+      routerLink="/products"
+      [queryParams]="{ category: 'all', categoryCd: null }"
+    >
+      {{ 'ALL_CATEGORIES' | translate }}
+    </a>
+
+    <a
+      mat-menu-item
+      routerLink="/products"
+      *ngFor="let category of categories()"
+      [queryParams]="{
+        category: category.categoryName,
+        categoryCd: category.categoryCd
+      }"
+    >
+      {{ category.categoryName }}
+    </a>
+  </mat-menu>
+
+  <a routerLink="/brands">
+    {{ 'NAV_SHOP_BY_BRAND' | translate }}
+  </a>
+
+  <a routerLink="/about">
+    {{ 'NAV_ABOUT' | translate }}
+  </a>
+
+  <a routerLink="/policy">
+    {{ 'NAV_POLICY' | translate }}
+  </a>
+
+  <a routerLink="/contact">
+    {{ 'NAV_CONTACT' | translate }}
+  </a>
+</div>
+
+
+<!-- NEW CATEGORY BAR BELOW NAVIGATION -->
+<div class="fp-header__category-bar fp-container">
+
+  <!-- All Categories -->
+  <a
+    routerLink="/products"
+    [queryParams]="{
+      category: 'all',
+      categoryCd: null
+    }"
+  >
+    {{ 'ALL_CATEGORIES' | translate }}
+  </a>
+
+  <!-- Categories -->
+  <a
+    *ngFor="let category of categories()"
+    routerLink="/products"
+    [queryParams]="{
+      category: category.categoryName,
+      categoryCd: category.categoryCd
+    }"
+  >
+   {{ category.categoryName | translate }}
+  </a>
+
+</div>
+  
 </header>
-<span
+<!-- <span
   class="fp-header__nav-dropdown"
   [matMenuTriggerFor]="categoryMenu"
   #categoryTrigger="matMenuTrigger"
@@ -78,4 +139,4 @@
   (mouseleave)="categoryTrigger.closeMenu()">
   {{ 'NAV_SHOP' | translate }}
   <mat-icon class="fp-header__nav-caret">expand_more</mat-icon>
-</span>
+</span> -->

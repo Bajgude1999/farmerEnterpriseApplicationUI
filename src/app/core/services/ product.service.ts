@@ -2,7 +2,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment/environment';
-import { Product, ProductFilter, ProductMaster, ProductSortOption } from '../models/product.model';
+import {
+  Packsizes,
+  Product,
+  ProductFilter,
+  ProductMaster,
+  ProductSortOption,
+} from '../models/product.model';
 import { Http } from '../common/http';
 
 export interface PagedResult<T> {
@@ -20,7 +26,12 @@ export class ProductService {
   private base = `${environment.apiBaseUrl}/products`;
   private readonly apiUrl = `${environment.apiBaseUrl}/v1/product`;
 
-  list(filter: ProductFilter, sort: ProductSortOption, page: number, pageSize: number): Observable<PagedResult<Product>> {
+  list(
+    filter: ProductFilter,
+    sort: ProductSortOption,
+    page: number,
+    pageSize: number,
+  ): Observable<PagedResult<Product>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize).set('sort', sort);
     if (filter.category?.length) params = params.set('category', filter.category.join(','));
     if (filter.brand?.length) params = params.set('brand', filter.brand.join(','));
@@ -31,21 +42,14 @@ export class ProductService {
     return this.http.get<PagedResult<Product>>(this.base, { params });
   }
 
- 
-getById(id: string): Observable<Product> {
-  return this.http
-    .get<{ data: Product[] }>(`${this.apiUrl}/get/${id}`)
-    .pipe(
-      map(res => res.data[0])
-    );
-}
-getProductsByCategory(categoryId: number): Observable<{ items: Product[]; total: number }> {
-
-  return this.http
-    .get<any>(`${this.apiUrl}/category/${categoryId}`)
-    .pipe(
-      map(res => {
-
+  getById(id: string): Observable<Product> {
+    return this.http
+      .get<{ data: Product[] }>(`${this.apiUrl}/get/${id}`)
+      .pipe(map((res) => res.data[0]));
+  }
+  getProductsByCategory(categoryId: number): Observable<{ items: Product[]; total: number }> {
+    return this.http.get<any>(`${this.apiUrl}/category/${categoryId}`).pipe(
+      map((res) => {
         const items: Product[] = res.data.map((p: any) => ({
           id: String(p.productCd),
           name: p.productName,
@@ -63,56 +67,60 @@ getProductsByCategory(categoryId: number): Observable<{ items: Product[]; total:
           stock: p.stockQty ?? 0,
           unit: p.unitName ?? '',
 
-          images: [{
-            thumbnail: p.imagePath,
-            medium: p.imagePath,
-            large: p.imagePath
-          }]
+          images: [
+            {
+              thumbnail: p.imagePath,
+              medium: p.imagePath,
+              large: p.imagePath,
+            },
+          ],
         }));
 
         return {
           items,
-          total: items.length
+          total: items.length,
         };
-      })
+      }),
     );
-}
+  }
 
-getRelated(id: string): Observable<Product[]>  {
-  return this.http.get<any>(`${this.apiUrl}/${id}/related`).pipe(
-    map(res => {
-      const products: Product[] = res.data.map((p: any) => ({
-        id: p.productCd,
-        name: p.productName,
-        slug: p.productName,
+  getRelated(id: string): Observable<Product[]> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/related`).pipe(
+      map((res) => {
+        const products: Product[] = res?.data?.[0].map((p: any) => ({
+          id: p.productCd,
+          name: p.productName,
+          slug: p.productName,
 
-        brand: p.brandName ?? '',
-        category: p.categoryName ?? '',
+          brand: p.brandName ?? '',
+          category: p.categoryName ?? '',
 
-        price: p.sellingPrice,
-        mrp: p.mrp,
+          price: p.sellingPrice,
+          mrp: p.mrp,
 
-        rating: 4.5,
-        ratingCount: 100,
+          rating: 4.5,
+          ratingCount: 100,
 
-        stock: p.stockQty ?? 0,
-        unit: p.unitName ?? '',
+          stock: p.stockQty ?? 0,
+          unit: p.unitName ?? '',
 
-        images: [{
-          thumbnail: p.imagePath,
-          medium: p.imagePath,
-          large: p.imagePath
-        }],
+          images: [
+            {
+              thumbnail: p.imagePath,
+              medium: p.imagePath,
+              large: p.imagePath,
+            },
+          ],
 
-        imagePath: p.imagePath,
-        packsizes: p.packsizes ?? []
-      }));
+          imagePath: p.imagePath,
+          packsizes: p.packsizes ?? [],
+        }));
 
-      return products;
-    })
-  );
-}
- 
+        return products;
+      }),
+    );
+  }
+
   search(query: string): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.base}/search`, { params: { q: query } });
   }
@@ -128,76 +136,75 @@ getRelated(id: string): Observable<Product[]>  {
   //   );
   // }
 
+  getHomeSections(): Observable<{
+    featured: Product[];
+    trending: Product[];
+    recentlyAdded: Product[];
+    bestSellers: Product[];
+  }> {
+    const img = (url: string) => [
+      {
+        thumbnail: url,
+        medium: url,
+        large: url,
+      },
+    ];
+    return this.http.get<any>(`${this.apiUrl}/get-all`).pipe(
+      map((res) => {
+        const products: Product[] = (res.data ?? []).map((p: any) => {
+          const defaultPack = (p.packsizes ?? []).find(
+            (pack: Packsizes) => pack.defaultYn === true,
+          );
+          const packUnit=defaultPack?.packSize+" " + defaultPack?.unitName;
+          return {
+            id: p.productCd.toString(),
+            name: p.productName,
+            slug: p.productName.toLowerCase().replace(/\s+/g, '-'),
 
+            brand: p.brandName ?? '',
+            category: p.categoryName ?? '',
 
-getHomeSections(): Observable<{
-  featured: Product[];
-  trending: Product[];
-  recentlyAdded: Product[];
-  bestSellers: Product[];
-}> {
-const img = (url: string) => [
-  {
-    thumbnail: url,
-    medium: url,
-    large: url
-  }
-];
-  return this.http.get<any>(`${this.apiUrl}/get-all`).pipe(
+            price: defaultPack?.sellingPrice ?? p.sellingPrice ?? 0,
+            mrp: defaultPack?.mrpPrice ?? p.mrp ?? 0,
+            packSize: defaultPack?.packSize ?? 0,
 
-    map(res => {
+            rating: 4.5,
+            ratingCount: 100,
 
-      const products: Product[] = res.data.map((p: any) => ({
+            stock: p.stockQty ?? 0,
+            unit: packUnit ?? p.unitName ?? '',
+            featured: p.featured,
+            trending: p.trending,
+            recentlyAdded: p.recentlyAdded,
+            bestSellers: p.bestSellers,
+            images: [
+              {
+                thumbnail: p.imagePath,
+                medium: p.imagePath,
+                large: p.imagePath,
+              },
+            ],
+          };
+        });
 
-        id: p.productCd.toString(),
-        name: p.productName,
-        slug: p.productName.toLowerCase().replace(/\s+/g, '-'),
-
-        brand: p.brandName ?? '',
-        category: p.categoryName ?? '',
-
-        price: p.sellingPrice,
-        mrp: p.mrp,
-
-        rating: 4.5,
-        ratingCount: 100,
-
-        stock: p.stockQty ?? 0,
-        unit: p.unitName ?? '',
-
-        images: [{
-          thumbnail: p.imagePath,
-          medium: p.imagePath,
-          large: p.imagePath
-        }]
-      }));
-
-      return {
-        featured: products.slice(0, 4),
-        trending: products.slice(4, 8),
-        recentlyAdded: products.slice(8, 12),
-        bestSellers: products.slice(12, 16)
-      };
-
-    })
-
-  );
-}
-
-searchProducts(keyword: string): Observable<Product[]> {
-  return this.http
-    .get<any>(`${this.apiUrl}/search?keyword=${encodeURIComponent(keyword)}`)
-    .pipe(
-      map(response => response.data)
+        return {
+          featured: products.filter((p) => p.featured === true),
+          trending: products.filter((p) => p.trending === true),
+          recentlyAdded: products.filter((p) => p.recentlyAdded === true),
+          bestSellers: products.filter((p) => p.bestSellers === true),
+        };
+      }),
     );
-}
-getProductsByBrand(brandCd: number): Observable<{ items: Product[]; total: number }> {
+  }
 
-  return this.http
-    .get<any>(`${this.apiUrl}/brand/${brandCd}`)
-    .pipe(
-      map(res => {
-
+  searchProducts(keyword: string): Observable<Product[]> {
+    return this.http
+      .get<any>(`${this.apiUrl}/search?keyword=${encodeURIComponent(keyword)}`)
+      .pipe(map((response) => response.data));
+  }
+  getProductsByBrand(brandCd: number): Observable<{ items: Product[]; total: number }> {
+    return this.http.get<any>(`${this.apiUrl}/brand/${brandCd}`).pipe(
+      map((res) => {
         const items: Product[] = res.data.map((p: any) => ({
           id: String(p.productCd),
           name: p.productName,
@@ -215,39 +222,76 @@ getProductsByBrand(brandCd: number): Observable<{ items: Product[]; total: numbe
           stock: p.stockQty ?? 0,
           unit: p.unitName ?? '',
 
-          images: [{
-            thumbnail: p.imagePath,
-            medium: p.imagePath,
-            large: p.imagePath
-          }]
+          images: [
+            {
+              thumbnail: p.imagePath,
+              medium: p.imagePath,
+              large: p.imagePath,
+            },
+          ],
         }));
 
         return {
           items,
-          total: items.length
+          total: items.length,
         };
-      })
+      }),
     );
-}
+  }
 
-   getByProductCd(productCd: number): Observable<ProductMaster> {
-return this.http
-  .get<{ data: ProductMaster[] }>(`${this.apiUrl}/get/${productCd}`)
-  .pipe(
-    map(res => res.data?.[0])
-  );   }
+  getByProductCd(productCd: number): Observable<ProductMaster> {
+    return this.http
+      .get<{ data: ProductMaster[] }>(`${this.apiUrl}/get/${productCd}`)
+      .pipe(map((res) => res.data?.[0]));
+  }
 
   save(payload: ProductMaster): Observable<unknown> {
-    if(payload.productCd){
-    return this.http.put(`${this.apiUrl}/update`, payload);
-    }else{
-          return this.http.post(`${this.apiUrl}/save`, payload);
-
+    if (payload.productCd) {
+      return this.http.put(`${this.apiUrl}/update`, payload);
+    } else {
+      return this.http.post(`${this.apiUrl}/save`, payload);
     }
   }
 
-    getAll(): Observable<ProductMaster[]> {
-    return this.http.get<{ data: ProductMaster[] }>(`${this.apiUrl}/get-all`).pipe(map((res) => res.data ?? []));
+  getAll(): Observable<ProductMaster[]> {
+    return this.http
+      .get<{ data: ProductMaster[] }>(`${this.apiUrl}/get-all`)
+      .pipe(map((res) => res.data ?? []));
   }
+  getAllCategory(): Observable<{ items: Product[]; total: number }> {
+    return this.http.get<any>(`${this.apiUrl}/get-all`).pipe(
+      map((res) => {
+        const items: Product[] = res.data.map((p: any) => ({
+          id: String(p.productCd),
+          name: p.productName,
+          slug: p.productName.toLowerCase().replace(/\s+/g, '-'),
 
+          brand: p.brandName ?? '',
+          category: p.categoryName ?? '',
+
+          price: p.sellingPrice,
+          mrp: p.mrp,
+
+          rating: 4.5,
+          ratingCount: 100,
+
+          stock: p.stockQty ?? 0,
+          unit: p.unitName ?? '',
+
+          images: [
+            {
+              thumbnail: p.imagePath,
+              medium: p.imagePath,
+              large: p.imagePath,
+            },
+          ],
+        }));
+
+        return {
+          items,
+          total: items.length,
+        };
+      }),
+    );
+  }
 }

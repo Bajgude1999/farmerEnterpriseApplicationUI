@@ -5,7 +5,7 @@
     <div class="fp-cart__layout">
       <div class="fp-cart__items">
         <div class="fp-cart__item fp-card" *ngFor="let item of cart.items()">
-          <img [src]="item.product.images[0]?.thumbnail" [alt]="item.product.name" />
+          <img [src]="item.product.imagePath" [alt]="item.product.name" />
           <div class="fp-cart__item-info">
             <h4>{{ item.product.name }}</h4>
             <p class="fp-cart__item-unit">{{ item.product.unit }}</p>

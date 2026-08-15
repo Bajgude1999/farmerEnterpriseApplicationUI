@@ -79,6 +79,7 @@ ngOnInit(): void {
   this.route.queryParamMap.subscribe(params => {
 
     const categoryId = params.get('categoryCd');
+    const category = params.get('category');
     const brandCd = params.get('brandCd');
 
     if (categoryId) {
@@ -106,6 +107,20 @@ ngOnInit(): void {
         },
         error: () => this.loading.set(false)
       });
+    }
+     else if(category == 'all'){
+
+      this.loading.set(true);
+
+      this.productService.getAllCategory().subscribe({
+        next: (result) => {
+          this.products.set(result.items);
+          this.total.set(result.total);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
+
     }
     else {
       this.fetch();

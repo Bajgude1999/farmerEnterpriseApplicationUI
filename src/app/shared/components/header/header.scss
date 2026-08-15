@@ -150,3 +150,22 @@
 .fp-header__actions{
   width: 500px;
 }
+.fp-header__category-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 16px;
+  background: #fbc02d;
+  overflow-x: auto;
+
+  a {
+    color: #212121;
+    text-decoration: none;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}

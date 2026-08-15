@@ -13,7 +13,14 @@ export interface CartSummary {
   total: number;
 }
 
-export type OrderStatus = 'PENDING' | 'PROCESSING' | 'DELIVERED' | 'CANCELLED';
+export type OrderStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'PACKED'
+  | 'OUT FOR DELIVERY'
+  | 'DELIVERED'
+  | 'CANCELLED'
+  | 'RETURNED';
 
 export interface OrderItem {
   productId: string;

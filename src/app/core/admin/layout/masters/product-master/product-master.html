@@ -1,5 +1,4 @@
 <div class="admin-page">
-
   <div class="admin-page__header">
     <h2>{{ (isEdit() ? 'EDIT_PRODUCT' : 'ADD_PRODUCT') | translate }}</h2>
   </div>
@@ -52,33 +51,22 @@
   </div>
   -->
 
-
-  <form
-    [formGroup]="form"
-    (ngSubmit)="submit()"
-    class="fp-card product-form">
-
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card product-form">
     <!-- productCd: null on add, always sent (hidden) on edit -->
     <input type="hidden" formControlName="productCd" />
-
 
     <!-- ================= PRODUCT NAME / HSN / CATEGORY ================= -->
 
     <div class="form-row">
-
       <div class="field-group">
         <label class="field-label">
           {{ 'PRODUCT_NAME' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-          <input
-            matInput
-            formControlName="productName"
-          />
+          <input matInput formControlName="productName" />
         </mat-form-field>
       </div>
-
 
       <div class="field-group">
         <label class="field-label">
@@ -86,13 +74,9 @@
         </label>
 
         <mat-form-field appearance="outline">
-          <input
-            matInput
-            formControlName="hsnCode"
-          />
+          <input matInput formControlName="hsnCode" />
         </mat-form-field>
       </div>
-
 
       <!-- categoryCd is mandatory but never shown directly -->
       <div class="field-group">
@@ -101,394 +85,297 @@
         </label>
 
         <mat-form-field appearance="outline">
-
           <mat-select
             formControlName="categoryCd"
-            (selectionChange)="onCategoryChange($event.value)">
-
-            <mat-option
-              *ngFor="let category of categories()"
-              [value]="category.categoryCd">
-
+            (selectionChange)="onCategoryChange($event.value)"
+          >
+            <mat-option *ngFor="let category of categories()" [value]="category.categoryCd">
               {{ category.categoryName }}
-
             </mat-option>
-
           </mat-select>
-
         </mat-form-field>
       </div>
-
     </div>
-
 
     <!-- ================= BRAND / UNIT / MRP ================= -->
 
     <div class="form-row">
-
       <div class="field-group">
-
         <label class="field-label">
           {{ 'BRAND' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-
-          <mat-select
-            formControlName="brandCd"
-            (selectionChange)="onBrandChange($event.value)">
-
-            <mat-option
-              *ngFor="let brand of brands()"
-              [value]="brand.brandCd">
-
+          <mat-select formControlName="brandCd" (selectionChange)="onBrandChange($event.value)">
+            <mat-option *ngFor="let brand of brands()" [value]="brand.brandCd">
               {{ brand.brandName }}
-
             </mat-option>
-
           </mat-select>
-
         </mat-form-field>
-
       </div>
 
-
       <div class="field-group">
-
         <label class="field-label">
           {{ 'UNIT' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-
-          <mat-select
-            formControlName="unitCd"
-            (selectionChange)="onUnitChange($event.value)">
-
-            <mat-option
-              *ngFor="let unit of units()"
-              [value]="unit.unitCd">
-
+          <mat-select formControlName="unitCd" (selectionChange)="onUnitChange($event.value)">
+            <mat-option *ngFor="let unit of units()" [value]="unit.unitCd">
               {{ unit.unitName }}
-
             </mat-option>
-
           </mat-select>
-
         </mat-form-field>
-
       </div>
 
-
       <div class="field-group">
-
         <label class="field-label">
           {{ 'MRP' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-
-          <input
-            matInput
-            type="number"
-            formControlName="mrp"
-          />
-
+          <input matInput type="number" formControlName="mrp" />
         </mat-form-field>
-
       </div>
-
     </div>
-
 
     <!-- ================= SELLING / PURCHASE PRICE ================= -->
 
     <div class="form-row">
-
       <div class="field-group">
-
         <label class="field-label">
           {{ 'SELLING_PRICE' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-
-          <input
-            matInput
-            type="number"
-            formControlName="sellingPrice"
-          />
-
+          <input matInput type="number" formControlName="sellingPrice" />
         </mat-form-field>
-
       </div>
 
-
       <div class="field-group">
-
         <label class="field-label">
           {{ 'PURCHASE_PRICE' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-
-          <input
-            matInput
-            type="number"
-            formControlName="purchasePrice"
-          />
-
+          <input matInput type="number" formControlName="purchasePrice" />
         </mat-form-field>
-
       </div>
-         <div class="field-group">
-
-        <label class="field-label">
-          Image Url
-        </label>
+      <div class="field-group">
+        <label class="field-label"> Image Url </label>
 
         <mat-form-field appearance="outline">
-
-          <input
-            matInput
-            formControlName="imagePath"
-          />
-
+          <input matInput formControlName="imagePath" />
         </mat-form-field>
-
       </div>
-
     </div>
-
 
     <!-- ================= STOCK / IMAGE / DESCRIPTION ================= -->
 
     <div class="product-form__details-grid">
-
-
       <!-- Row 1, Col 1 -->
       <div class="field-group product-form__stock-qty">
-
         <label class="field-label">
           {{ 'STOCK_QTY' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-
-          <input
-            matInput
-            type="number"
-            formControlName="stockQty"
-          />
-
+          <input matInput type="number" formControlName="stockQty" />
         </mat-form-field>
-
       </div>
-
 
       <!-- Row 1, Col 2 -->
       <div class="field-group product-form__min-stock-qty">
-
-     
         <label class="field-label">
           {{ 'PRODUCT_DESCRIPTION' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
-
-          <textarea
-            matInput
-            formControlName="productDesc"
-            rows="2">
-          </textarea>
-
+          <textarea matInput formControlName="productDesc" rows="2"> </textarea>
         </mat-form-field>
-
       </div>
 
-
       <!-- Row 1-2, Col 3 (spans both rows) -->
-     <div class="field-group product-form__image">
+      <div class="field-group product-form__image">
+        <label class="field-label">
+          {{ 'PRODUCT_IMAGE' | translate }}
+        </label>
 
-  <label class="field-label">
-    {{ 'PRODUCT_IMAGE' | translate }}
-  </label>
+        <div class="product-form__image-preview">
+          <img
+            *ngIf="form.get('imagePath')?.value"
+            [src]="form.get('imagePath')?.value"
+            alt="Product image"
+          />
 
-  <div class="product-form__image-preview">
-
-    <img
-      *ngIf="form.get('imagePath')?.value"
-      [src]="form.get('imagePath')?.value"
-      alt="Product image"
-    />
-
-    <mat-icon *ngIf="!form.get('imagePath')?.value">
-      image
-    </mat-icon>
-
-  </div>
-
-</div>
+          <mat-icon *ngIf="!form.get('imagePath')?.value"> image </mat-icon>
+        </div>
+      </div>
 
       <!-- Row 2, Col 1 -->
       <div class="field-group product-form__active">
-
-        <label class="field-label">
-          &nbsp;
-        </label>
+        <label class="field-label"> &nbsp; </label>
 
         <mat-checkbox formControlName="active">
           {{ 'ACTIVE' | translate }}
         </mat-checkbox>
-
       </div>
-
 
       <!-- Row 2, Col 2 -->
       <div class="field-group product-form__desc">
+        <label class="field-label"> &nbsp; </label>
 
-
-        <label class="field-label">
-          &nbsp;
-        </label>
-
-        <mat-checkbox formControlName="inStock">
-         Stock Available
-        </mat-checkbox>
-
+        <mat-checkbox formControlName="bestSellers"> Best Seller </mat-checkbox>
       </div>
-
     </div>
 
-<!-- ================= PACK SIZE TABLE ================= -->
+    <!-- ================= PRODUCT SECTIONS ================= -->
 
-<div class="product-form__pack-section">
+    <div class="form-row">
+      <div class="field-group">
+        <!-- <label class="field-label"> Featured </label> -->
 
-  <div class="product-form__pack-header">
-    <h3>Pack Details</h3>
-    <button type="button" mat-stroked-button color="primary" (click)="addPackRow()">
-      <mat-icon>add</mat-icon> Add Pack
-    </button>
-  </div>
+        <mat-checkbox formControlName="featured"> Featured </mat-checkbox>
+      </div>
 
-  <div formArrayName="packsizes">
-    <table mat-table [dataSource]="packTableRows" class="admin-table">
+      <div class="field-group">
+        <!-- <label class="field-label"> Trending </label> -->
 
-      <!-- PACK SIZE -->
-      <ng-container matColumnDef="packSize">
-        <th mat-header-cell *matHeaderCellDef>Pack Size</th>
-        <td mat-cell *matCellDef="let row" [formGroup]="row">
-          <mat-form-field appearance="outline" class="product-form__pack-field">
-            <input matInput type="number" formControlName="packSize" min="0" />
-          </mat-form-field>
-        </td>
-      </ng-container>
+        <mat-checkbox formControlName="trending"> Trending </mat-checkbox>
+      </div>
 
-      <!-- UNIT -->
-      <ng-container matColumnDef="unitCd">
-        <th mat-header-cell *matHeaderCellDef>{{ 'UNIT' | translate }}</th>
-        <td mat-cell *matCellDef="let row" [formGroup]="row">
-          <mat-form-field appearance="outline" class="product-form__pack-field">
-            <mat-select formControlName="unitCd" (selectionChange)="onPackUnitChange(row, $event.value)">
-              <mat-option [value]="null">{{ 'SELECT_UNIT' | translate }}</mat-option>
-              <mat-option *ngFor="let unit of units()" [value]="unit.unitCd">
-                {{ unit.unitName }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </td>
-      </ng-container>
+      <div class="field-group">
+        <!-- <label class="field-label"> Recently Added </label> -->
 
-      <!-- SELLING PRICE -->
-      <ng-container matColumnDef="sellingPrice">
-        <th mat-header-cell *matHeaderCellDef>{{ 'SELLING_PRICE' | translate }}</th>
-        <td mat-cell *matCellDef="let row" [formGroup]="row">
-          <mat-form-field appearance="outline" class="product-form__pack-field">
-            <input matInput type="number" formControlName="sellingPrice" min="0" />
-          </mat-form-field>
-        </td>
-      </ng-container>
+        <mat-checkbox formControlName="recentlyAdded"> Recently Added </mat-checkbox>
+      </div>
+    </div>
+    <!-- ================= PACK SIZE TABLE ================= -->
 
-      <!-- ACTIVE -->
-      <ng-container matColumnDef="active">
-        <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVE' | translate }}</th>
-        <td mat-cell *matCellDef="let row" [formGroup]="row">
-          <mat-checkbox formControlName="active"></mat-checkbox>
-        </td>
-      </ng-container>
+    <div class="product-form__pack-section">
+      <div class="product-form__pack-header">
+        <h3>Pack Details</h3>
+        <button type="button" mat-stroked-button color="primary" (click)="addPackRow()">
+          <mat-icon>add</mat-icon> Add Pack
+        </button>
+      </div>
 
-      <!-- REMOVE -->
-      <ng-container matColumnDef="remove">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row; let i = index">
-          <button type="button" mat-icon-button (click)="removePackRow(i)" aria-label="Remove pack size row">
-            <mat-icon>delete_outline</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+      <div formArrayName="packsizes">
+        <table mat-table [dataSource]="packTableRows" class="admin-table">
+          <!-- PACK SIZE -->
+          <ng-container matColumnDef="packSize">
+            <th mat-header-cell *matHeaderCellDef>Pack Size</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <mat-form-field appearance="outline" class="product-form__pack-field">
+                <input matInput type="number" formControlName="packSize" min="0" />
+              </mat-form-field>
+            </td>
+          </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="packColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: packColumns;"></tr>
-    </table>
-  </div>
+          <!-- UNIT -->
+          <ng-container matColumnDef="unitCd">
+            <th mat-header-cell *matHeaderCellDef>{{ 'UNIT' | translate }}</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <mat-form-field appearance="outline" class="product-form__pack-field">
+                <mat-select
+                  formControlName="unitCd"
+                  (selectionChange)="onPackUnitChange(row, $event.value)"
+                >
+                  <mat-option [value]="null">{{ 'SELECT_UNIT' | translate }}</mat-option>
+                  <mat-option *ngFor="let unit of units()" [value]="unit.unitCd">
+                    {{ unit.unitName }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
 
-</div>
+          <!-- SELLING PRICE -->
+          <ng-container matColumnDef="sellingPrice">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SELLING_PRICE' | translate }}</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <mat-form-field appearance="outline" class="product-form__pack-field">
+                <input matInput type="number" formControlName="sellingPrice" min="0" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+            <ng-container matColumnDef="mrpPrice">
+            <th mat-header-cell *matHeaderCellDef>MRP Price</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <mat-form-field appearance="outline" class="product-form__pack-field">
+                <input matInput type="number" formControlName="mrpPrice" min="0" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <!-- ACTIVE -->
+           <ng-container matColumnDef="inStock">
+            <th mat-header-cell *matHeaderCellDef>Stock Available</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <mat-checkbox formControlName="inStock"></mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="defaultYn">
+            <th mat-header-cell *matHeaderCellDef>By Default</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <mat-checkbox formControlName="defaultYn"></mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVE' | translate }}</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <mat-checkbox formControlName="active"></mat-checkbox>
+            </td>
+          </ng-container>
+
+          <!-- REMOVE -->
+          <ng-container matColumnDef="remove">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row; let i = index">
+              <button
+                type="button"
+                mat-icon-button
+                (click)="removePackRow(i)"
+                aria-label="Remove pack size row"
+              >
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="packColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: packColumns"></tr>
+        </table>
+      </div>
+    </div>
     <!-- ================= TAX TABLE ================= -->
 
     <div class="product-form__tax-section">
-
       <div class="product-form__tax-header">
-
         <h3>
           {{ 'PRODUCT_TAX' | translate }}
         </h3>
 
-        <button
-          type="button"
-          mat-stroked-button
-          color="primary"
-          (click)="addTaxRow()">
-
-          <mat-icon>
-            add
-          </mat-icon>
+        <button type="button" mat-stroked-button color="primary" (click)="addTaxRow()">
+          <mat-icon> add </mat-icon>
 
           {{ 'ADD_TAX' | translate }}
-
         </button>
-
       </div>
 
-
       <div formArrayName="productTaxMstDtos">
-
-        <table
-          mat-table
-          [dataSource]="taxTableRows"
-          class="admin-table">
-
-
+        <table mat-table [dataSource]="taxTableRows" class="admin-table">
           <!-- TAX NAME -->
 
           <ng-container matColumnDef="taxName">
-
-            <th
-              mat-header-cell
-              *matHeaderCellDef>
+            <th mat-header-cell *matHeaderCellDef>
               {{ 'TAX_NAME' | translate }}
             </th>
-            <td
-              mat-cell
-              *matCellDef="let row; let i = index">
-              <mat-form-field
-                appearance="outline"
-                class="product-form__tax-field">
-                <mat-select
-                  [formControl]="row.get('taxName')">
+            <td mat-cell *matCellDef="let row; let i = index">
+              <mat-form-field appearance="outline" class="product-form__tax-field">
+                <mat-select [formControl]="row.get('taxName')">
                   <mat-option value="">Select Tax</mat-option>
-                  <mat-option
-                    *ngFor="let taxName of taxNameOptions"
-                    [value]="taxName">
+                  <mat-option *ngFor="let taxName of taxNameOptions" [value]="taxName">
                     {{ taxName }}
                   </mat-option>
                 </mat-select>
@@ -499,143 +386,67 @@
           <!-- TAX RATE -->
 
           <ng-container matColumnDef="taxRate">
-
-            <th
-              mat-header-cell
-              *matHeaderCellDef>
-
+            <th mat-header-cell *matHeaderCellDef>
               {{ 'TAX_RATE' | translate }}
-
             </th>
 
-
-            <td
-              mat-cell
-              *matCellDef="let row">
-
-              <mat-form-field
-                appearance="outline"
-                class="product-form__tax-field">
-
-                <input
-                  matInput
-                  type="number"
-                  [formControl]="row.get('taxRate')"
-                  min="0"
-                />
-
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline" class="product-form__tax-field">
+                <input matInput type="number" [formControl]="row.get('taxRate')" min="0" />
               </mat-form-field>
-
             </td>
-
           </ng-container>
-
 
           <!-- ACTIVE -->
 
           <ng-container matColumnDef="active">
-
-            <th
-              mat-header-cell
-              *matHeaderCellDef>
-
+            <th mat-header-cell *matHeaderCellDef>
               {{ 'ACTIVE' | translate }}
-
             </th>
 
-
-            <td
-              mat-cell
-              *matCellDef="let row">
-
-              <mat-checkbox
-                [formControl]="row.get('active')">
-              </mat-checkbox>
-
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox [formControl]="row.get('active')"> </mat-checkbox>
             </td>
-
           </ng-container>
-
 
           <!-- REMOVE -->
 
           <ng-container matColumnDef="remove">
+            <th mat-header-cell *matHeaderCellDef></th>
 
-            <th
-              mat-header-cell
-              *matHeaderCellDef>
-            </th>
-
-
-            <td
-              mat-cell
-              *matCellDef="let row; let i = index">
-
+            <td mat-cell *matCellDef="let row; let i = index">
               <button
                 type="button"
                 mat-icon-button
                 (click)="removeTaxRow(i)"
-                aria-label="Remove tax row">
-
-                <mat-icon>
-                  delete_outline
-                </mat-icon>
-
+                aria-label="Remove tax row"
+              >
+                <mat-icon> delete_outline </mat-icon>
               </button>
-
             </td>
-
           </ng-container>
-
 
           <!-- HEADER -->
 
-          <tr
-            mat-header-row
-            *matHeaderRowDef="taxColumns">
-          </tr>
-
+          <tr mat-header-row *matHeaderRowDef="taxColumns"></tr>
 
           <!-- ROW -->
 
-          <tr
-            mat-row
-            *matRowDef="let row; columns: taxColumns;">
-          </tr>
-
+          <tr mat-row *matRowDef="let row; columns: taxColumns"></tr>
         </table>
-
       </div>
-
     </div>
-
 
     <!-- ================= ACTIONS ================= -->
 
     <div class="product-form__actions">
-
-      <button
-        type="button"
-        mat-stroked-button
-        (click)="cancel()">
-
+      <button type="button" mat-stroked-button (click)="cancel()">
         {{ 'CANCEL' | translate }}
-
       </button>
 
-
-      <button
-        type="submit"
-        mat-flat-button
-        class="fp-btn-primary"
-        [disabled]="saving()">
-
+      <button type="submit" mat-flat-button class="fp-btn-primary" [disabled]="saving()">
         {{ (isEdit() ? 'UPDATE_PRODUCT' : 'SAVE_PRODUCT') | translate }}
-
       </button>
-
     </div>
-
   </form>
-
 </div>

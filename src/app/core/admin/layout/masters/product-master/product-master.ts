@@ -19,7 +19,7 @@ import { UnitService } from '../../shared/unit.service';
 import { Category } from '../../../../models/category.model';
 import { Brand } from '../../../../models//brand.model';
 import { UnitOption } from '../../shared/unit.model';
-import { Packsizes,ProductMaster } from '../../../../../core/models/product.model';
+import { Packsizes, ProductMaster } from '../../../../../core/models/product.model';
 import { UploadDto } from '../../../../models/upload.model';
 import { validateProductImage } from '../../shared/image-validation';
 import { UploadService } from '../../../../services/upload.service';
@@ -83,6 +83,10 @@ export class ProductMasterComponent implements OnInit {
     inStock: [true],
     productTaxMstDtos: this.fb.array([]),
     packsizes: this.fb.array([]),
+    featured: [false],
+    trending: [false],
+    recentlyAdded: [false],
+    bestSellers: [false],
   });
   selectedImageFile = signal<File | null>(null);
   imagePreviewUrl = signal<string | null>(null);
@@ -97,7 +101,7 @@ export class ProductMasterComponent implements OnInit {
     this.categoryService.getAll().subscribe((c) => this.categories.set(c));
     this.brandService.getAll().subscribe((b) => this.brands.set(b));
     this.unitService.getAll().subscribe((u) => this.units.set(u));
-this.taxRows.clear();
+    this.taxRows.clear();
     this.packRows.clear();
     const productCd = this.route.snapshot.paramMap.get('id');
     if (productCd) {
@@ -116,9 +120,9 @@ this.taxRows.clear();
         this.taxRows.push(this.buildTaxRow(tax));
       });
       (product.packsizes ?? []).forEach((pack) => {
-      this.packRows.push(this.buildPackRow(pack));
-    });
-    this.packTableRows = [...this.packRows.controls];
+        this.packRows.push(this.buildPackRow(pack));
+      });
+      this.packTableRows = [...this.packRows.controls];
       this.taxTableRows = [...this.taxRows.controls];
 
       console.log('Tax count:', this.taxRows.length);
@@ -136,7 +140,7 @@ this.taxRows.clear();
   //     active: [tax?.active ?? true],
   //   });
   // }
-  packColumns = ['packSize', 'unitCd', 'sellingPrice', 'active', 'remove'];
+  packColumns = ['packSize', 'unitCd', 'sellingPrice','mrpPrice','inStock','defaultYn' ,'active', 'remove'];
   taxNameOptions: string[] = ['SGST', 'CGST', 'IGST', 'CESS'];
   private buildTaxRow(tax?: {
     productTaxCd?: number | null;
@@ -212,7 +216,7 @@ this.taxRows.clear();
 
   //   this.saving.set(true);
   //   const payload = this.form.getRawValue() as unknown as ProductMaster;
-      
+
   //   this.productService
   //     .save(payload)
   //     .pipe(finalize(() => this.saving.set(false)))
@@ -220,7 +224,7 @@ this.taxRows.clear();
   //       next: () => this.router.navigate(['/admin/master/product']),
   //     });
   // }
- submit(): void {
+  submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -248,14 +252,13 @@ this.taxRows.clear();
       return;
     }
 
-    this.uploadImage(productCd)
-      .subscribe({
-        next: (imagePath) => {
-          this.form.patchValue({ imagePath });
-          this.persist();
-        },
-        error: () => this.saving.set(false),
-      });
+    this.uploadImage(productCd).subscribe({
+      next: (imagePath) => {
+        this.form.patchValue({ imagePath });
+        this.persist();
+      },
+      error: () => this.saving.set(false),
+    });
   }
   private persist(): void {
     const payload = this.form.getRawValue() as unknown as ProductMaster;
@@ -298,18 +301,18 @@ this.taxRows.clear();
     });
   }
   private saveNewProduct(): void {
-  const payload = this.form.getRawValue() as unknown as ProductMaster;
+    const payload = this.form.getRawValue() as unknown as ProductMaster;
 
-  this.productService.save(payload).subscribe({
-    next: () => {
-      this.saving.set(false);
-      this.router.navigate(['/admin/master/product']);
-    },
-    error: () => {
-      this.saving.set(false);
-    },
-  });
-}
+    this.productService.save(payload).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.router.navigate(['/admin/master/product']);
+      },
+      error: () => {
+        this.saving.set(false);
+      },
+    });
+  }
   cancel(): void {
     this.router.navigate(['/admin/master/product']);
   }
@@ -336,8 +339,8 @@ this.taxRows.clear();
     // this.imagePreviewUrl.set(this.uploadService.getFileUrl(this.form.controls.productCd.value ? this.form.getRawValue().imagePath : null));
     this.imageError.set(null);
   }
-private uploadImage(productCd: number): Observable<string> {
-  this.uploadingImage.set(true);
+  private uploadImage(productCd: number): Observable<string> {
+    this.uploadingImage.set(true);
 
     const meta: UploadDto = {
       transactionType: 'product_master',
@@ -346,55 +349,60 @@ private uploadImage(productCd: number): Observable<string> {
 
     return this.uploadService
       .uploadFileWithPayload(this.selectedImageFile()!, meta)
-      .pipe(
-        finalize(() => this.uploadingImage.set(false))
-      );
-    }
-    // Add to the form group definition, alongside productTaxMstDtos:
+      .pipe(finalize(() => this.uploadingImage.set(false)));
+  }
+  // Add to the form group definition, alongside productTaxMstDtos:
 
+  // Add alongside taxTableRows:
+  packTableRows: any[] = [];
 
-// Add alongside taxTableRows:
-packTableRows: any[] = [];
+  get packRows(): FormArray {
+    return this.form.controls.packsizes as FormArray;
+  }
 
-get packRows(): FormArray {
-  return this.form.controls.packsizes as FormArray;
-}
+  private buildPackRow(pack?: {
+    packPriceId?: number | null;
+    productCd?: number | null;
+    sellingPrice?: number | null;
+    packSize?: number | null;
+    active?: boolean | null;
+    unitCd?: number | null;
+    unitName?: string | null;
+    mrpPrice: number| null;
+    inStock: boolean| null;
+    defaultYn: boolean| null;
+  }) {
+    const productCd =
+      pack?.productCd ?? (this.isEdit() ? this.form.controls.productCd.value : null);
 
-private buildPackRow(pack?: {
-  packPriceId?: number | null;
-  productCd?: number | null;
-  sellingPrice?: number | null;
-  packSize?: number | null;
-  active?: boolean | null;
-  unitCd?: number | null;
-  unitName?: string | null;
-}) {
-  const productCd = pack?.productCd ?? (this.isEdit() ? this.form.controls.productCd.value : null);
+    return this.fb.group({
+      packPriceId: [pack?.packPriceId ?? null],
+      productCd: [productCd],
+      sellingPrice: [pack?.sellingPrice ?? 0, [Validators.required, Validators.min(0)]],
+      packSize: [pack?.packSize ?? 0, [Validators.required, Validators.min(0)]],
+      active: [pack?.active ?? true],
+      unitCd: [pack?.unitCd ?? null, Validators.required],
+      unitName: [pack?.unitName ?? ''],
+     mrpPrice: [pack?.mrpPrice ?? 0, [Validators.required, Validators.min(0)]],
+      inStock: [pack?.inStock ?? false],
+      defaultYn: [pack?.defaultYn ?? false],
 
-  return this.fb.group({
-    packPriceId: [pack?.packPriceId ?? null],
-    productCd: [productCd],
-    sellingPrice: [pack?.sellingPrice ?? 0, [Validators.required, Validators.min(0)]],
-    packSize: [pack?.packSize ?? 0, [Validators.required, Validators.min(0)]],
-    active: [pack?.active ?? true],
-    unitCd: [pack?.unitCd ?? null, Validators.required],
-    unitName: [pack?.unitName ?? ''],
-  });
-}
+    });
+  }
 
-addPackRow(): void {
-  const row = this.buildPackRow();
-  this.packRows.push(row);
-  this.packTableRows = [...this.packRows.controls];
-}
+  addPackRow(): void {
+    const row = this.buildPackRow();
+    this.packRows.push(row);
+    this.packTableRows = [...this.packRows.controls];
+  }
 
-removePackRow(index: number): void {
-  this.packRows.removeAt(index);
-  this.packTableRows = [...this.packRows.controls];
-}
+  removePackRow(index: number): void {
+    this.packRows.removeAt(index);
+    this.packTableRows = [...this.packRows.controls];
+  }
 
-onPackUnitChange(row: any, unitCd: number): void {
-  const unit = this.units().find((u) => u.unitCd === unitCd);
-  row.patchValue({ unitName: unit?.unitName ?? '' });
-}
+  onPackUnitChange(row: any, unitCd: number): void {
+    const unit = this.units().find((u) => u.unitCd === unitCd);
+    row.patchValue({ unitName: unit?.unitName ?? '' });
+  }
 }

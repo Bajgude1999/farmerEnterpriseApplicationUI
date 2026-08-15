@@ -30,11 +30,16 @@ export interface Product {
   isTrending?: boolean;
   isNewArrival?: boolean;
   isBestSeller?: boolean;
-  imagePath:string;
-  packsizes:Packsizes[];
-  productDesc:string;
-
+  imagePath: string;
+  packsizes: Packsizes[];
+  productDesc: string;
+  featured?: boolean;
+  trending?: boolean;
+  recentlyAdded?: boolean;
+  bestSellers?: boolean;
+  
 }
+
 
 export interface ProductFilter {
   category?: string[];
@@ -74,7 +79,11 @@ export interface ProductMaster {
   gstPercent: number;
   active: boolean;
   productTaxMstDtos: ProductTaxMst[];
-  packsizes:Packsizes[];
+  packsizes: Packsizes[];
+  featured?: boolean;
+  trending?: boolean;
+  recentlyAdded?: boolean;
+  bestSellers?: boolean;
 }
 export interface Packsizes {
   packPriceId?: number | null;
@@ -86,5 +95,5 @@ export interface Packsizes {
   unitName?: string;
   mrpPrice: number;
   inStock: boolean;
-  defaultYn:boolean;
+  defaultYn: boolean;
 }

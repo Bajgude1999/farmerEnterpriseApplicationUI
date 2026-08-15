@@ -190,8 +190,16 @@
   "CONTACT_MESSAGE": "आपका संदेश",
   "CONTACT_SEND": "संदेश भेजें",
   "CONTACT_THANKS": "धन्यवाद! हम जल्द ही आपसे संपर्क करेंगे।",
-
-
+"Fungicide": "फफूंदनाशक",
+  "Combo Offer": "कॉम्बो ऑफर",
+  "Herbicide": "शाकनाशी",
+  "Cotton Seed": "कपास के बीज",
+  "Growth Promoter": "वृद्धि प्रवर्धक",
+  "Seeds": "बीज",
+  "Traps & Lures": "जाल और आकर्षक",
+  "Insecticide": "कीटनाशक",
+  "ORDER_STATUS_PACKED": "पैक किया गया",
+  "ORDER_STATUS_OUT FOR DELIVERY": "डिलीवरी के लिए बाहर",
 
 
     "ADMIN_PANEL": "एडमिन पैनल",

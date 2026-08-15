@@ -195,7 +195,8 @@
   "NOTIF_TAB_ORDERS": "Orders",
   "NOTIF_TAB_STOCK": "Stock",
   "NOTIF_EMPTY": "No notifications",
-
+  "ORDER_STATUS_PACKED": "Packed",
+  "ORDER_STATUS_OUT FOR DELIVERY": "Out for Delivery",
 
 
 

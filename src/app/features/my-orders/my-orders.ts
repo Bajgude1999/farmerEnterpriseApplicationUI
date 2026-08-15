@@ -9,7 +9,7 @@ import { Order, OrderStatus } from '../../core/models/cart.model';
 import { environment } from '../../../environments/environment/environment';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 
-const TABS: OrderStatus[] = ['PENDING', 'PROCESSING', 'DELIVERED', 'CANCELLED'];
+const TABS: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PACKED', 'OUT FOR DELIVERY','DELIVERED','CANCELLED','RETURNED'];
 
 @Component({
   selector: 'fp-my-orders',
