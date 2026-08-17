@@ -49,20 +49,8 @@
       </div>
     </div>
 
+   
     <div class="form-row">
-      <!-- <div class="field-group">
-        <label class="field-label">{{ 'INVOICE_NUMBER' | translate }}</label>
-        <mat-form-field appearance="outline">
-          <input matInput formControlName="invoiceNo" />
-        </mat-form-field>
-      </div> -->
-
-      <!-- <div class="field-group">
-        <label class="field-label">{{ 'INVOICE_DATE' | translate }}</label>
-        <mat-form-field appearance="outline">
-          <input matInput type="date" formControlName="invoiceDate" />
-        </mat-form-field>
-      </div> -->
 
       <div class="field-group">
         <label class="field-label">{{ 'TOTAL_AMOUNT' | translate }}</label>
@@ -92,13 +80,70 @@
         </mat-form-field>
       </div>
     </div>
-    <!-- 
-    <div class="field-group grn-form__remarks">
-      <mat-form-field appearance="outline">
-        <textarea matInput formControlName="remarks" rows="2"></textarea>
-      </mat-form-field>
-    </div> -->
+   <div class="form-row">
 
+      <!-- Invoice Number -->
+      <div class="field-group">
+        <label class="field-label">
+          {{ 'INVOICE_NUMBER' | translate }}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="invoiceNo" />
+        </mat-form-field>
+      </div>
+
+      <!-- Invoice Date -->
+       <div class="field-group">
+        <label class="field-label">
+          {{ 'INVOICE_DATE' | translate }}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            [matDatepicker]="invoiceDatePicker"
+            formControlName="invoiceDate"
+            placeholder="DD/MM/YYYY"
+          />
+
+          <mat-datepicker-toggle matIconSuffix [for]="invoiceDatePicker"> </mat-datepicker-toggle>
+
+          <mat-datepicker #invoiceDatePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      <!-- <div class="field-group">
+        <label class="field-label">
+          {{ 'INVOICE_DATE' | translate }}
+        </label>
+
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="invoiceDate" />
+        </mat-form-field>
+      </div> -->
+
+      <!-- Warehouse -->
+      <div class="field-group">
+        <label class="field-label">
+        WareHouse
+        </label>
+
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="whCd">
+            <mat-option [value]="null">
+              Select Warehouse
+            </mat-option>
+
+            <mat-option
+              *ngFor="let warehouse of warehouses()"
+              [value]="warehouse.whCd">
+              {{ warehouse.whName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+</div>
     <!-- Line items -->
     <div class="grn-form__items-section">
       <div class="grn-form__items-header">

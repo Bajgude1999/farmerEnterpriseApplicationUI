@@ -1,6 +1,14 @@
 <div class="admin-page">
   <div class="admin-page__header">
     <h2>{{ (isEdit() ? 'EDIT_SALES_ORDER' : 'ADD_SALES_ORDER') | translate }}</h2>
+
+   <button
+      *ngIf="showPrintButton"
+      type="button"
+      class="print-btn"
+      (click)="printInvoice()">
+      Invoice Print
+    </button>
   </div>
 
   <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card sales-order-form">
@@ -18,7 +26,7 @@
         <label class="field-label">{{ 'CUSTOMER' | translate }}</label>
 
         <mat-form-field appearance="outline">
-          <mat-select formControlName="userCd" placeholder="Select Customer">
+          <mat-select formControlName="userCd" placeholder="Select Customer" (selectionChange)="onSelectCustomer($event.value)">
             <mat-option *ngFor="let user of users" [value]="user.userId">
               {{ user.fullName }}
             </mat-option>
@@ -116,6 +124,26 @@
           <mat-datepicker-toggle matIconSuffix [for]="invoiceDatePicker"> </mat-datepicker-toggle>
 
           <mat-datepicker #invoiceDatePicker> </mat-datepicker>
+        </mat-form-field>
+      </div>
+        <!-- Warehouse -->
+      <div class="field-group">
+        <label class="field-label">
+        WareHouse
+        </label>
+
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="whCd">
+            <mat-option [value]="null">
+              Select Warehouse
+            </mat-option>
+
+            <mat-option
+              *ngFor="let warehouse of warehouses()"
+              [value]="warehouse.whCd">
+              {{ warehouse.whName }}
+            </mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
     </div>
@@ -264,7 +292,7 @@
 
         <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
 
-        <tr mat-row *matRowDef="let row; columns: itemColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: itemColumns" (click)="selectItemRow(row)">></tr>
       </table>
 
       <!-- TAX PANEL -->
@@ -289,11 +317,11 @@
 
           <table
             mat-table
-            [dataSource]="taxTableRows" formArrayName="taxes" 
+          [dataSource]="taxTableRows"
             class="admin-table"
           >
             <!-- TAX NAME -->
-            <ng-container matColumnDef="taxName">
+            <!-- <ng-container matColumnDef="taxName">
               <th mat-header-cell *matHeaderCellDef>
                 {{ 'TAX_NAME' | translate }}
               </th>
@@ -307,7 +335,22 @@
                   <input matInput [formControl]="row.get('taxName')" />
                 </mat-form-field>
               </td>
-            </ng-container>
+            </ng-container> -->
+              <ng-container matColumnDef="taxName">
+            <th mat-header-cell *matHeaderCellDef>{{ 'TAX_NAME' | translate }}</th>
+            <td mat-cell *matCellDef="let row" [formGroup]="row">
+              <input type="hidden" formControlName="salesOrderGstId" />
+              <input type="hidden" formControlName="orderdtlcd" />
+              <mat-form-field appearance="outline" class="sales-order-form__tax-field">
+                <mat-select formControlName="taxName">
+                  <mat-option [value]="''">Select Tax</mat-option>
+                  <mat-option *ngFor="let taxName of taxNameOptions" [value]="taxName">{{
+                    taxName
+                  }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
 
             <!-- TAX RATE -->
             <ng-container matColumnDef="taxRate">
@@ -317,7 +360,7 @@
 
               <td mat-cell *matCellDef="let row">
                 <mat-form-field appearance="outline" class="sales-order-form__tax-field">
-                  <input matInput type="number" [formControl]="row.get('taxRate')" />
+                  <input matInput type="number" [formControl]="row.get('taxRate')"(input)="calculateTaxes()" />
                 </mat-form-field>
               </td>
             </ng-container>

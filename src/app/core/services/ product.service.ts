@@ -8,6 +8,7 @@ import {
   ProductFilter,
   ProductMaster,
   ProductSortOption,
+  WhMaster,
 } from '../models/product.model';
 import { Http } from '../common/http';
 
@@ -196,12 +197,61 @@ export class ProductService {
       }),
     );
   }
+searchProducts(keyword: string): Observable<Product[]> {
+  return this.http
+    .get<any>(
+      `${this.apiUrl}/search?keyword=${encodeURIComponent(keyword)}`
+    )
+    .pipe(
+      map((res) => {
+        const products: Product[] = (res.data ?? []).map((p: any) => {
+          const defaultPack = (p.packsizes ?? []).find(
+            (pack: Packsizes) => pack.defaultYn === true
+          );
 
-  searchProducts(keyword: string): Observable<Product[]> {
-    return this.http
-      .get<any>(`${this.apiUrl}/search?keyword=${encodeURIComponent(keyword)}`)
-      .pipe(map((response) => response.data));
-  }
+          const packUnit =
+            defaultPack?.packSize && defaultPack?.unitName
+              ? `${defaultPack.packSize} ${defaultPack.unitName}`
+              : p.unitName ?? '';
+
+          return {
+            id: p.productCd.toString(),
+            name: p.productName,
+            slug: p.productName.toLowerCase().replace(/\s+/g, '-'),
+
+            brand: p.brandName ?? '',
+            category: p.categoryName ?? '',
+
+            price: defaultPack?.sellingPrice ?? p.sellingPrice ?? 0,
+            mrp: defaultPack?.mrpPrice ?? p.mrp ?? 0,
+            packSize: defaultPack?.packSize ?? 0,
+
+            rating: 4.5,
+            ratingCount: 100,
+
+            stock: p.stockQty ?? 0,
+            unit: packUnit,
+
+            featured: p.featured,
+            trending: p.trending,
+            recentlyAdded: p.recentlyAdded,
+            bestSellers: p.bestSellers,
+
+            images: [
+              {
+                thumbnail: p.imagePath,
+                medium: p.imagePath,
+                large: p.imagePath,
+              },
+            ],
+          };
+        });
+
+        return products;
+      })
+    );
+}
+
   getProductsByBrand(brandCd: number): Observable<{ items: Product[]; total: number }> {
     return this.http.get<any>(`${this.apiUrl}/brand/${brandCd}`).pipe(
       map((res) => {
@@ -294,4 +344,63 @@ export class ProductService {
       }),
     );
   }
+  searchProductCd(productCd: string): Observable<Product[]> {
+  return this.http
+    .get<any>(
+      `${this.apiUrl}/get/${productCd}}`
+    )
+    .pipe(
+      map((res) => {
+        const products: Product[] = (res.data ?? []).map((p: any) => {
+          const defaultPack = (p.packsizes ?? []).find(
+            (pack: Packsizes) => pack.defaultYn === true
+          );
+
+          const packUnit =
+            defaultPack?.packSize && defaultPack?.unitName
+              ? `${defaultPack.packSize} ${defaultPack.unitName}`
+              : p.unitName ?? '';
+
+          return {
+            id: p.productCd.toString(),
+            name: p.productName,
+            slug: p.productName.toLowerCase().replace(/\s+/g, '-'),
+
+            brand: p.brandName ?? '',
+            category: p.categoryName ?? '',
+
+            price: defaultPack?.sellingPrice ?? p.sellingPrice ?? 0,
+            mrp: defaultPack?.mrpPrice ?? p.mrp ?? 0,
+            packSize: defaultPack?.packSize ?? 0,
+
+            rating: 4.5,
+            ratingCount: 100,
+
+            stock: p.stockQty ?? 0,
+            unit: packUnit,
+
+            featured: p.featured,
+            trending: p.trending,
+            recentlyAdded: p.recentlyAdded,
+            bestSellers: p.bestSellers,
+
+            images: [
+              {
+                thumbnail: p.imagePath,
+                medium: p.imagePath,
+                large: p.imagePath,
+              },
+            ],
+          };
+        });
+
+        return products;
+      })
+    );
+}
+getAllWh(): Observable<WhMaster[]> {
+  return this.httpSecure.get<WhMaster[]>(
+    `${environment.apiBaseUrl}/v1/warehouse/get-all-active`
+  );
+}
 }

@@ -1,7 +1,9 @@
 <header class="fp-header">
   <div class="fp-header__row fp-container">
     <a class="fp-header__logo" routerLink="/">
-      <span class="fp-header__logo-mark">🌾</span>
+<span class="fp-header__logo-mark">
+  <img src="assets/images/logo.png" alt="VELNEXA" />
+</span>
       <span class="fp-header__logo-text fp-display">{{ 'BRAND_NAME' | translate }}</span>
     </a>
 
@@ -10,11 +12,34 @@
         type="text"
         [(ngModel)]="searchQuery"
         (keyup.enter)="onSearch()"
+        (input)="onSearchChange($event)"
         [placeholder]="'SEARCH_PLACEHOLDER' | translate"
         aria-label="Search products" />
       <button type="button" (click)="onSearch()" aria-label="Search">
         <mat-icon>search</mat-icon>
       </button>
+      <!-- SEARCH RESULTS -->
+ <div
+  class="search-dropdown"
+  *ngIf="showSearchResults() && searchResults().length > 0"
+>
+  <div
+    class="search-item"
+    *ngFor="let product of searchResults()"
+    (click)="openProduct(product)"
+  >
+    <div class="search-product-image">
+      <img
+        [src]="product.images?.[0]?.thumbnail"
+        [alt]="product.name"
+      />
+    </div>
+
+    <div class="search-product-name">
+      {{ product.name }}
+    </div>
+  </div>
+</div>
     </div>
 
     <nav class="fp-header__actions">
@@ -140,3 +165,4 @@
   {{ 'NAV_SHOP' | translate }}
   <mat-icon class="fp-header__nav-caret">expand_more</mat-icon>
 </span> -->
+ 

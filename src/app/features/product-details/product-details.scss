@@ -245,3 +245,13 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+.fp-details__save {
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+  color: #15803d;
+  background-color: #dcfce7;
+}

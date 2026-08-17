@@ -59,6 +59,45 @@ onSearch(): void {
     }
   });
 }
+searchKeyword = '';
+searchResults1: Product[] = [];
+showSearchResults = signal(false);
+onSearchChange(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  this.searchKeyword = input.value;
+
+  if (!this.searchKeyword.trim()) {
+   this.searchResults.set([]);
+this.showSearchResults.set(false);
+    return;
+  }
+
+  this.productService.searchProducts(this.searchKeyword.trim()).subscribe({
+    next: (products) => {
+      this.searchResults.set(products);
+this.showSearchResults.set(products.length > 0);
+    },
+    error: (error) => {
+      console.error('Search error:', error);
+     this.searchResults.set([]);
+this.showSearchResults.set(false);
+    }
+  });
+}
+openProduct(product: Product): void {
+    this.productService.searchProducts(product.id).subscribe({
+    next: (products) => {
+      this.searchResults.set(products);
+this.showSearchResults.set(products.length > 0);
+    },
+    error: (error) => {
+      console.error('Search error:', error);
+     this.searchResults.set([]);
+this.showSearchResults.set(false);
+    }
+  });
+
+}
  changeLanguage(lang: string): void {
 
   localStorage.setItem('fp_lang', lang);

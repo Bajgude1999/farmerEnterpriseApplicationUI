@@ -66,9 +66,9 @@ export class ProductMasterComponent implements OnInit {
     productName: ['', Validators.required],
     imagePath: [null as string | null],
     productDesc: [''],
-    categoryCd: [null as number | null, Validators.required],
+    categoryCd: [null as number | null],
     categoryName: [''],
-    brandCd: [null as number | null, Validators.required],
+    brandCd: [null as number | null],
     brandName: [''],
     unitCd: [null as number | null],
     unitName: [''],
@@ -87,6 +87,9 @@ export class ProductMasterComponent implements OnInit {
     trending: [false],
     recentlyAdded: [false],
     bestSellers: [false],
+     usage:[null as string | null],
+  dose: [null as string | null],
+  precaution: [null as string | null],
   });
   selectedImageFile = signal<File | null>(null);
   imagePreviewUrl = signal<string | null>(null);

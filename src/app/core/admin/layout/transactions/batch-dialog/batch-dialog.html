@@ -121,6 +121,7 @@
       <td mat-cell *matCellDef="let row" [formGroup]="row">
         <mat-form-field appearance="outline" class="batch-dialog__field">
           <input matInput type="number" formControlName="batchQty" />
+           <input type="hidden" formControlName="mrpRate" />
           <mat-hint *ngIf="availableQtyFor(row) !== null">
             {{ 'MAX' | translate }}: {{ availableQtyFor(row) }}
           </mat-hint>

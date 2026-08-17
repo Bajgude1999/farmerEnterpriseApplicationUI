@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', loadComponent: () => import('./features/home/home').then((m) => m.Home), title: 'Krishi Seva Kendra — Home' },
+  { path: '', loadComponent: () => import('./features/home/home').then((m) => m.Home), title: 'VELNEXA — Home' },
   { path: 'login', loadComponent: () => import('./features/auth/login/login').then((m) => m.LoginComponent), title: 'Login' },
   { path: 'register', loadComponent: () => import('./features/auth/register/register').then((m) => m.Register), title: 'Register' },
   { path: 'forgot-password', loadComponent: () => import('./features/auth/forget-password/forget-password').then((m) => m.ForgotPasswordComponent), title: 'Forgot Password' },

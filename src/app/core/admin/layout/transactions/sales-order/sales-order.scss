@@ -6,7 +6,22 @@
 
   h2 { font-family: var(--font-display); font-size: 20px; }
 }
+.print-btn {
+  background: #1565c0;
+  color: #ffffff;
+  border: 1px solid #0d47a1;
+  border-radius: 6px;
+  padding: 7px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
+.print-btn:hover {
+  background: #0d47a1;
+  color: #ffffff;
+}
 .sales-order-form {
   padding: 24px;
 
@@ -95,4 +110,17 @@
   width: 100%;
 
   tr[mat-row] { cursor: pointer; }
+}
+.invoice-container {
+  width: 190mm;
+  min-height: 277mm;
+}
+#invoice-print {
+  display: none;
+}
+
+@media print {
+  #invoice-print {
+    display: block !important;
+  }
 }

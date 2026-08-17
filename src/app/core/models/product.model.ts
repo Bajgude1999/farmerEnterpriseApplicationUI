@@ -37,6 +37,9 @@ export interface Product {
   trending?: boolean;
   recentlyAdded?: boolean;
   bestSellers?: boolean;
+  usage: string;
+  dose: string;
+  precaution: string;
   
 }
 
@@ -84,6 +87,9 @@ export interface ProductMaster {
   trending?: boolean;
   recentlyAdded?: boolean;
   bestSellers?: boolean;
+  usage: string;
+  dose: string;
+  precaution: string;
 }
 export interface Packsizes {
   packPriceId?: number | null;
@@ -96,4 +102,19 @@ export interface Packsizes {
   mrpPrice: number;
   inStock: boolean;
   defaultYn: boolean;
+}
+export interface WhMaster {
+  whCd: number;
+  whName: string;
+  address: string;
+  city: string;
+  taluka: string;
+  district: string;
+  state: string;
+  pin: string;
+  gstNo: string;
+  panNo: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -53,6 +53,8 @@ export interface SalesOrderBatchDtl {
   batchRate: number;
   uomCd:number;
   packSize:number;
+  discount:number;
+  mrpRate:number;
 }
 
 export interface AvailableBatch {
@@ -63,4 +65,6 @@ export interface AvailableBatch {
   rate: number;
   packSize:number;
   uomCd:number;
+  mrpRate:number;
+  sellingPrice:number;
 }

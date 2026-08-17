@@ -154,11 +154,11 @@
 
       <div class="field-group">
         <label class="field-label">
-          {{ 'PURCHASE_PRICE' | translate }}
+          DOSE
         </label>
 
         <mat-form-field appearance="outline">
-          <input matInput type="number" formControlName="purchasePrice" />
+          <input matInput formControlName="dose" />
         </mat-form-field>
       </div>
       <div class="field-group">
@@ -176,13 +176,22 @@
       <!-- Row 1, Col 1 -->
       <div class="field-group product-form__stock-qty">
         <label class="field-label">
+         Usage
+        </label>
+
+        <mat-form-field appearance="outline">
+          <textarea matInput formControlName="usage" > </textarea>
+        </mat-form-field>
+      </div>
+      <!-- <div class="field-group product-form__stock-qty">
+        <label class="field-label">
           {{ 'STOCK_QTY' | translate }}
         </label>
 
         <mat-form-field appearance="outline">
           <input matInput type="number" formControlName="stockQty" />
         </mat-form-field>
-      </div>
+      </div> -->
 
       <!-- Row 1, Col 2 -->
       <div class="field-group product-form__min-stock-qty">
@@ -228,6 +237,7 @@
         <mat-checkbox formControlName="bestSellers"> Best Seller </mat-checkbox>
       </div>
     </div>
+    
 
     <!-- ================= PRODUCT SECTIONS ================= -->
 
@@ -250,6 +260,18 @@
         <mat-checkbox formControlName="recentlyAdded"> Recently Added </mat-checkbox>
       </div>
     </div>
+        <div class="form-row">
+
+      <div class="field-group product-form__stock-qty">
+        <label class="field-label">
+         Precaution
+        </label>
+
+        <mat-form-field appearance="outline">
+          <textarea matInput formControlName="precaution" > </textarea>
+        </mat-form-field>
+      </div>
+       </div>
     <!-- ================= PACK SIZE TABLE ================= -->
 
     <div class="product-form__pack-section">

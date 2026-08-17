@@ -14,7 +14,7 @@ import { GrnBatchDialog, GrnBatchDialogData } from '../grn-batch-dialog/grn-batc
 import { GrnBatchDtl } from '../../shared/grn.model';
 import { GrnService } from '../../shared/grn.service';
 import { GrnHdr, GrnDtl, GrnGst } from '../../shared/grn.model';
-import { Packsizes, Product, ProductMaster } from '../../../../models/product.model';
+import { Packsizes, Product, ProductMaster, WhMaster } from '../../../../models/product.model';
 import { ProductService } from '../../../../services/ product.service';
 import { MatOption } from '@angular/material/select';
 import { MatSelectModule } from '@angular/material/select';
@@ -60,6 +60,7 @@ export class GrnComponent implements OnInit {
   itemTableRows: any[] = [];
   taxNameOptions: string[] = ['BASIC', 'ROUND OFF', 'SGST', 'CGST', 'IGST', 'CESS'];
   grnStatuses = ['RECIEVED', 'CANCELLED','RETURNED'];
+  warehouses= signal<WhMaster[]>([]);
   itemColumns = [
     'productCd',
     'packSize',
@@ -84,6 +85,9 @@ export class GrnComponent implements OnInit {
     totalAmount: [0, Validators.required],
     active: [true],
     grnStatus:['', Validators.required],
+    invoiceDate:['', Validators.required],
+    invoiceNo:['', Validators.required],
+    whCd:['', Validators.required],
     grnDtlList: this.fb.array<FormGroup>([]),
   });
   suppliers = signal<UserMaster[]>([]);
@@ -109,6 +113,15 @@ export class GrnComponent implements OnInit {
     this.productService.getAll().subscribe({
       next: (result: ProductMaster[]) => {
         this.products.set(result);
+        //  this.loading.set(false);
+      },
+      error: () => {
+        //  this.loading.set(false);
+      },
+    });
+      this.productService.getAllWh().subscribe({
+      next: (result: WhMaster[]) => {
+        this.warehouses.set(result);
         //  this.loading.set(false);
       },
       error: () => {

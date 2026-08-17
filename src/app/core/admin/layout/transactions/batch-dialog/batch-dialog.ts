@@ -19,6 +19,7 @@ export interface BatchDialogData {
   productCd: number;
   productName: string;
   existingBatches: SalesOrderBatchDtl[];
+  discount: number;
 }
 
 @Component({
@@ -147,10 +148,11 @@ export class BatchDialog implements OnInit {
     row.patchValue({
       mfgDate: batch.mfgDate ?? '',
       expiryDate: batch.expiryDate ?? '',
-      batchRate: batch.rate,
+      batchRate: batch.sellingPrice,
       _availableQty: batch.availableQty,
       packSize:batch.packSize,
-      uomCd:batch.uomCd
+      uomCd:batch.uomCd,
+      mrpRate:batch.mrpRate
     });
     row.get('batchQty')?.setValidators([Validators.required, Validators.min(0.01), this.maxQtyValidator(batch.availableQty)]);
     row.get('batchQty')?.updateValueAndValidity();
@@ -173,15 +175,32 @@ export class BatchDialog implements OnInit {
       this.rows.markAllAsTouched();
       return;
     }
+  let totalDiscount = 0;
 
-    const result: SalesOrderBatchDtl[] = this.rows.controls.map((row) => {
-      const raw = row.getRawValue();
-      const { _availableQty, ...batch } = raw;
-      return batch as SalesOrderBatchDtl;
-    });
+  const result: SalesOrderBatchDtl[] = this.rows.controls.map((row) => {
+    const raw = row.getRawValue();
 
-    this.dialogRef.close(result);
-  }
+    // Find original batch information
+    const availableBatch = this.availableBatches().find(
+      batch => batch.batchNo === raw.batchNo
+    );
+
+    const batchQty = Number(raw.batchQty || 0);
+    const mrpRate = Number(availableBatch?.mrpRate || 0);
+    const sellingPrice = Number(raw.sellingPrice || 0);
+
+    // Calculate this batch's discount
+    totalDiscount +=
+      (mrpRate - sellingPrice) * batchQty;
+
+    const { _availableQty, ...batch } = raw;
+
+    return batch as SalesOrderBatchDtl;
+  });
+
+result[0].discount = totalDiscount;
+
+this.dialogRef.close(result);  }
 
   cancel(): void {
     this.dialogRef.close(null);
