@@ -70,3 +70,14 @@ export interface ProductMaster {
   active: boolean;
   productTaxMstDtos: ProductTaxMst[];
 }
+export interface ProductRatingDto {
+  ratingCd?: number;
+  productCd: number;
+  userCd: number;
+  orderCd: number;
+  rating: number;
+  review?: string;
+  active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}

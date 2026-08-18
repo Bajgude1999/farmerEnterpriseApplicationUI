@@ -1,0 +1,14 @@
+<h2 mat-dialog-title class="session-expiry__title">
+  <mat-icon class="session-expiry__icon">schedule</mat-icon>
+  Session Expiring
+</h2>
+
+<mat-dialog-content class="session-expiry__content">
+  <p>Your session will expire in less than 1 minute.</p>
+  <p>Do you want to continue your session?</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="session-expiry__actions">
+  <button mat-stroked-button (click)="logout()">No, Logout</button>
+  <button mat-flat-button class="fp-btn-primary" (click)="continueSession()">Yes, Continue</button>
+</mat-dialog-actions>

@@ -1,0 +1,30 @@
+.session-expiry {
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+
+  &__icon {
+    color: var(--brand-gold-600);
+  }
+
+  &__content {
+    p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0 0 8px;
+      line-height: 1.6;
+
+      &:last-child { margin-bottom: 0; }
+    }
+  }
+
+  &__actions {
+    padding-top: 16px;
+    gap: 8px;
+  }
+}

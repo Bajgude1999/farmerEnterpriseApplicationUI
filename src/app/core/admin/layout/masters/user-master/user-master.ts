@@ -16,7 +16,8 @@ import { UploadService } from '../../../../services/upload.service';
 import { RoleService } from '../../../../services/role.service';
 //import { RoleOption } from '../../../../models/';
 import { RoleOption, UserMaster } from '../../../../models/user.model';
-import { INDIA_LOCATIONS, DistrictOption } from '../../../../data/india-locations';
+import { District, State, Taluka } from '../../../../models/location.model';
+import { LocationService } from '../../../../services/location.service';
 
 @Component({
   selector: 'app-user-master',
@@ -42,15 +43,15 @@ export class UserMasterComponent implements OnInit {
   private roleService = inject(RoleService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private locationService = inject(LocationService);
 
   isEdit = signal(false);
   saving = signal(false);
   uploadingPhoto = signal(false);
-
-  states = INDIA_LOCATIONS;
+ states = signal<State[]>([]);
+  districts = signal<District[]>([]);
+  talukas = signal<Taluka[]>([]);
   roles = signal<RoleOption[]>([]);
-  districts = signal<DistrictOption[]>([]);
-  talukas = signal<string[]>([]);
 
   photoUrl = signal<string | null>(null);
 
@@ -77,6 +78,14 @@ export class UserMasterComponent implements OnInit {
   });
 
   ngOnInit(): void {
+     this.locationService.getStates().subscribe({
+      next: (data) => {
+        this.states.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load states', err);
+      },
+    });
     this.roleService.getAll().subscribe({
       next: (roles) => this.roles.set(roles),
       error: () => this.roles.set([]),
@@ -88,31 +97,124 @@ export class UserMasterComponent implements OnInit {
       this.loadUser(Number(userId));
     }
   }
-
-  private loadUser(userId: number): void {
-    this.userService.getById(userId).subscribe((user) => {
+private loadUser(userId: number): void {
+  this.userService.getById(userId).subscribe({
+    next: (user) => {
+      // Patch user details
       this.form.patchValue(user);
-      this.photoUrl.set(this.uploadService.getFileUrl(user.profilePhoto));
 
-      const state = this.states.find((s) => s.name === user.state);
-      this.districts.set(state?.districts ?? []);
-      const district = state?.districts.find((d) => d.name === user.district);
-      this.talukas.set(district?.talukas ?? []);
+      // Profile photo
+      this.photoUrl.set(
+        this.uploadService.getFileUrl(user.profilePhoto)
+      );
+
+      // Find selected state
+      const state = this.states().find(
+        (s: State) => s.stateName === user.state
+      );
+
+      if (!state) {
+        this.districts.set([]);
+        this.talukas.set([]);
+        return;
+      }
+
+      // Load districts for selected state
+      this.locationService.getDistricts(state.stateCd).subscribe({
+        next: (districts: District[]) => {
+          this.districts.set(districts);
+
+          // Find selected district
+          const district = districts.find(
+            (d: District) => d.districtName === user.district
+          );
+
+          if (!district) {
+            this.talukas.set([]);
+            return;
+          }
+
+          // Load talukas for selected district
+          this.locationService.getTalukas(district.districtCd).subscribe({
+            next: (talukas: Taluka[]) => {
+              this.talukas.set(talukas);
+            },
+            error: (err) => {
+              console.error('Failed to load talukas', err);
+              this.talukas.set([]);
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to load districts', err);
+          this.districts.set([]);
+          this.talukas.set([]);
+        }
+      });
+    },
+    error: (err) => {
+      console.error('Failed to load user', err);
+    }
+  });
+}
+
+onStateChange(stateName: string): void {
+  const state = this.states().find(
+    s => s.stateName === stateName
+  );
+
+  if (!state) {
+    return;
+  }
+
+  const stateCd = state.stateCd;    // Clear districts and talukas
+    this.districts.set([]);
+    this.talukas.set([]);
+
+    // Clear form values
+    this.form.patchValue({ district: '', taluka: '' });
+
+    // Load districts
+    this.locationService.getDistricts(stateCd).subscribe({
+      next: (data) => {
+        this.districts.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load districts', err);
+        this.districts.set([]);
+      },
     });
   }
 
-  onStateChange(stateName: string): void {
-    const state = this.states.find((s) => s.name === stateName);
-    this.districts.set(state?.districts ?? []);
-    this.talukas.set([]);
-    this.form.patchValue({ district: '', taluka: '' });
+onDistrictChange(districtName: string): void {
+
+  const district = this.districts().find(
+    d => d.districtName === districtName
+  );
+
+  if (!district) {
+    return;
   }
 
-  onDistrictChange(districtName: string): void {
-    const district = this.districts().find((d) => d.name === districtName);
-    this.talukas.set(district?.talukas ?? []);
+  const districtCd = district.districtCd;
+    // Clear talukas
+    this.talukas.set([]);
+
+    // Clear selected taluka
     this.form.patchValue({ taluka: '' });
+
+    // Load talukas
+    this.locationService.getTalukas(districtCd).subscribe({
+      next: (data) => {
+        this.talukas.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load talukas', err);
+        this.talukas.set([]);
+      },
+    });
   }
+  
 
   onRoleChange(roleCd: number): void {
     const role = this.roles().find((r) => r.roleCd === roleCd);

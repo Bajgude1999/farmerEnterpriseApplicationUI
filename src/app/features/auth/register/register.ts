@@ -17,8 +17,9 @@ import { CartService } from '../../../core/services/cart.service';
 import { ProductService } from '../../../core/services/ product.service';
 import { RoleService } from '../../../core/services/role.service';
 import { RoleOption } from '../../../core/models/user.model';
-import { INDIA_LOCATIONS, DistrictOption } from '../../../core/data/india-locations';
 import { environment } from '../../../../environments/environment/environment';
+import { District, State, Taluka } from '../../../core/models/location.model';
+import { LocationService } from '../../../core/services/location.service';
 
 @Component({
   selector: 'fp-register',
@@ -48,16 +49,16 @@ export class Register {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private translate = inject(TranslateService);
+  private locationService = inject(LocationService);
 
   submitting = false;
   errorMessage = '';
 
-  states = INDIA_LOCATIONS;
+  states = signal<State[]>([]);
+  districts = signal<District[]>([]);
+  talukas = signal<Taluka[]>([]);
   roles = signal<RoleOption[]>([]);
   photoPreview = signal<string | null>(null);
-
-  districts = signal<DistrictOption[]>([]);
-  talukas = signal<string[]>([]);
 
   isAdminRole = computed(() => {
     const selectedRoleCd = this.form?.controls.roleCd.value;
@@ -89,19 +90,72 @@ export class Register {
     this.roles.set([{ roleCd: 5, roleName: 'FARMER' }]);
   }
 
-  onStateChange(stateName: string): void {
-    const state = this.states.find((s) => s.name === stateName);
-    this.districts.set(state?.districts ?? []);
+  ngOnInit(): void {
+    this.locationService.getStates().subscribe({
+      next: (data) => {
+        this.states.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load states', err);
+      },
+    });
+  }
+
+onStateChange(stateName: string): void {
+  const state = this.states().find(
+    s => s.stateName === stateName
+  );
+
+  if (!state) {
+    return;
+  }
+
+  const stateCd = state.stateCd;  
+    this.districts.set([]);
     this.talukas.set([]);
+
+    // Clear form values
     this.form.patchValue({ district: '', taluka: '' });
+
+    // Load districts
+    this.locationService.getDistricts(stateCd).subscribe({
+      next: (data) => {
+        this.districts.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load districts', err);
+        this.districts.set([]);
+      },
+    });
   }
 
-  onDistrictChange(districtName: string): void {
-    const district = this.districts().find((d) => d.name === districtName);
-    this.talukas.set(district?.talukas ?? []);
+onDistrictChange(districtName: string): void {
+
+  const district = this.districts().find(
+    d => d.districtName === districtName
+  );
+
+  if (!district) {
+    return;
+  }
+  const districtCd = district.districtCd;
+
+    this.talukas.set([]);
+
+    // Clear selected taluka
     this.form.patchValue({ taluka: '' });
-  }
 
+    // Load talukas
+    this.locationService.getTalukas(districtCd).subscribe({
+      next: (data) => {
+        this.talukas.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load talukas', err);
+        this.talukas.set([]);
+      },
+    });
+  }
   onRoleChange(roleCd: number): void {
     const role = this.roles().find((r) => r.roleCd === roleCd);
     this.form.patchValue({ roleName: role?.roleName } as any);

@@ -147,6 +147,55 @@
         </mat-form-field>
       </div>
     </div>
+    <div class="form-row">
+
+  <!-- Shipping Charge - ALWAYS VISIBLE -->
+  <div class="field-group">
+    <label class="field-label">Shipping Charge</label>
+
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        type="number"
+        formControlName="shippingCharge"
+      />
+    </mat-form-field>
+  </div>
+
+
+  <!-- UPI Payment - HIDDEN FOR COD -->
+  <div
+    class="field-group"
+    *ngIf="form.get('paymentMode')?.value !== 'COD'"
+  >
+    <label class="field-label">UPI Payment</label>
+
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        type="number"
+        formControlName="upiPayment"
+      />
+    </mat-form-field>
+  </div>
+
+
+  <!-- UPI Ref - HIDDEN FOR COD -->
+  <div
+    class="field-group"
+    *ngIf="form.get('paymentMode')?.value !== 'COD'"
+  >
+    <label class="field-label">UPI Ref.</label>
+
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        formControlName="upipaymentRef"
+      />
+    </mat-form-field>
+  </div>
+
+</div>
 
     <!-- Line items -->
     <!-- Line items -->

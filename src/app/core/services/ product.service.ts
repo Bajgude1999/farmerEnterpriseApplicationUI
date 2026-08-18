@@ -169,8 +169,8 @@ export class ProductService {
             mrp: defaultPack?.mrpPrice ?? p.mrp ?? 0,
             packSize: defaultPack?.packSize ?? 0,
 
-            rating: 4.5,
-            ratingCount: 100,
+            rating: p.rating,
+            ratingCount: p.ratingCount,
 
             stock: p.stockQty ?? 0,
             unit: packUnit ?? p.unitName ?? '',
@@ -178,6 +178,7 @@ export class ProductService {
             trending: p.trending,
             recentlyAdded: p.recentlyAdded,
             bestSellers: p.bestSellers,
+            imagePath:p.imagePath,
             images: [
               {
                 thumbnail: p.imagePath,
@@ -383,7 +384,7 @@ searchProducts(keyword: string): Observable<Product[]> {
             trending: p.trending,
             recentlyAdded: p.recentlyAdded,
             bestSellers: p.bestSellers,
-
+            imagePath:p.imagePath,
             images: [
               {
                 thumbnail: p.imagePath,

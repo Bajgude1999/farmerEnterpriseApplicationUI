@@ -104,6 +104,9 @@ export class SalesOrderComponent implements OnInit {
     orderDate: [''],
     whCd: ['', Validators.required],
     items: this.fb.array([]),
+    upiPayment:[null as number | null],
+    upipaymentRef:[''],
+    shippingCharges:[null as number | null,],
   });
 
   get itemRows(): FormArray {
@@ -560,543 +563,2506 @@ export class SalesOrderComponent implements OnInit {
     const factor = Math.pow(10, decimals);
     return Math.round((value + Number.EPSILON) * factor) / factor;
   }
-  printInvoice(): void {
-    const formValue = this.form.getRawValue();
-    const logoUrl = `${window.location.origin}/assets/images/logo.png`;
-    const customerName = this.users.find((u: any) => u.userId === formValue.userCd)?.fullName || '';
+printInvoice(): void {
 
-    const warehouseName =
-      this.warehouses().find((w: any) => w.whCd === formValue.whCd)?.whName || '';
+  const formValue = this.form.getRawValue();
 
-    const items = this.itemRows.controls;
+  // ============================================================
+  // LOGO
+  // ============================================================
 
-   const itemRows = items.map((row: any, index: number) => {
+  const logoUrl =
+    `${window.location.origin}/assets/images/logo.png`;
 
-  const productCd = row.get('productCd')?.value;
 
-  const productName =
-    this.products().find(
-      (p: any) => p.productCd === productCd
-    )?.productName || '';
+  // ============================================================
+  // CUSTOMER
+  // ============================================================
 
-  const unitName =
-    this.units().find(
-      (u: any) => u.unitCd === row.get('uomCd')?.value
-    )?.unitName || '';
+  const customer = this.users.find(
+    (u: any) =>
+      u.userId === formValue.userCd
+  );
 
-  const qty = row.get('qty')?.value || 0;
-  const rate = row.get('rate')?.value || 0;
-  const discount = row.get('discount')?.value || 0;
-  const amount = row.get('amount')?.value || 0;
-  const packSize = row.get('packSize')?.value || '';
 
-  // Batch details
-  const batchNo = row.get('batchNo')?.value || '';
-  const expiryDate = row.get('expiryDate')?.value || '';
-  const hsnCode = row.get('hsnCode')?.value || '';
+  // ============================================================
+  // WAREHOUSE
+  // warehouses is WritableSignal, therefore use ()
+  // ============================================================
 
-  // GST details
-  const gstRate = row.get('gstRate')?.value || 0;
-  const taxableValue = row.get('taxableValue')?.value || 0;
-  const cgst = row.get('cgst')?.value || 0;
-  const igst = row.get('igst')?.value || 0;
+  const whMObj = this.warehouses().find(
+    (w: any) =>
+      w.whCd === formValue.whCd
+  );
 
-  return `
-    <tr>
 
-      <td class="center">
-        ${index + 1}
-      </td>
+  // ============================================================
+  // PHONE
+  // ============================================================
 
-      <td>
-        ${productName}
-      </td>
+  const phone =
+    customer?.mobNo
+      ? `${customer.mobNo}${
+          customer?.optionalMobNo
+            ? ' / ' + customer.optionalMobNo
+            : ''
+        }`
+      : customer?.optionalMobNo || '';
 
-      <td>
-        ${batchNo}
-      </td>
 
-      <td class="center">
-        ${expiryDate}
-      </td>
+  // ============================================================
+  // INVOICE DATE
+  // ============================================================
 
-      <td class="center">
-        ${hsnCode}
-      </td>
+  const invoiceDate =
+    formValue.invoiceDate
+      ? new Date(
+          formValue.invoiceDate
+        ).toLocaleDateString('en-IN')
+      : '';
 
-      <td class="center">
-        ${packSize} ${unitName}
-      </td>
 
-      <td class="center">
-        ${qty}
-      </td>
+  // ============================================================
+  // FORM TOTALS
+  // ============================================================
 
-      <td class="right">
-        ${Number(rate).toFixed(2)}
-      </td>
+  const grossAmount =
+    Number(
+      formValue.grossAmount || 0
+    );
 
-      <td class="center">
-        ${Number(gstRate).toFixed(2)}%
-      </td>
+  const discountAmount =
+    Number(
+      formValue.discountAmount || 0
+    );
 
-      <td class="right">
-        ${Number(taxableValue).toFixed(2)}
-      </td>
+  const upiPayment =
+    Number(
+      formValue.upiPayment || 0
+    );
 
-      <td class="right">
-        ${Number(cgst).toFixed(2)}
-      </td>
+  const netAmount =
+    Number(
+      formValue.netAmount || 0
+    );
 
-      <td class="right">
-        ${Number(igst).toFixed(2)}
-      </td>
 
-      <td class="right">
-        ${Number(discount).toFixed(2)}
-      </td>
+  // ============================================================
+  // SHIPPING CHARGES
+  // ============================================================
 
-      <td class="right">
-        ${Number(amount).toFixed(2)}
-      </td>
+  const shippingCharges =
+    Number(
+      formValue.shippingCharges || 0
+    );
 
-    </tr>
-  `;
-}).join('');
-    const printWindow = window.open('', '_blank', 'width=900,height=700');
 
-    if (!printWindow) {
-      alert('Please allow popups to print the invoice.');
-      return;
+  // ============================================================
+  // ITEMS
+  // ============================================================
+
+  const items =
+    this.itemRows.controls;
+
+
+  // ============================================================
+  // ROUND OFF
+  //
+  // Sum all tax rows where taxName = ROUND OFF
+  // ============================================================
+
+  let roundOff = 0;
+
+  items.forEach(
+    (row: any) => {
+
+      const taxes =
+        row.get('taxes')?.value || [];
+
+
+      taxes.forEach(
+        (tax: any) => {
+
+          const taxName =
+            String(
+              tax.taxName || ''
+            )
+              .trim()
+              .toUpperCase();
+
+
+          if (
+            taxName === 'ROUND OFF'
+          ) {
+
+            roundOff += Number(
+              tax.taxAmount || 0
+            );
+
+          }
+
+        }
+      );
+
     }
+  );
 
-    printWindow.document.open();
 
-    printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
+  // ============================================================
+  // ITEM ROWS FOR TAX INVOICE
+  // ============================================================
 
-      <title>Invoice - ${formValue.invoiceNo || formValue.orderNo || ''}</title>
+  const itemRows =
+    items
+      .map(
+        (
+          row: any,
+          index: number
+        ) => {
 
-      <style>
 
-        @page {
-          size: A4;
-          margin: 10mm;
+          // ==================================================
+          // PRODUCT
+          // ==================================================
+
+          const productCd =
+            row.get(
+              'productCd'
+            )?.value;
+
+
+          const product =
+            this.products().find(
+              (p: any) =>
+                p.productCd ===
+                productCd
+            );
+
+
+          const productName =
+            product?.productName || '';
+
+
+          const hsnCode =
+            product?.hsnCode || '';
+
+
+          // ==================================================
+          // ITEM VALUES
+          // ==================================================
+
+          const qty =
+            Number(
+              row.get(
+                'qty'
+              )?.value || 0
+            );
+
+
+          const rate =
+            Number(
+              row.get(
+                'rate'
+              )?.value || 0
+            );
+
+
+          const amount =
+            Number(
+              row.get(
+                'amount'
+              )?.value || 0
+            );
+
+
+          const discount =
+            Number(
+              row.get(
+                'discount'
+              )?.value || 0
+            );
+
+
+          // ==================================================
+          // TAXES
+          // ==================================================
+
+          const taxes =
+            row.get(
+              'taxes'
+            )?.value || [];
+
+
+          // ==================================================
+          // CGST
+          // ==================================================
+
+          const cgstTax =
+            taxes.find(
+              (tax: any) =>
+                String(
+                  tax.taxName || ''
+                )
+                  .trim()
+                  .toUpperCase() ===
+                'CGST'
+            );
+
+
+          // ==================================================
+          // SGST
+          // ==================================================
+
+          const sgstTax =
+            taxes.find(
+              (tax: any) =>
+                String(
+                  tax.taxName || ''
+                )
+                  .trim()
+                  .toUpperCase() ===
+                'SGST'
+            );
+
+
+          // ==================================================
+          // IGST
+          // ==================================================
+
+          const igstTax =
+            taxes.find(
+              (tax: any) =>
+                String(
+                  tax.taxName || ''
+                )
+                  .trim()
+                  .toUpperCase() ===
+                'IGST'
+            );
+
+
+          // ==================================================
+          // TAX RATES
+          // ==================================================
+
+          const cgstRate =
+            Number(
+              cgstTax?.taxRate || 0
+            );
+
+
+          const sgstRate =
+            Number(
+              sgstTax?.taxRate || 0
+            );
+
+
+          const igstRate =
+            Number(
+              igstTax?.taxRate || 0
+            );
+
+
+          // ==================================================
+          // GST RATE
+          // ==================================================
+
+          const gstRate =
+            (
+              cgstTax ||
+              sgstTax
+            )
+              ? cgstRate + sgstRate
+              : igstRate;
+
+
+          // ==================================================
+          // TAX AMOUNTS
+          // ==================================================
+
+          const cgst =
+            Number(
+              cgstTax?.taxAmount || 0
+            );
+
+
+          const sgst =
+            Number(
+              sgstTax?.taxAmount || 0
+            );
+
+
+          const igst =
+            Number(
+              igstTax?.taxAmount || 0
+            );
+
+
+          // ==================================================
+          // TAXABLE VALUE
+          //
+          // Amount is GST inclusive.
+          // ==================================================
+
+          const taxableValue =
+            gstRate > 0
+              ? amount /
+                (
+                  1 +
+                  gstRate / 100
+                )
+              : amount;
+
+
+          // ==================================================
+          // BATCH DETAILS
+          // ==================================================
+
+          const batchDetails =
+            row.get(
+              'batchDetails'
+            )?.value || [];
+
+
+          // ==================================================
+          // FALLBACK BATCH
+          // ==================================================
+
+          const batches =
+            batchDetails.length > 0
+              ? batchDetails
+              : [
+                  {
+                    batchNo:
+                      row.get(
+                        'batchNo'
+                      )?.value || '',
+
+                    expiryDate:
+                      row.get(
+                        'expiryDate'
+                      )?.value || '',
+
+                    batchQty:
+                      qty,
+
+                    packSize:
+                      row.get(
+                        'packSize'
+                      )?.value || '',
+
+                    unitCd:
+                      row.get(
+                        'uomCd'
+                      )?.value || ''
+                  }
+                ];
+
+
+          // ==================================================
+          // PRINT EACH BATCH
+          // ==================================================
+
+          return batches
+            .map(
+              (
+                batch: any,
+                batchIndex: number
+              ) => {
+
+                const isFirstBatch =
+                  batchIndex === 0;
+
+
+                // ============================================
+                // BATCH QTY
+                // ============================================
+
+                const batchQty =
+                  Number(
+                    batch.batchQty ??
+                    batch.qty ??
+                    0
+                  );
+
+
+                // ============================================
+                // UNIT
+                // ============================================
+
+                const batchUnitName =
+                  this.units().find(
+                    (u: any) =>
+                      u.unitCd ===
+                      batch.unitCd
+                  )?.unitName || '';
+
+
+                // ============================================
+                // PACK SIZE / UOM
+                // ============================================
+
+                const packUom =
+                  batch.packSize !== null &&
+                  batch.packSize !== undefined &&
+                  batch.packSize !== ''
+                    ? `${batch.packSize} ${batchUnitName}`
+                    : batchUnitName;
+
+
+                // ============================================
+                // ROW
+                // ============================================
+
+                return `
+
+                  <tr>
+
+                    <td class="center">
+                      ${
+                        isFirstBatch
+                          ? index + 1
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="product-name">
+                      ${
+                        isFirstBatch
+                          ? productName
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="center">
+                      ${
+                        batch.batchNo || ''
+                      }
+                    </td>
+
+
+                    <td class="center">
+                      ${
+                        batch.expiryDate || ''
+                      }
+                    </td>
+
+
+                    <td class="center">
+                      ${
+                        isFirstBatch
+                          ? hsnCode
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="center">
+                      ${packUom}
+                    </td>
+
+
+                    <td class="center">
+                      ${batchQty}
+                    </td>
+
+
+                    <td class="right">
+                      ${
+                        isFirstBatch
+                          ? rate.toFixed(2)
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="center">
+                      ${
+                        isFirstBatch
+                          ? gstRate.toFixed(2) + '%'
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="right">
+                      ${
+                        isFirstBatch
+                          ? taxableValue.toFixed(2)
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="right">
+                      ${
+                        isFirstBatch
+                          ? cgst.toFixed(2)
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="right">
+                      ${
+                        isFirstBatch
+                          ? sgst.toFixed(2)
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="right">
+                      ${
+                        isFirstBatch
+                          ? discount.toFixed(2)
+                          : ''
+                      }
+                    </td>
+
+
+                    <td class="right">
+                      ${
+                        isFirstBatch
+                          ? amount.toFixed(2)
+                          : ''
+                      }
+                    </td>
+
+                  </tr>
+
+                `;
+
+              }
+            )
+            .join('');
+
         }
+      )
+      .join('');
 
-        * {
-          box-sizing: border-box;
+
+  // ============================================================
+  // SECOND BOX PRODUCTS
+  //
+  // One row per product
+  // ============================================================
+
+  const deliveryProductRows =
+    items
+      .map(
+        (row: any) => {
+
+          const productCd =
+            row.get(
+              'productCd'
+            )?.value;
+
+
+          const product =
+            this.products().find(
+              (p: any) =>
+                p.productCd ===
+                productCd
+            );
+
+
+          const productName =
+            product?.productName || '-';
+
+
+          const qty =
+            Number(
+              row.get(
+                'qty'
+              )?.value || 0
+            );
+
+
+          const rate =
+            Number(
+              row.get(
+                'rate'
+              )?.value || 0
+            );
+
+
+          const amount =
+            Number(
+              row.get(
+                'amount'
+              )?.value || 0
+            );
+
+
+          return `
+
+            <tr>
+
+              <td class="slip-product-name">
+                ${productName}
+              </td>
+
+              <td class="center">
+                ${qty}
+              </td>
+
+              <td class="right">
+                ${rate.toFixed(2)}
+              </td>
+
+              <td class="right">
+                ${amount.toFixed(2)}
+              </td>
+
+            </tr>
+
+          `;
+
         }
+      )
+      .join('');
 
-        html,
-        body {
-          margin: 0;
-          padding: 0;
-          background: #fff;
-          font-family: Arial, Helvetica, sans-serif;
-          font-size: 11px;
-          color: #000;
-        }
 
-        .invoice {
-          width: 190mm;
-          min-height: 277mm;
-          margin: 0 auto;
-          padding: 0;
-        }
+  // ============================================================
+  // OPEN PRINT WINDOW
+  // ============================================================
 
-        /* HEADER */
+  const printWindow =
+    window.open(
+      '',
+      '_blank',
+      'width=900,height=700'
+    );
 
-     .header {
-  border: 1px solid #000;
-  padding: 8px 10px;
+
+  if (!printWindow) {
+
+    alert(
+      'Please allow popups to print the invoice.'
+    );
+
+    return;
+  }
+
+
+  printWindow.document.open();
+
+
+  // ============================================================
+  // PRINT HTML
+  // ============================================================
+
+  printWindow.document.write(`
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>
+  Invoice -
+  ${
+    formValue.invoiceNo ||
+    formValue.orderNo ||
+    ''
+  }
+</title>
+
+
+<style>
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+@page {
+
+  size: A4;
+
+  margin: 8mm;
+
 }
+
+
+* {
+
+  box-sizing: border-box;
+
+}
+
+
+html,
+body {
+
+  margin: 0;
+
+  padding: 0;
+
+  background: #fff;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 10px;
+
+  color: #000;
+
+}
+
+
+body {
+
+  width: 100%;
+
+}
+
+
+/* ============================================================
+   COMMON A4 WIDTH
+============================================================ */
+
+.invoice,
+.delivery-slip-wrapper {
+
+  width: 100%;
+
+  max-width: 194mm;
+
+  margin-left: auto;
+
+  margin-right: auto;
+
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.header {
+
+  border: 1px solid #000;
+
+  padding: 6px 8px;
+
+}
+
 
 .header-content {
+
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
-  min-height: 65px;
+
+  min-height: 60px;
+
 }
+
 
 .header-details {
+
   flex: 1;
+
   text-align: center;
+
 }
+
 
 .header-details h1 {
-  margin: 0 0 5px 0;
-  font-size: 22px;
+
+  margin: 0 0 4px 0;
+
+  font-size: 20px;
+
   font-weight: bold;
+
 }
+
 
 .header-details p {
+
   margin: 0;
-  font-size: 10px;
-  line-height: 14px;
+
+  font-size: 9px;
+
+  line-height: 13px;
+
 }
+
 
 .header-logo {
-  width: 70px;
-  height: 65px;
+
+  width: 65px;
+
+  height: 55px;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
+
   margin-left: 10px;
+
 }
+
 
 .header-logo img {
-  max-width: 65px;
-  max-height: 60px;
+
+  max-width: 60px;
+
+  max-height: 55px;
+
   object-fit: contain;
+
 }
 
-        /* TITLE */
 
-        .invoice-title {
-          text-align: center;
-          font-size: 16px;
-          font-weight: bold;
-          padding: 8px;
-          border-left: 1px solid #000;
-          border-right: 1px solid #000;
-          border-bottom: 1px solid #000;
-        }
+/* ============================================================
+   TITLE
+============================================================ */
 
-        /* DETAILS */
+.invoice-title {
 
-        .details-table {
-          width: 100%;
-          border-collapse: collapse;
-        }
+  text-align: center;
 
-        .details-table td {
-          border: 1px solid #000;
-          padding: 6px;
-          vertical-align: top;
-        }
+  font-size: 14px;
 
-        .label {
-          font-weight: bold;
-        }
+  font-weight: bold;
 
-        /* ITEMS */
+  padding: 6px;
 
-        .items-table {
+  border-left: 1px solid #000;
+
+  border-right: 1px solid #000;
+
+  border-bottom: 1px solid #000;
+
+}
+
+
+/* ============================================================
+   CUSTOMER DETAILS
+============================================================ */
+
+.details-table {
+
   width: 100%;
+
   border-collapse: collapse;
-  margin-top: 10px;
+
   table-layout: fixed;
+
 }
+
+
+.details-table td {
+
+  border: 1px solid #000;
+
+  padding: 6px 8px;
+
+  vertical-align: top;
+
+  line-height: 15px;
+
+}
+
+
+.customer-left {
+
+  width: 55%;
+
+}
+
+
+.bill-title {
+
+  font-weight: bold;
+
+  font-size: 11px;
+
+  margin-bottom: 4px;
+
+}
+
+
+.customer-left
+div:not(.bill-title) {
+
+  margin: 0;
+
+  padding: 0;
+
+  line-height: 15px;
+
+}
+
+
+.invoice-right {
+
+  width: 45%;
+
+  vertical-align: top;
+
+}
+
+
+.invoice-right div {
+
+  margin: 0 0 3px 0;
+
+}
+
+
+.label {
+
+  font-weight: bold;
+
+}
+
+
+/* ============================================================
+   ITEMS
+============================================================ */
+
+.items-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 8px;
+
+  table-layout: fixed;
+
+}
+
 
 .items-table th,
 .items-table td {
+
   border: 1px solid #000;
+
   padding: 4px 3px;
-  font-size: 8px;
+
+  font-size: 7.5px;
+
+  line-height: 10px;
+
   word-wrap: break-word;
+
+  overflow-wrap: anywhere;
+
 }
+
 
 .items-table th {
+
   text-align: center;
+
   font-weight: bold;
+
   background: #f2f2f2;
-  font-size: 8px;
+
+  font-size: 7.5px;
+
 }
 
-.items-table .center {
+
+.items-table thead {
+
+  display: table-header-group;
+
+}
+
+
+.items-table tr {
+
+  page-break-inside: avoid;
+
+}
+
+
+.center {
+
   text-align: center;
+
 }
 
-.items-table .right {
+
+.right {
+
   text-align: right;
+
 }
 
-        /* TOTAL */
 
-        .total-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 10px;
-        }
+.product-name {
 
-        .total-table td {
-          border: 1px solid #000;
-          padding: 7px;
-        }
+  text-align: left;
 
-        .total-label {
-          text-align: right;
-          font-weight: bold;
-        }
+}
 
-        .net-total {
-          font-size: 14px;
-          font-weight: bold;
-        }
 
-        /* FOOTER */
+/* ============================================================
+   ITEM COLUMN WIDTHS
+============================================================ */
 
-        .footer {
-          margin-top: 40px;
-          display: flex;
-          justify-content: space-between;
-        }
+.items-table th:nth-child(1),
+.items-table td:nth-child(1) {
+  width: 4%;
+}
 
-        .signature {
-          width: 180px;
-          text-align: center;
-          padding-top: 35px;
-          border-top: 1px solid #000;
-        }
+.items-table th:nth-child(2),
+.items-table td:nth-child(2) {
+  width: 13%;
+}
 
-        @media print {
+.items-table th:nth-child(3),
+.items-table td:nth-child(3) {
+  width: 8%;
+}
 
-          body {
-            margin: 0;
-          }
+.items-table th:nth-child(4),
+.items-table td:nth-child(4) {
+  width: 8%;
+}
 
-          .invoice {
-            width: 190mm;
-            min-height: 277mm;
-          }
+.items-table th:nth-child(5),
+.items-table td:nth-child(5) {
+  width: 7%;
+}
 
-        }
+.items-table th:nth-child(6),
+.items-table td:nth-child(6) {
+  width: 9%;
+}
 
-      </style>
+.items-table th:nth-child(7),
+.items-table td:nth-child(7) {
+  width: 5%;
+}
 
-    </head>
+.items-table th:nth-child(8),
+.items-table td:nth-child(8) {
+  width: 7%;
+}
 
-    <body>
+.items-table th:nth-child(9),
+.items-table td:nth-child(9) {
+  width: 7%;
+}
 
-      <div class="invoice">
+.items-table th:nth-child(10),
+.items-table td:nth-child(10) {
+  width: 8%;
+}
 
-        <!-- HEADER -->
+.items-table th:nth-child(11),
+.items-table td:nth-child(11) {
+  width: 6%;
+}
 
-        <div class="header">
+.items-table th:nth-child(12),
+.items-table td:nth-child(12) {
+  width: 6%;
+}
 
-  <div class="header-content">
+.items-table th:nth-child(13),
+.items-table td:nth-child(13) {
+  width: 6%;
+}
 
-    <div class="header-details">
-      <h1>VELNEXA</h1>
+.items-table th:nth-child(14),
+.items-table td:nth-child(14) {
+  width: 6%;
+}
 
-      <p>
-        H-1453 Charholi Kh, Chakan, Tal Khed, Junnar,
-        Pune, Maharashtra 410502
-      </p>
-    </div>
 
-    <div class="header-logo">
-      <img src="${logoUrl}" alt="VELNEXA" />
+/* ============================================================
+   BOTTOM SECTION
+============================================================ */
+
+.bottom-section-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 8px;
+
+  table-layout: fixed;
+
+}
+
+
+.bottom-section-table
+> tbody > tr > td {
+
+  vertical-align: top;
+
+  border: 1px solid #000;
+
+  padding: 7px 8px;
+
+}
+
+
+.bottom-left {
+
+  width: 65%;
+
+  font-size: 8px;
+
+  line-height: 12px;
+
+  text-align: left;
+
+}
+
+
+.bottom-left > div {
+
+  margin-bottom: 5px;
+
+}
+
+
+.sold-by {
+
+  margin-top: 8px;
+
+  padding-top: 6px;
+
+  border-top: 1px solid #000;
+
+}
+
+
+.disclaimer {
+
+  margin-top: 8px;
+
+  line-height: 12px;
+
+}
+
+
+.bottom-right {
+
+  width: 35%;
+
+  vertical-align: top;
+
+  padding: 0 !important;
+
+}
+
+
+/* ============================================================
+   TOTAL TABLE
+============================================================ */
+
+.total-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin: 0;
+
+}
+
+
+.total-table td {
+
+  border: 1px solid #000;
+
+  padding: 5px 6px;
+
+}
+
+
+.total-table td:first-child {
+
+  width: 65%;
+
+}
+
+
+.total-table td:last-child {
+
+  width: 35%;
+
+}
+
+
+.total-label {
+
+  text-align: right;
+
+  font-weight: bold;
+
+}
+
+
+.total-final {
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+}
+
+
+/* ============================================================
+   SECOND BOX - DELIVERY SLIP
+============================================================ */
+
+.delivery-slip-wrapper {
+
+  margin-top: 10px;
+
+  page-break-inside: avoid;
+
+}
+
+
+.delivery-slip-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+
+  margin: 0;
+
+}
+
+
+.delivery-slip-table
+> tbody > tr > td {
+
+  border: 1px solid #000;
+
+  vertical-align: top;
+
+}
+
+
+/* ============================================================
+   DELIVERY LEFT / RIGHT
+============================================================ */
+
+.delivery-slip-left {
+
+  width: 82%;
+
+  padding: 8px;
+
+  font-size: 9px;
+
+  line-height: 14px;
+
+}
+
+
+.delivery-slip-right {
+
+  width: 18%;
+
+  padding: 8px;
+
+  vertical-align: top;
+
+}
+
+
+/* ============================================================
+   DELIVERY HEADER
+============================================================ */
+
+.slip-header {
+
+  font-size: 10px;
+
+  margin-bottom: 5px;
+
+}
+
+
+.cod-row {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  width: 70%;
+
+  margin-bottom: 8px;
+
+}
+
+
+.to-title {
+
+  font-size: 10px;
+
+  margin-bottom: 5px;
+
+}
+
+
+/* ============================================================
+   CUSTOMER DETAILS
+============================================================ */
+
+.slip-detail {
+
+  margin: 1px 0;
+
+  line-height: 14px;
+
+}
+
+
+/* ============================================================
+   DELIVERY LOGO
+============================================================ */
+
+.slip-logo {
+
+  width: 100%;
+
+  min-height: 70px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+}
+
+
+.slip-logo img {
+
+  max-width: 85px;
+
+  max-height: 70px;
+
+  object-fit: contain;
+
+}
+
+
+/* ============================================================
+   DELIVERY PRODUCTS
+============================================================ */
+
+.slip-products-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 8px;
+
+  table-layout: fixed;
+
+}
+
+
+.slip-products-table th,
+.slip-products-table td {
+
+  border: 1px solid #000;
+
+  padding: 4px 5px;
+
+  font-size: 8px;
+
+  line-height: 11px;
+
+  word-wrap: break-word;
+
+  overflow-wrap: anywhere;
+
+}
+
+
+.slip-products-table th {
+
+  text-align: center;
+
+  font-weight: bold;
+
+}
+
+
+.slip-products-table
+th:nth-child(1),
+.slip-products-table
+td:nth-child(1) {
+
+  width: 58%;
+
+}
+
+
+.slip-products-table
+th:nth-child(2),
+.slip-products-table
+td:nth-child(2) {
+
+  width: 12%;
+
+}
+
+
+.slip-products-table
+th:nth-child(3),
+.slip-products-table
+td:nth-child(3) {
+
+  width: 15%;
+
+}
+
+
+.slip-products-table
+th:nth-child(4),
+.slip-products-table
+td:nth-child(4) {
+
+  width: 15%;
+
+}
+
+
+.slip-product-name {
+
+  text-align: left;
+
+}
+
+
+/* ============================================================
+   DELIVERY TOTALS
+============================================================ */
+
+.slip-total-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+
+}
+
+
+.slip-total-table td {
+
+  padding: 4px 7px;
+
+  font-size: 8.5px;
+
+  line-height: 12px;
+
+  border: none;
+
+}
+
+
+.slip-total-table
+td:nth-child(1) {
+
+  width: 65%;
+
+}
+
+
+.slip-total-table
+td:nth-child(2) {
+
+  width: 20%;
+
+}
+
+
+.slip-total-table
+td:nth-child(3) {
+
+  width: 15%;
+
+}
+
+
+.slip-total-table
+.total-label {
+
+  text-align: right;
+
+  font-weight: bold;
+
+}
+
+
+.slip-grand-total td {
+
+  font-size: 10px;
+
+  font-weight: bold;
+
+  border-top: 1px solid #000 !important;
+
+}
+
+
+/* ============================================================
+   DELIVERY INSTRUCTIONS
+============================================================ */
+
+.delivery-instructions {
+
+  padding: 7px 8px;
+
+  font-size: 8px;
+
+  line-height: 12px;
+
+}
+
+
+.delivery-instructions p {
+
+  margin: 0 0 5px 0;
+
+}
+
+
+.contact-row {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-top: 5px;
+
+  font-weight: bold;
+
+}
+
+
+/* ============================================================
+   PRINT
+============================================================ */
+
+@media print {
+
+  html,
+  body {
+
+    width: 100%;
+
+  }
+
+
+  .invoice,
+  .delivery-slip-wrapper {
+
+    width: 100%;
+
+    max-width: 194mm;
+
+    margin-left: auto;
+
+    margin-right: auto;
+
+  }
+
+
+  .items-table {
+
+    page-break-inside: auto;
+
+  }
+
+
+  .bottom-section-table {
+
+    page-break-inside: avoid;
+
+  }
+
+
+  .delivery-slip-wrapper {
+
+    page-break-inside: avoid;
+
+  }
+
+
+  .delivery-slip-table {
+
+    page-break-inside: avoid;
+
+  }
+
+
+  .delivery-slip-table tr {
+
+    page-break-inside: avoid;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- ============================================================
+     FIRST BOX - TAX INVOICE
+============================================================ -->
+
+<div class="invoice">
+
+
+  <!-- ==========================================================
+       HEADER
+  ========================================================== -->
+
+  <div class="header">
+
+    <div class="header-content">
+
+      <div class="header-details">
+
+        <h1>
+          VELNEXA
+        </h1>
+
+        <p>
+          H-1453 Charholi Kh, Chakan,
+          Tal Khed, Junnar,
+          Pune, Maharashtra 410502
+        </p>
+
+      </div>
+
+
+      <div class="header-logo">
+
+        <img
+          src="${logoUrl}"
+          alt="VELNEXA"
+        />
+
+      </div>
+
     </div>
 
   </div>
 
-</div>
 
-        <div class="invoice-title">
-          TAX INVOICE
+  <!-- ==========================================================
+       TITLE
+  ========================================================== -->
+
+  <div class="invoice-title">
+
+    TAX INVOICE
+
+  </div>
+
+
+  <!-- ==========================================================
+       CUSTOMER DETAILS
+  ========================================================== -->
+
+  <table class="details-table">
+
+    <tr>
+
+      <td class="customer-left">
+
+        <div class="bill-title">
+          Bill To
         </div>
 
 
-        <!-- CUSTOMER / INVOICE DETAILS -->
+        <div>
 
-        <table class="details-table">
+          <span class="label">
+            Name:
+          </span>
 
-          <tr>
+          ${customer?.fullName || ''}
 
-            <td>
-              <span class="label">Invoice No:</span>
-              ${formValue.invoiceNo || ''}
-            </td>
-
-            <td>
-              <span class="label">Invoice Date:</span>
-              ${
-                formValue.invoiceDate
-                  ? new Date(formValue.invoiceDate).toLocaleDateString('en-IN')
-                  : ''
-              }
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-              <span class="label">Order No:</span>
-              ${formValue.orderNo || ''}
-            </td>
-
-            <td>
-              <span class="label">Payment Mode:</span>
-              ${formValue.paymentMode || ''}
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-              <span class="label">Customer:</span>
-              ${customerName}
-            </td>
-
-            <td>
-              <span class="label">Mobile:</span>
-              ${formValue.mobileNo || ''}
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-              <span class="label">Email:</span>
-              ${formValue.email || ''}
-            </td>
-
-            <td>
-              <span class="label">Warehouse:</span>
-              ${warehouseName}
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td colspan="2">
-              <span class="label">Delivery Address:</span>
-              ${formValue.deliveryAddress || ''}
-            </td>
-
-          </tr>
-
-        </table>
+        </div>
 
 
-        <!-- ITEMS -->
+        <div>
 
-       <table class="items-table">
+          <span class="label">
+            Address:
+          </span>
 
-  <thead>
-    <tr>
+          ${formValue.deliveryAddress || ''}
 
-      <th>Sr.</th>
+        </div>
 
-      <th>Product</th>
 
-      <th>Batch No</th>
+        <div>
 
-      <th>Expiry Date</th>
+          <span class="label">
+            Taluka:
+          </span>
 
-      <th>HSN Code</th>
+          ${customer?.taluka || ''}
 
-      <th>Pack Size / UOM</th>
+        </div>
 
-      <th>Qty</th>
 
-      <th>Rate</th>
+        <div>
 
-      <th>GST Rate %</th>
+          <span class="label">
+            District:
+          </span>
 
-      <th>Taxable Value</th>
+          ${customer?.district || ''}
 
-      <th>CGST</th>
+        </div>
 
-      <th>IGST</th>
 
-      <th>Discount</th>
+        <div>
 
-      <th>Amount</th>
+          <span class="label">
+            Pin Code:
+          </span>
+
+          ${customer?.pin || ''}
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Phone:
+          </span>
+
+          ${phone}
+
+        </div>
+
+      </td>
+
+
+      <td class="invoice-right">
+
+        <div>
+
+          <span class="label">
+            Invoice No:
+          </span>
+
+          ${
+            formValue.invoiceNo ||
+            formValue.orderNo ||
+            ''
+          }
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Invoice Date:
+          </span>
+
+          ${invoiceDate}
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Payment Mode:
+          </span>
+
+          ${formValue.paymentMode || ''}
+
+        </div>
+
+      </td>
 
     </tr>
-  </thead>
 
-  <tbody>
-
-    ${itemRows}
-
-  </tbody>
-
-</table>
+  </table>
 
 
-        <!-- TOTAL -->
+  <!-- ==========================================================
+       ITEMS
+  ========================================================== -->
+
+  <table class="items-table">
+
+    <thead>
+
+      <tr>
+
+        <th>Sr.</th>
+
+        <th>Product</th>
+
+        <th>Batch No</th>
+
+        <th>Expiry Date</th>
+
+        <th>HSN Code</th>
+
+        <th>Pack Size / UOM</th>
+
+        <th>Qty</th>
+
+        <th>Rate</th>
+
+        <th>GST Rate %</th>
+
+        <th>Taxable Value</th>
+
+        <th>CGST</th>
+
+        <th>SGST</th>
+
+        <th>Discount</th>
+
+        <th>Amount</th>
+
+      </tr>
+
+    </thead>
+
+
+    <tbody>
+
+      ${itemRows}
+
+    </tbody>
+
+  </table>
+
+
+  <!-- ==========================================================
+       BOTTOM SECTION
+  ========================================================== -->
+
+  <table class="bottom-section-table">
+
+    <tr>
+
+
+      <!-- LEFT -->
+      <td class="bottom-left">
+
+
+        <div>
+
+          <strong>
+            Whether tax is payable under reverse charge:
+          </strong>
+
+          No
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            Order online
+          </strong>
+
+          www.velnexa.in
+
+        </div>
+
+
+        <div>
+
+          For any assistance, write to us at
+
+          <strong>
+            care@velnexa.com
+          </strong>
+
+          or call us on
+
+          <strong>
+            +91 8441844135
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            Hope to serve you soon again
+          </strong>
+
+        </div>
+
+
+        <div class="sold-by">
+
+          <strong>
+            Sold By:
+          </strong>
+
+          <br>
+
+          Nitin Agro Inputs,
+          Bachelor Road,
+          Wardha, Maharashtra.
+          Code-27.
+          GSTIN:27ASSPV2626D2ZC,
+          Pesticide Lic. No: LAID26040248,
+          Seeds Lic No: LASD26040246
+
+        </div>
+
+
+        <div class="disclaimer">
+
+          <strong>
+            Disclaimer:
+          </strong>
+
+          <br>
+
+          We declare that this invoice shows the actual
+          price of the goods described and that all
+          particulars are true and correct.
+
+          <br>
+
+          The above products were sold at Wardha.
+          At the customers instructions they are being
+          shipped to the above address.
+
+          <br>
+
+          Subject to Wardha Jursidiction.
+
+          <br>
+
+          Products sold are not for resale.
+
+          <br>
+
+          The performance of the products is subject to
+          the usage as per manufacturer guidelines.
+          Read enclosed leaflet of the product carefully
+          before use.
+
+          <br>
+
+          The user agrees to use the product all safety
+          precautions mentioned by the manufacturer.
+
+          <br>
+
+          Farme/Seller will not be responsible for any
+          damage/mishap/injury resulting from the use of
+          the products.
+
+          <br>
+
+          This is a computer generated invoice and does
+          not require a signature.
+
+        </div>
+
+      </td>
+
+
+      <!-- RIGHT -->
+      <td class="bottom-right">
 
         <table class="total-table">
 
+
           <tr>
+
             <td class="total-label">
-              Gross Amount
+              Net Amount
             </td>
 
             <td class="right">
-              ₹ ${Number(formValue.grossAmount || 0).toFixed(2)}
+              ₹ ${netAmount.toFixed(2)}
             </td>
+
           </tr>
 
+
           <tr>
+
+            <td class="total-label">
+              UPI Payment
+            </td>
+
+            <td class="right">
+              ₹ ${upiPayment.toFixed(2)}
+            </td>
+
+          </tr>
+
+
+          <tr>
+
             <td class="total-label">
               Discount
             </td>
 
             <td class="right">
-              ₹ ${Number(formValue.discountAmount || 0).toFixed(2)}
+              ₹ ${discountAmount.toFixed(2)}
             </td>
+
           </tr>
+
 
           <tr>
-            <td class="total-label net-total">
-              Net Amount
+
+            <td class="total-label">
+              Round Off
             </td>
 
-            <td class="right net-total">
-              ₹ ${Number(formValue.netAmount || 0).toFixed(2)}
+            <td class="right">
+              ₹ ${roundOff.toFixed(2)}
             </td>
+
           </tr>
+
+
+          <tr class="total-final">
+
+            <td class="total-label">
+              Total
+            </td>
+
+            <td class="right">
+              ₹ ${grossAmount.toFixed(2)}
+            </td>
+
+          </tr>
+
 
         </table>
 
+      </td>
 
-        <!-- FOOTER -->
+    </tr>
 
-        <div class="footer">
+  </table>
 
-          <div>
-            <strong>Payment Mode:</strong>
-            ${formValue.paymentMode || ''}
-          </div>
+</div>
 
-          <div class="signature">
-            Authorized Signature
-          </div>
+
+<!-- ============================================================
+     SECOND BOX - DELIVERY / COD SLIP
+============================================================ -->
+
+<div class="delivery-slip-wrapper">
+
+  <table class="delivery-slip-table">
+
+
+    <!-- ========================================================
+         TOP DELIVERY SECTION
+    ======================================================== -->
+
+    <tr>
+
+
+      <!-- LEFT -->
+      <td class="delivery-slip-left">
+
+
+        <!-- BNPL -->
+        <div class="slip-header">
+
+          <strong>
+            Booked Under BNPL NO:
+          </strong>
+
+          ${formValue.orderNo || ''}
 
         </div>
 
-      </div>
+
+        <!-- COD -->
+        <div class="cod-row">
+
+          <strong>
+            COD :-
+          </strong>
+
+          <span>
+            ${grossAmount.toFixed(2)}
+          </span>
+
+        </div>
 
 
-      <script>
+        <!-- TO -->
+        <div class="to-title">
 
-        window.onload = function() {
+          <strong>
+            TO
+          </strong>
 
-          setTimeout(function() {
+        </div>
 
-            window.print();
 
-          }, 300);
+        <!-- CUSTOMER -->
+        <div class="slip-detail">
 
-        };
+          <strong>
+            Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:-
+          </strong>
 
-      </script>
+          ${customer?.fullName || ''}
 
-    </body>
-    </html>
+        </div>
+
+
+        <div class="slip-detail">
+
+          <strong>
+            Address&nbsp;&nbsp;&nbsp;:-
+          </strong>
+
+          ${formValue.deliveryAddress || ''}
+
+        </div>
+
+
+        <div class="slip-detail">
+
+          <strong>
+            Taluka&nbsp;&nbsp;&nbsp;&nbsp;:-
+          </strong>
+
+          ${customer?.taluka || ''}
+
+        </div>
+
+
+        <div class="slip-detail">
+
+          <strong>
+            District&nbsp;&nbsp;&nbsp;:-
+          </strong>
+
+          ${customer?.district || ''}
+
+        </div>
+
+
+        <div class="slip-detail">
+
+          <strong>
+            Pincode&nbsp;&nbsp;&nbsp;:-
+          </strong>
+
+          ${customer?.pin || ''}
+
+        </div>
+
+
+        <div class="slip-detail">
+
+          <strong>
+            Phone&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:-
+          </strong>
+
+          ${phone}
+
+        </div>
+
+
+        <!-- ====================================================
+             PRODUCTS
+        ===================================================== -->
+
+        <table class="slip-products-table">
+
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Product
+              </th>
+
+              <th>
+                QTY
+              </th>
+
+              <th>
+                Price
+              </th>
+
+              <th>
+                Total
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            ${deliveryProductRows}
+
+          </tbody>
+
+
+        </table>
+
+      </td>
+
+
+      <!-- ======================================================
+           RIGHT LOGO
+      ====================================================== -->
+
+      <td class="delivery-slip-right">
+
+        <div class="slip-logo">
+
+          <img
+            src="${logoUrl}"
+            alt="VELNEXA"
+          />
+
+        </div>
+
+      </td>
+
+    </tr>
+
+
+    <!-- ========================================================
+         TOTAL SECTION
+    ======================================================== -->
+
+    <tr>
+
+      <td colspan="2">
+
+
+        <table class="slip-total-table">
+
+
+          <tr>
+
+            <td></td>
+
+            <td class="total-label">
+              Shipping Charges
+            </td>
+
+            <td class="right">
+              ₹ ${shippingCharges.toFixed(2)}
+            </td>
+
+          </tr>
+
+
+          <tr>
+
+            <td></td>
+
+            <td class="total-label">
+              UPI Payment
+            </td>
+
+            <td class="right">
+              ₹ ${upiPayment.toFixed(2)}
+            </td>
+
+          </tr>
+
+
+          <tr>
+
+            <td></td>
+
+            <td class="total-label">
+              Discount
+            </td>
+
+            <td class="right">
+              ₹ ${discountAmount.toFixed(2)}
+            </td>
+
+          </tr>
+
+
+          <tr>
+
+            <td></td>
+
+            <td class="total-label">
+              R/Off
+            </td>
+
+            <td class="right">
+              ₹ ${roundOff.toFixed(2)}
+            </td>
+
+          </tr>
+
+
+          <tr class="slip-grand-total">
+
+            <td></td>
+
+            <td class="total-label">
+              TOTAL
+            </td>
+
+            <td class="right">
+              ₹ ${grossAmount.toFixed(2)}
+            </td>
+
+          </tr>
+
+
+        </table>
+
+      </td>
+
+    </tr>
+
+
+    <!-- ========================================================
+         DELIVERY INSTRUCTIONS
+    ======================================================== -->
+
+    <tr>
+
+      <td
+        colspan="2"
+        class="delivery-instructions"
+      >
+
+
+        <p>
+
+          If Electronic Data Not Received At Destination PO
+          Then Deliver The Parcel And Send An eMO/MO To The
+          Sender’s Address
+
+        </p>
+
+
+        <p>
+
+          If Undelivered, please return to:-
+
+        </p>
+
+
+        <p>
+
+          ${
+            whMObj?.address ||
+            '401, 402 Third Floor, Shreeman Yogi Complex, Besides Khare Town Post Office, Dharampeth, Nagpur - 440010'
+          }
+
+        </p>
+
+
+        <div class="contact-row">
+
+
+          <span>
+
+            Ph: 8441844135
+
+          </span>
+
+
+          <span>
+
+            Email: care@farme.in
+
+          </span>
+
+
+        </div>
+
+
+      </td>
+
+    </tr>
+
+
+  </table>
+
+</div>
+
+
+<script>
+
+window.onload = function () {
+
+  setTimeout(
+    function () {
+
+      window.print();
+
+    },
+    500
+  );
+
+};
+
+</script>
+
+
+</body>
+
+</html>
+
   `);
 
-    printWindow.document.close();
-  }
+
+  printWindow.document.close();
+
+}
 }

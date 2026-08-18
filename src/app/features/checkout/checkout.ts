@@ -10,11 +10,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { finalize, switchMap } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
-import { INDIA_LOCATIONS, DistrictOption } from '../../core/data/india-locations';
 
 import { CartService } from '../../core/services/cart.service';
 import { environment } from '../../../environments/environment/environment';
 import { TaxDto } from '../../core/services/cart.model';
+import { LocationService } from '../../core/services/location.service';
+import { District, State, Taluka } from '../../core/models/location.model';
 
 @Component({
   selector: 'fp-checkout',
@@ -37,228 +38,572 @@ export class CheckoutComponent {
   private http = inject(HttpClient);
   private router = inject(Router);
   cart = inject(CartService);
-
-  states = INDIA_LOCATIONS;
-
-  districts = signal<DistrictOption[]>([]);
-  talukas = signal<string[]>([]);
+  private locationService = inject(LocationService);
+  states = signal<State[]>([]);
+  districts = signal<District[]>([]);
+  talukas = signal<Taluka[]>([]);
   placingOrder = signal(false);
   orderPlaced = signal(false);
   orderNumber = signal('');
-userCd: number = Number(localStorage.getItem('userCd'));
+  userCd: number = Number(localStorage.getItem('userCd'));
   addressForm = this.fb.nonNullable.group({
     fullName: ['', [Validators.required, Validators.minLength(3)]],
     mobNo: ['', [Validators.required, Validators.pattern(/^[6-9][0-9]{9}$/)]],
-    email: ['', [Validators.email]],
+    email: [''],
     roleCd: [5, Validators.required],
     village: ['', Validators.required],
     state: ['', Validators.required],
     district: ['', Validators.required],
     taluka: ['', Validators.required],
     pin: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
-    optionalMobNo: ['', [Validators.required, Validators.pattern(/^[6-9][0-9]{9}$/)]],
+    optionalMobNo: ['', [Validators.pattern(/^[6-9][0-9]{9}$/)]],
     landmark: [''],
     address: [''],
-    userCd:[''],
+    userCd: [''],
   });
 
-placeOrder(): void {
+ngOnInit(): void {
+  const userData = localStorage.getItem('fp_auth_user');
 
-  if (this.addressForm.invalid) {
-    this.addressForm.markAllAsTouched();
+  // Load states first because district loading depends on stateCd
+  this.locationService.getStates().subscribe({
+    next: (data: State[]) => {
+      this.states.set(data);
+
+      if (!userData) {
+        return;
+      }
+
+      try {
+        const user = JSON.parse(userData);
+        const address = user.addresses?.[0];
+
+        // --------------------------------------------------
+        // USER DETAILS
+        // --------------------------------------------------
+        this.addressForm.patchValue({
+          fullName: user.fullName || '',
+          mobNo: user.mobNo || '',
+          email: user.email || '',
+          roleCd: user.roleCd || 5,
+          userCd: user.userId?.toString() || '',
+
+          // Address details
+          village: address?.village || '',
+          state: address?.state || '',
+          district: address?.district || '',
+          taluka: address?.taluka || '',
+          pin: address?.pin || '',
+          optionalMobNo: address?.optionalMobNo || '',
+          landmark: address?.landmark || '',
+          address: address?.address || '',
+        });
+
+        // --------------------------------------------------
+        // FIND STATE BY stateName
+        // --------------------------------------------------
+        const selectedState = data.find(
+          (state: State) => state.stateName === address?.state
+        );
+
+        if (!selectedState) {
+          this.districts.set([]);
+          this.talukas.set([]);
+          return;
+        }
+
+        const stateCd = selectedState.stateCd;
+
+        // --------------------------------------------------
+        // LOAD DISTRICTS
+        // --------------------------------------------------
+        this.locationService.getDistricts(stateCd).subscribe({
+          next: (districtData: District[]) => {
+            this.districts.set(districtData);
+
+            // Find district by districtName
+            const selectedDistrict = districtData.find(
+              (district: District) =>
+                district.districtName === address?.district
+            );
+
+            if (!selectedDistrict) {
+              this.talukas.set([]);
+              return;
+            }
+
+            const districtCd = selectedDistrict.districtCd;
+
+            // --------------------------------------------------
+            // LOAD TALUKAS
+            // --------------------------------------------------
+            this.locationService.getTalukas(districtCd).subscribe({
+              next: (talukaData: Taluka[]) => {
+                this.talukas.set(talukaData);
+
+                // No need to patch again because
+                // taluka was already patched above.
+                this.addressForm.patchValue({
+                  taluka: address?.taluka || '',
+                });
+              },
+              error: (err) => {
+                console.error('Failed to load talukas', err);
+                this.talukas.set([]);
+              },
+            });
+          },
+          error: (err) => {
+            console.error('Failed to load districts', err);
+            this.districts.set([]);
+            this.talukas.set([]);
+          },
+        });
+      } catch (error) {
+        console.error(
+          'Invalid user data in localStorage:',
+          error
+        );
+      }
+    },
+
+    error: (err) => {
+      console.error('Failed to load states', err);
+      this.states.set([]);
+    },
+  });
+}
+  goToOrders(): void {
+    this.router.navigate(['/my-orders']);
+  }
+
+onMobileNumber(mobNo: string): void {
+
+  // Remove non-numeric characters
+  mobNo = mobNo.replace(/\D/g, '');
+
+  // Only call API when exactly 10 digits
+  if (mobNo.length !== 10) {
     return;
   }
 
-  this.placingOrder.set(true);
-
-  const formValue = this.addressForm.getRawValue();
-
-  // 1. Prepare data for tax calculation
-  const taxRequest: TaxDto[] = this.cart.items().map(item => ({
-    productCd: Number(item.product.id),
-    grossAmount: Number(item.product.price) * item.quantity
-  }));
-
-  // 2. One call for ALL items
   this.http
-  .post<any>(
-    `${environment.apiBaseUrl}/v1/order/calculatetaxes`,
-    taxRequest
-  )
-  .pipe(
-    switchMap((res) => {
-
-      const taxes: TaxDto[] = res.data;
-
-      // Total gross amount
-      const grossAmount = this.cart.items().reduce(
-        (total, item) =>
-          total + (Number(item.product.price) * item.quantity),
-        0
-      );
-
-      // Total tax
-      const taxAmount = taxes.reduce(
-        (total, tax) =>
-          total + Number(tax.taxAmount || 0),
-        0
-      );
-
-        // 3. Create final order payload
-        const payload = {
-
-          userCd: formValue.userCd,
-          userDto:formValue,
-          paymentMode: 'COD',
-          email:formValue.email,
-          deliveryAddress: formValue.address,
-
-          mobileNo: formValue.mobNo,
-
-          grossAmount: grossAmount,
-
-          discountAmount: 0,
-
-          taxAmount: taxAmount,
-
-          // Your price is GST-inclusive
-          netAmount: grossAmount,
-
-          orderStatus: 'PENDING',
-
-          items: this.cart.items().map((i) => {
-
-            // Taxes belonging to this product
-            const itemTaxes = taxes
-              .filter(tax =>
-                Number(tax.productCd) === Number(i.product.id)
-              )
-              .map(tax => ({
-                taxName: tax.taxName,
-                taxRate: tax.taxRate,
-                taxAmount: tax.taxAmount
-              }));
-
-            return {
-
-              productCd: Number(i.product.id),
-
-              productName: i.product.name,
-
-              qty: i.quantity,
-
-              rate: Number(i.product.price),
-
-              discount: 0,
-
-              amount:
-                Number(i.product.price) * i.quantity,
-
-              active: true,
-
-              taxes: itemTaxes
-            };
-          })
-        };
-
-        // 4. Book order
-        return this.http.post<{ orderNumber: string }>(
-          `${environment.apiBaseUrl}/v1/order/save`,
-          payload
-        );
-      }),
-
-      finalize(() => this.placingOrder.set(false))
-
+    .get<any>(
+      `${environment.apiBaseUrl}/v1/user/get-by-mobile/${mobNo}`
     )
     .subscribe({
 
-      next: (res) => {
+      next: (response) => {
 
-        this.orderNumber.set(res.orderNumber);
+        console.log('API Response:', response);
 
-        this.orderPlaced.set(true);
+        const users = response?.data ?? [];
 
-        this.cart.clear();
+        console.log('Users found:', users);
+
+        // No user found
+        if (!Array.isArray(users) || users.length === 0) {
+
+          this.districts.set([]);
+          this.talukas.set([]);
+
+          return;
+        }
+
+        // Get first user
+        const user = users[0];
+
+        console.log('User:', user);
+
+        // ============================================================
+        // BASIC USER DETAILS
+        // ============================================================
+
+        this.addressForm.patchValue({
+
+          fullName: user.fullName ?? '',
+
+          mobNo: user.mobNo ?? mobNo,
+
+          email: user.email ?? '',
+
+          optionalMobNo: user.optionalMobNo ?? '',
+
+          address: user.address ?? '',
+
+          landmark: user.landmark ?? '',
+
+          village: user.village ?? '',
+
+          pin: user.pin ?? '',
+
+          userCd: user.userId ?? ''
+
+        });
+
+        // ============================================================
+        // FIND STATE
+        // ============================================================
+
+        const state = this.states().find(
+          (s: any) =>
+            s.stateName?.trim().toLowerCase() ===
+            user.state?.trim().toLowerCase()
+        );
+
+        if (!state) {
+
+          console.warn(
+            'State not found:',
+            user.state
+          );
+
+          this.districts.set([]);
+          this.talukas.set([]);
+
+          this.addressForm.patchValue({
+            district: '',
+            taluka: ''
+          });
+
+          return;
+        }
+
+        // Set state if your form has state field
+        this.addressForm.patchValue({
+          state: state.stateName
+        });
+
+        // ============================================================
+        // LOAD DISTRICTS
+        // ============================================================
+
+        this.locationService
+          .getDistricts(state.stateCd)
+          .subscribe({
+
+            next: (districts: any[]) => {
+
+              console.log(
+                'Districts:',
+                districts
+              );
+
+              this.districts.set(districts);
+
+              // Set district
+              const district = districts.find(
+                (d: any) =>
+                  d.districtName?.trim().toLowerCase() ===
+                  user.district?.trim().toLowerCase()
+              );
+
+              if (!district) {
+
+                console.warn(
+                  'District not found:',
+                  user.district
+                );
+
+                this.talukas.set([]);
+
+                this.addressForm.patchValue({
+                  district: '',
+                  taluka: ''
+                });
+
+                return;
+              }
+
+              // Set district code
+              this.addressForm.patchValue({
+                district: district.districtName
+              });
+
+              // ========================================================
+              // LOAD TALUKAS
+              // ========================================================
+
+              this.locationService
+                .getTalukas(district.districtCd)
+                .subscribe({
+
+                  next: (talukas: any[]) => {
+
+                    console.log(
+                      'Talukas:',
+                      talukas
+                    );
+
+                    this.talukas.set(talukas);
+
+                    // Find taluka
+                    const taluka = talukas.find(
+                      (t: any) =>
+                        t.talukaName?.trim().toLowerCase() ===
+                        user.taluka?.trim().toLowerCase()
+                    );
+
+                    if (!taluka) {
+
+                      console.warn(
+                        'Taluka not found:',
+                        user.taluka
+                      );
+
+                      this.addressForm.patchValue({
+                        taluka: ''
+                      });
+
+                      return;
+                    }
+
+                    // Set taluka code
+                    this.addressForm.patchValue({
+                      taluka: taluka.talukaName
+                    });
+
+                  },
+
+                  error: (err) => {
+
+                    console.error(
+                      'Failed to load talukas:',
+                      err
+                    );
+
+                    this.talukas.set([]);
+
+                    this.addressForm.patchValue({
+                      taluka: ''
+                    });
+
+                  }
+
+                });
+
+            },
+
+            error: (err) => {
+
+              console.error(
+                'Failed to load districts:',
+                err
+              );
+
+              this.districts.set([]);
+              this.talukas.set([]);
+
+              this.addressForm.patchValue({
+                district: '',
+                taluka: ''
+              });
+
+            }
+
+          });
 
       },
 
-      error: () => {
-        // surfaced via global error interceptor snackbar
+      error: (err) => {
+
+        console.error(
+          'Failed to get user by mobile:',
+          err
+        );
+
+        this.districts.set([]);
+        this.talukas.set([]);
+
+        this.addressForm.patchValue({
+          district: '',
+          taluka: ''
+        });
+
       }
 
     });
 }
 
-  goToOrders(): void {
-    this.router.navigate(['/my-orders']);
-  }
-  onStateChange(stateName: string): void {
-    const state = this.states.find((s) => s.name === stateName);
-    this.districts.set(state?.districts ?? []);
-    this.talukas.set([]);
-    this.addressForm.patchValue({ district: '', taluka: '' });
-  }
+onStateChange(stateName: string): void {
+  const state = this.states().find(
+    s => s.stateName === stateName
+  );
 
-  onDistrictChange(districtName: string): void {
-    const district = this.districts().find((d) => d.name === districtName);
-    this.talukas.set(district?.talukas ?? []);
-    this.addressForm.patchValue({ taluka: '' });
+  if (!state) {
+    return;
   }
 
-  onMobileNumber(mobNo: string): void {
-    // Remove anything except numbers
-    mobNo = mobNo.replace(/\D/g, '');
+  const stateCd = state.stateCd;        // Clear districts and talukas
+      this.districts.set([]);
+      this.talukas.set([]);
+  
+      // Clear form values
+      this.addressForm.patchValue({ district: '', taluka: '' });
+  
+      // Load districts
+      this.locationService.getDistricts(stateCd).subscribe({
+        next: (data) => {
+          this.districts.set(data);
+        },
+        error: (err) => {
+          console.error('Failed to load districts', err);
+          this.districts.set([]);
+        },
+      });
+    }
+  
 
-    // Wait until 10 digits
-    if (mobNo.length !== 10) {
+onDistrictChange(districtName: string): void {
+
+  const district = this.districts().find(
+    d => d.districtName === districtName
+  );
+
+  if (!district) {
+    return;
+  }
+  const districtCd = district.districtCd;
+      // Clear talukas
+      this.talukas.set([]);
+  
+      // Clear selected taluka
+      this.addressForm.patchValue({ taluka: '' });
+  
+      // Load talukas
+      this.locationService.getTalukas(districtCd).subscribe({
+        next: (data) => {
+          this.talukas.set(data);
+        },
+        error: (err) => {
+          console.error('Failed to load talukas', err);
+          this.talukas.set([]);
+        },
+      });
+    }
+    placeOrder(): void {
+    if (this.addressForm.invalid) {
+      this.addressForm.markAllAsTouched();
       return;
     }
 
-    this.http.get<any>(`${environment.apiBaseUrl}/v1/user/get-by-mobile/${mobNo}`).subscribe({
-      next: (res) => {
-        console.log('User found:', res);
-        // Example: populate checkout form
-        const user = res.data[0];
+    this.placingOrder.set(true);
 
-        this.addressForm.patchValue({
-          fullName: user.fullName,
-          email: user.email,
-          optionalMobNo: user.optionalMobNo,
-          address: user.address,
-          landmark: user.landmark,
-          village: user.village,
-          pin: user.pin,
-          userCd:user.userId
-        });
+    const formValue = this.addressForm.getRawValue();
 
-        // 1. Set state first
-        this.addressForm.patchValue({
-          state: user.state,
-        });
+    // 1. Prepare data for tax calculation
+    const taxRequest: TaxDto[] = this.cart.items().map((item) => ({
+      productCd: Number(item.product.id),
+      grossAmount: Number(item.product.price) * item.quantity,
+    }));
+    let add = formValue.address;
+    if (formValue.address) {
+      add =
+        'At. ' +
+        formValue.village +
+        ' Tq. ' +
+        formValue.taluka +
+        ' Di. ' +
+        formValue.district +
+        ' ' +
+        formValue.state +
+        ' - ' +
+        formValue.pin;
+    }
+    // 2. One call for ALL items
+    this.http
+      .post<any>(`${environment.apiBaseUrl}/v1/order/calculatetaxes`, taxRequest)
+      .pipe(
+        switchMap((res) => {
+          const taxes: TaxDto[] = res.data[0];
 
-        const state = this.states.find((s) => s.name === user.state);
+          // Total gross amount
+          let grossAmount = this.cart
+            .items()
+            .reduce((total, item) => total + Number(item.product.price) * item.quantity, 0);
+          const mrpAmount = this.cart
+            .items()
+            .reduce((total, item) => total + Number(item.product.mrp) * item.quantity, 0);
+          const discountAmount = mrpAmount > grossAmount ? mrpAmount - grossAmount : 0;
+          // Total tax
+          const taxAmount = taxes.reduce((total, tax) => total + Number(tax.taxAmount || 0), 0);
+          const netAmount = grossAmount - taxAmount;
+          grossAmount=grossAmount+this.cart.deliveryCharge();
+          // 3. Create final order payload
+          const payload = {
+            userCd: formValue.userCd,
+            userDto: formValue,
+            paymentMode: 'COD',
+            email: formValue.email,
+            deliveryAddress: add,
 
-        this.districts.set(state?.districts ?? []);
+            mobileNo: formValue.mobNo,
 
-        // 2. Now set district
-        this.addressForm.patchValue({
-          district: user.district,
-        });
+            grossAmount: grossAmount,
 
-        const district = this.districts().find((d) => d.name === user.district);
+            discountAmount: discountAmount,
 
-        this.talukas.set(district?.talukas ?? []);
+            taxAmount: taxAmount,
+            shipingCharges:this.cart.deliveryCharge(),
+            // Your price is GST-inclusive
+            netAmount: netAmount,
 
-        // 3. Finally set taluka
-        this.addressForm.patchValue({
-          taluka: user.taluka,
-        });
-      },
+            orderStatus: 'PLACED',
 
-      error: (err) => {
-        console.log('User not found', err);
-      },
-    });
+            items: this.cart.items().map((i) => {
+              // Taxes belonging to this product
+              const itemTaxes = taxes
+                .filter((tax) => Number(tax.productCd) == Number(i.product?.id))
+                .map((tax) => ({
+                  taxName: tax.taxName,
+                  taxRate: tax.taxRate,
+                  taxAmount: tax.taxAmount,
+                }));
+
+              return {
+                productCd: Number(i.product.id),
+
+                productName: i.product.name,
+
+                qty: i.quantity,
+
+                rate: Number(i.product.price),
+
+                discount: Math.max(
+                  0,
+                  Number(i.product.mrp || 0) * i.quantity -
+                    Number(i.product.price || 0) * i.quantity,
+                ),
+                amount: Number(i.product.price) * i.quantity,
+
+                active: true,
+
+                taxes: itemTaxes,
+              };
+            }),
+          };
+
+          // 4. Book order
+          return this.http.post<{ orderNumber: string }>(
+            `${environment.apiBaseUrl}/v1/order/save`,
+            payload,
+          );
+        }),
+
+        finalize(() => this.placingOrder.set(false)),
+      )
+      .subscribe({
+        next: (res) => {
+          this.orderNumber.set(res.orderNumber);
+
+          this.orderPlaced.set(true);
+
+          this.cart.clear();
+        },
+
+        error: () => {
+          // surfaced via global error interceptor snackbar
+        },
+      });
   }
 }

@@ -8,8 +8,8 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment/environment';
 
 const CART_KEY = 'fp_cart_items';
-const FREE_DELIVERY_THRESHOLD = 999;
-const DELIVERY_CHARGE = 49;
+const FREE_DELIVERY_THRESHOLD = 749;
+const DELIVERY_CHARGE = 70;
 
 @Injectable({ providedIn: 'root' })
 export class CartService {

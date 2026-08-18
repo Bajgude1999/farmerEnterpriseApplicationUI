@@ -16,7 +16,15 @@ import { ProductCard } from '../../shared/components/product-card/product-card';
 @Component({
   selector: 'fp-product-details',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatTabsModule, TranslatePipe, StarRatingComponent, ProductCard],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
+    TranslatePipe,
+    StarRatingComponent,
+    ProductCard,
+  ],
   templateUrl: './product-details.html',
   styleUrl: './product-details.scss',
 })
@@ -32,7 +40,9 @@ export class ProductDetails implements OnInit {
   activeImageIndex = signal(0);
   quantity = signal(1);
   loading = signal(true);
-selectedPackSize = signal<Packsizes | null>(null);
+  selectedPackSize = signal<Packsizes | null>(null);
+  isInCart = false;
+
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -45,24 +55,32 @@ selectedPackSize = signal<Packsizes | null>(null);
     this.loading.set(true);
     this.productService.getById(id).subscribe({
       next: (product) => {
-        this.product.set(product);
         this.activeImageIndex.set(0);
         this.quantity.set(1);
         this.loading.set(false);
 
-    const defaultPack = product.packsizes?.find(
-      pack => pack.defaultYn === true && pack.inStock
-    );
+        const defaultPack = product.packsizes?.find(
+          (pack) => pack.defaultYn === true && pack.inStock,
+        );
 
-    if (defaultPack) {
-      this.selectedPackSize.set(defaultPack);
-    }
+        if (defaultPack) {
+          this.selectedPackSize.set(defaultPack);
+
+          this.product.set({
+            ...product,
+            unit: `${defaultPack.packSize} ${defaultPack.unitName}`,
+            price: defaultPack.sellingPrice,
+            name: product.productName,
+            brand:product.brandName
+          });
+        } else {
+          this.product.set(product);
+        }
       },
       error: () => this.loading.set(false),
     });
-    
-    this.productService.getRelated(id).subscribe((related) => this.related.set(related));
 
+    this.productService.getRelated(id).subscribe((related) => this.related.set(related));
   }
 
   selectImage(index: number): void {
@@ -70,21 +88,21 @@ selectedPackSize = signal<Packsizes | null>(null);
   }
 
   incrementQuantity(): void {
-    const product = this.product();
-    if (!product) return;
-    this.quantity.update((q) => Math.min(q + 1, product.stock));
+    this.quantity.update((q) => q + 1);
   }
-
   decrementQuantity(): void {
-    this.quantity.update((q) => Math.max(1, q - 1));
+    this.quantity.update((q) => Math.max(q - 1, 1));
   }
 
   addToCart(): void {
     const product = this.product();
     if (!product) return;
     this.cart.addItem(product, this.quantity());
+    this.isInCart = true;
   }
-
+  goToCart(): void {
+    this.router.navigate(['/cart']);
+  }
   buyNow(): void {
     const product = this.product();
     if (!product) return;
@@ -98,48 +116,48 @@ selectedPackSize = signal<Packsizes | null>(null);
     this.router.navigate(['/checkout']);
   }
   selectPackSize(pack: Packsizes): void {
-  if (!pack.inStock) {
-    return;
+    if (!pack.inStock) {
+      return;
+    }
+
+    this.selectedPackSize.set(pack);
+
+    // Reset quantity whenever pack changes
+    this.quantity.set(1);
   }
 
-  this.selectedPackSize.set(pack);
+  getSelectedPrice(): number {
+    const pack = this.selectedPackSize();
 
-  // Reset quantity whenever pack changes
-  this.quantity.set(1);
-}
-
-getSelectedPrice(): number {
-  const pack = this.selectedPackSize();
-
-  return pack?.sellingPrice ?? this.product()?.price ?? 0;
-}
-
-getSelectedMrp(): number {
-  const pack = this.selectedPackSize();
-
-  return pack?.mrpPrice ?? this.product()?.mrp ?? 0;
-}
-
-getDiscountPercent(): number {
-  const mrp = this.getSelectedMrp();
-  const price = this.getSelectedPrice();
-
-  if (!mrp || mrp <= price) {
-    return 0;
+    return pack?.sellingPrice ?? this.product()?.price ?? 0;
   }
 
-  return Math.round(((mrp - price) / mrp) * 100);
-}
+  getSelectedMrp(): number {
+    const pack = this.selectedPackSize();
 
-isSelectedPackInStock(): boolean {
-  const pack = this.selectedPackSize();
+    return pack?.mrpPrice ?? this.product()?.mrp ?? 0;
+  }
 
-  return pack ? pack.inStock : (this.product()?.stock ?? 0) > 0;
-}
+  getDiscountPercent(): number {
+    const mrp = this.getSelectedMrp();
+    const price = this.getSelectedPrice();
 
-getAvailableStock(): number {
-  const pack = this.selectedPackSize();
+    if (!mrp || mrp <= price) {
+      return 0;
+    }
 
-  return pack ? (pack.inStock ? 1 : 0) : (this.product()?.stock ?? 0);
-}
+    return Math.round(((mrp - price) / mrp) * 100);
+  }
+
+  isSelectedPackInStock(): boolean {
+    const pack = this.selectedPackSize();
+
+    return pack ? pack.inStock : (this.product()?.stock ?? 0) > 0;
+  }
+
+  getAvailableStock(): number {
+    const pack = this.selectedPackSize();
+
+    return pack ? (pack.inStock ? 1 : 0) : (this.product()?.stock ?? 0);
+  }
 }

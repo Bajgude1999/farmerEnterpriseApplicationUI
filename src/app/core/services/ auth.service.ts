@@ -1,10 +1,14 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment/environment';
 import { AuthResponse, LoginRequest, OtpLoginRequest, RegisterRequest, User } from '../models/user.model';
 import { PendingAction } from '../models/cart.model';
 import * as CryptoJS from 'crypto-js';
+import { SessionExpiryDialogComponent } from '../../shared/components/session-expiry-dialog/session-expiry-dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { Http } from '../common/http';
+import { Router } from '@angular/router';
 
 const TOKEN_KEY = 'fp_auth_token';
 const USER_KEY = 'fp_auth_user';
@@ -24,10 +28,19 @@ const PENDING_ACTION_KEY = 'fp_pending_action';
 export class AuthService {
   private http = inject(HttpClient);
     private key: string = environment.encriptionKey;
-
+constructor(
+  private httpSecure: Http,
+  private router: Router,
+  private dialog: MatDialog
+) {}
  private currentUserSignal = signal<User | null>(this.readStoredUser());
 readonly currentUser = this.currentUserSignal.asReadonly();
 readonly isLoggedIn = computed(() => !!this.currentUserSignal());
+private readonly TOKEN_KEY = 'fp_auth_token';
+private readonly REFRESH_TOKEN_KEY = 'fp_refresh_token';
+private readonly USER_KEY = 'fp_user';
+
+private sessionTimer: ReturnType<typeof setTimeout> | null = null;
 readonly userCd = computed(() => {
   const user = this.currentUserSignal();
   if (!user) return null;
@@ -90,25 +103,191 @@ readonly userCd = computed(() => {
     localStorage.removeItem(USER_KEY);
     this.currentUserSignal.set(null);
   }
-
 private persistSession(res: AuthResponse): void {
 
-  localStorage.setItem(TOKEN_KEY, res.access_token);
+  localStorage.setItem(
+    TOKEN_KEY,
+    res.access_token
+  );
+
+  localStorage.setItem(
+    this.REFRESH_TOKEN_KEY,
+    res.refresh_token
+  );
 
   const user: User = {
+
     userId: res.userCd,
+
     fullName: res.fullName,
+
     mobNo: res.mobNo,
+
     email: res.email,
+
     roleCd: res.roleCd,
+
     roleName: res.roleName,
-    addresses:res.addresses
+
+    addresses: res.addresses
+
   };
 
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-  this.currentUserSignal.set(user);
-}
+  localStorage.setItem(
+    USER_KEY,
+    JSON.stringify(user)
+  );
 
+  this.currentUserSignal.set(user);
+
+  // Start 1-minute-before-expiry timer
+  this.startSessionTimer(res.expires_in);
+}
+private startSessionTimer(expiresIn: number): void {
+  const totalSeconds = Math.floor(expiresIn / 1000);
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  console.log(
+    `Token expires in: ${minutes} minute(s) ${seconds} second(s)`
+  );
+
+  // Clear previous timer
+  if (this.sessionTimer) {
+    clearTimeout(this.sessionTimer);
+    this.sessionTimer = null;
+  }
+
+  // Show popup 1 minute before expiry
+  const ONE_MINUTE = 60 * 1000;
+
+  const popupTime = expiresIn - ONE_MINUTE;
+
+  // Don't allow negative timeout
+  const timeout = Math.max(popupTime, 0);
+
+  this.sessionTimer = setTimeout(() => {
+
+    this.showSessionExpiryPopup();
+
+  }, timeout);
+}
+refreshToken(): Observable<AuthResponse> {
+
+  const refreshToken =
+    localStorage.getItem(this.REFRESH_TOKEN_KEY);
+
+  const userJson =
+    localStorage.getItem(USER_KEY);
+
+  if (!refreshToken || !userJson) {
+
+    this.clearSessionAndRedirect();
+
+    return throwError(
+      () => new Error('Refresh session information not found')
+    );
+  }
+
+  const user: User = JSON.parse(userJson);
+
+  const payload = {
+    username: user.mobNo,
+    refresh_token: refreshToken
+  };
+
+  return this.http
+    .post<{ data: string[] }>(
+      `${environment.apiBaseUrl}/v1/refreshToken`,
+      payload
+    )
+    .pipe(
+
+      map((res) => {
+
+        const encrypted = res.data[0];
+
+        const decrypted = this.decrypt(encrypted);
+
+        return JSON.parse(decrypted) as AuthResponse;
+
+      }),
+
+      tap((res) => {
+
+        // Stores new access + refresh token
+        // and restarts expiration timer
+        this.persistSession(res);
+
+      })
+
+    );
+}
+private showSessionExpiryPopup(): void {
+
+  const dialogRef = this.dialog.open(
+    SessionExpiryDialogComponent,
+    {
+      width: '400px',
+      disableClose: true
+    }
+  );
+
+  dialogRef.afterClosed().subscribe(
+    (continueSession: boolean) => {
+
+      if (continueSession) {
+
+        this.refreshToken().subscribe({
+
+          next: () => {
+
+            console.log(
+              'Session continued successfully'
+            );
+
+          },
+
+          error: () => {
+
+            this.clearSessionAndRedirect();
+
+          }
+
+        });
+
+      } else {
+
+        this.clearSessionAndRedirect();
+
+      }
+
+    }
+  );
+}
+private clearSessionAndRedirect(): void {
+
+  if (this.sessionTimer) {
+
+    clearTimeout(this.sessionTimer);
+
+    this.sessionTimer = null;
+  }
+
+  localStorage.removeItem(TOKEN_KEY);
+
+  localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+
+  //localStorage.removeItem(REFRESH_USERNAME_KEY);
+
+  localStorage.removeItem(USER_KEY);
+
+  this.currentUserSignal.set(null);
+
+  this.router.navigate(['/login']);
+
+}
   // ---- Guest pending-action replay ----
 
   setPendingAction(action: PendingAction): void {

@@ -25,19 +25,21 @@ export type OrderStatus =
 export interface OrderItem {
   productId: string;
   productName: string;
-  quantity: number;
-  price: number;
+  qty: number;
+  rate: number;
 }
 
 export interface Order {
   id: string;
   orderNumber: string;
-  placedOn: string;
+  orderDate: string;
   status: OrderStatus;
   items: OrderItem[];
   deliveryAddress: Address;
   paymentMode: 'COD';
-  total: number;
+  grossAmount: number;
+  orderStatus:string;
+  orderCd: string;
 }
 
 /** Captures an action a guest tried to perform, so it can be replayed after login. */
@@ -45,4 +47,8 @@ export interface PendingAction {
   type: 'ADD_TO_CART' | 'BUY_NOW';
   productId: string;
   quantity: number;
+}
+export interface OrderResponse {
+  data: Order[];
+  message:string;
 }

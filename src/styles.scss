@@ -111,11 +111,14 @@ a { color: inherit; text-decoration: none; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--neutral-300); border-radius: 8px; }
 
-.mat-mdc-menu-panel {
-  background: var(--surface) !important;
-  color: var(--text-primary) !important;
-}
+// .mat-mdc-menu-panel {
+//   background: var(--surface) !important;
+//   color: var(--text-primary) !important;
+// }
 
 .mat-mdc-menu-item {
   color: var(--brand-gold-700) !important;
+}
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: var(--radius-md) !important;
 }

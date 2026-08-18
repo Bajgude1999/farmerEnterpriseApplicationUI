@@ -42,6 +42,9 @@ export interface SalesOrder {
   email?: string;
   orderDate?: string;
   items: SalesOrderDtl[];
+  upiPayment: number;
+  upipaymentRef?: string;
+  shipingCharges:number;
 }
 export interface SalesOrderBatchDtl {
   batchDtlCd?: number | null;

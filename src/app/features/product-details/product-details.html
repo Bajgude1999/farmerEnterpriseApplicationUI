@@ -85,8 +85,8 @@
     </div>
 
     <div class="fp-details__actions">
-      <button mat-stroked-button color="primary" (click)="addToCart()" [disabled]="p.stock === 0">
-        {{ 'ADD_TO_CART' | translate }}
+      <button mat-stroked-button color="primary" (click)="isInCart ? goToCart() : addToCart()" [disabled]="p.stock === 0">
+  {{ isInCart ? ('GO_TO_CART' | translate) : ('ADD_TO_CART' | translate) }}
       </button>
       <button mat-flat-button class="fp-btn-accent" (click)="buyNow()" [disabled]="p.stock === 0">
         {{ 'BUY_NOW' | translate }}

@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment/environment';
@@ -7,30 +8,16 @@ import { Http } from '../common/http';
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private http = inject(Http);
+  private base = `${environment.apiBaseUrl}/v1/notification`;
+  getAll(userCd: number, roleCd: number): Observable<AppNotification[]> {
+    return this.http.get<AppNotification[]>(`${this.base}/get-all?userCd=${userCd}&roleCd=${roleCd}`);
+  }
 
- getAll(userCd: number, roleCd: number): Observable<AppNotification[]> {
+  markRead(notiRecipientId: number): Observable<unknown> {
+    return this.http.put(`${this.base}/read?notiRecipientId=${notiRecipientId}`, null);
+  }
 
-  return this.http.getWithPayload<AppNotification[]>(
-    `${environment.apiBaseUrl}/v1/notification/get-all`,
-    {
-      userCd: userCd.toString(),
-      roleCd: roleCd.toString()
-    }
-  );
-}
-
- 
-markRead(notiRecipientId: number): Observable<string> {
-
-  return this.http.putWithPayload(
-    `${environment.apiBaseUrl}/v1/notification/read`,
-    null,
-    {
-        notiRecipientId: notiRecipientId.toString()
-  
-    }
-  );
-}
-
-
+  markAllRead(userCd: number): Observable<unknown> {
+    return this.http.put(`${this.base}/read-all?userCd=${userCd}`, null);
+  }
 }

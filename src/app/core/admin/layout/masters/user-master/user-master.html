@@ -72,7 +72,7 @@
         <label class="field-label">{{ 'STATE' | translate }}</label>
         <mat-form-field appearance="outline">
           <mat-select formControlName="state" (selectionChange)="onStateChange($event.value)">
-            <mat-option *ngFor="let state of states" [value]="state.name">{{ state.name }}</mat-option>
+            <mat-option *ngFor="let state of states()" [value]="state.stateName">{{ state.stateName }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -81,7 +81,7 @@
         <label class="field-label">{{ 'DISTRICT' | translate }}</label>
         <mat-form-field appearance="outline">
           <mat-select formControlName="district" (selectionChange)="onDistrictChange($event.value)">
-            <mat-option *ngFor="let district of districts()" [value]="district.name">{{ district.name }}</mat-option>
+            <mat-option *ngFor="let district of districts()" [value]="district.districtName">{{ district.districtName }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -90,7 +90,7 @@
         <label class="field-label">{{ 'TALUKA' | translate }}</label>
         <mat-form-field appearance="outline">
           <mat-select formControlName="taluka">
-            <mat-option *ngFor="let taluka of talukas()" [value]="taluka">{{ taluka }}</mat-option>
+            <mat-option *ngFor="let taluka of talukas()" [value]="taluka.talukaName">{{ taluka.talukaName }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>

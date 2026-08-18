@@ -40,6 +40,9 @@ export interface Product {
   usage: string;
   dose: string;
   precaution: string;
+  productName:string;
+  brandName:string;
+  
   
 }
 

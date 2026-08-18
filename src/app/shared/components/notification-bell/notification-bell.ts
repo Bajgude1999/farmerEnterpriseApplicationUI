@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -173,6 +173,29 @@ private showBrowserNotification(
 
   }
 }
+markAllRead(): void {
+  if (!this.userCd) return;
+
+  this.notificationService.markAllRead(this.userCd).subscribe({
+    next: () => {
+      this.notifications.update((list) => list.map((n) => ({ ...n, isRead: true })));
+            this.notifications.set([]);
+
+    },
+    error: (err) => console.error('Failed to mark all as read', err),
+  });
+}
+
+priorityClassFor(notification: AppNotification): string {
+  switch (notification.priority) {
+    case 'HIGH':
+      return 'notification-bell__priority--high';
+    case 'MEDIUM':
+      return 'notification-bell__priority--medium';
+    default:
+      return 'notification-bell__priority--low';
+  }
+}
 private requestNotificationPermission(): void {
 
   if (!('Notification' in window)) {
@@ -194,7 +217,7 @@ private requestNotificationPermission(): void {
 }
 load(): void {
   const userJson = localStorage.getItem('fp_auth_user');
-
+    this.notifications.set([]);
   if (!userJson) {
     this.notifications.set([]);
     return;
@@ -282,6 +305,8 @@ load(): void {
     if (diffHr < 24) return `${diffHr} hr ago`;
     return `${Math.floor(diffHr / 24)} day ago`;
   }
+  @ViewChild(MatMenuTrigger)
+menuTrigger!: MatMenuTrigger;
   onNotificationClick(notification: AppNotification): void {
 
   if (!notification.isRead) {
@@ -303,6 +328,14 @@ load(): void {
               : n
           )
         );
+           // Hide/remove notification immediately
+        this.notifications.update(list =>
+          list.filter(
+            n => n.notiRecipientId !== notification.notiRecipientId
+          )
+        );
+         // Close notification popup first
+    this.menuTrigger.closeMenu();
 
           this.router.navigateByUrl(
             notification.routeLink

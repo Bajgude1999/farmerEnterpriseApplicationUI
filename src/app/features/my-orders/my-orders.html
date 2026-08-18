@@ -1,30 +1,133 @@
 <section class="fp-container fp-orders">
-  <h1 class="fp-display">{{ 'MY_ORDERS' | translate }}</h1>
+  <h1 class="fp-display">
+    {{ 'MY_ORDERS' | translate }}
+  </h1>
 
   <mat-tab-group (selectedIndexChange)="onTabChange($event)" animationDuration="0ms">
-    <mat-tab *ngFor="let tab of tabs" [label]="('ORDER_STATUS_' + tab) | translate"></mat-tab>
+    <mat-tab *ngFor="let tab of tabs" [label]="'ORDER_STATUS_' + tab | translate"> </mat-tab>
   </mat-tab-group>
 
   <ng-container *ngIf="!loading(); else loadingTpl">
     <div class="fp-orders__list" *ngIf="filteredOrders().length; else emptyTpl">
       <div class="fp-orders__item fp-card" *ngFor="let order of filteredOrders()">
+        <!-- ORDER HEADER -->
+
         <div class="fp-orders__item-header">
-          <span class="fp-orders__number">{{ order.orderNumber }}</span>
-          <span class="fp-orders__date">{{ order.placedOn | date: 'mediumDate' }}</span>
-          <span class="fp-orders__status" [attr.data-status]="order.status">
-            {{ ('ORDER_STATUS_' + order.status) | translate }}
+          <span class="fp-orders__number">
+            {{ order.orderNumber }}
+          </span>
+
+          <span class="fp-orders__date">
+            {{ order.orderDate | date: 'mediumDate' }}
+          </span>
+
+          <span class="fp-orders__status" [attr.data-status]="order.orderStatus">
+            {{ 'ORDER_STATUS_' + order.orderStatus | translate }}
           </span>
         </div>
+
+        <!-- ORDER ITEMS -->
+
         <div class="fp-orders__item-body">
-          <div *ngFor="let item of order.items">{{ item.productName }} × {{ item.quantity }} — ₹{{ item.price }}</div>
+          <div class="fp-order-product" *ngFor="let item of order.items">
+            <!-- PRODUCT INFORMATION -->
+
+            <div class="fp-order-product__info">
+              <div class="fp-order-product__name">
+                {{ item.productName }}
+              </div>
+
+              <div class="fp-order-product__details">
+                {{ item.qty }}
+                × ₹{{ item.rate }}
+              </div>
+            </div>
+
+            <!-- RATING SECTION -->
+
+            <div class="fp-product-rating" *ngIf="order.orderStatus === 'DELIVERED'">
+              <ng-container *ngIf="!isRated(order, item); else ratedTpl">
+                <div class="fp-rating-title">Rate this product</div>
+
+                <!-- STARS -->
+
+                <div class="fp-stars">
+                  <button
+                    type="button"
+                    class="fp-star"
+                    *ngFor="let star of [1, 2, 3, 4, 5]"
+                    (click)="setRating(order, item, star)"
+                  >
+                    <span class="star-full" *ngIf="getRating(order, item) >= star"> ★ </span>
+
+                    <span class="star-empty" *ngIf="getRating(order, item) < star"> ☆ </span>
+                  </button>
+                </div>
+
+                <!-- HALF STAR BUTTONS -->
+
+                <div class="fp-half-rating">
+                  <button
+                    type="button"
+                    *ngFor="let rating of [1, 2, 3, 4, 5]"
+                    [class.active]="getRating(order, item) === rating"
+                    (click)="setRating(order, item, rating)"
+                  >
+                    {{ rating }}
+                  </button>
+                </div>
+
+                <!-- REVIEW -->
+
+                <textarea
+                  class="fp-review"
+                  rows="3"
+                  placeholder="Write your review"
+                  [ngModel]="getReview(order, item)"
+                  (ngModelChange)="setReview(order, item, $event)"
+                >
+                </textarea>
+
+                <!-- SAVE -->
+
+                <button
+                  type="button"
+                  class="fp-rating-save"
+                  [disabled]="!getRating(order, item)"
+                  (click)="saveRating(order, item)"
+                >
+                  Submit Review
+                </button>
+              </ng-container>
+
+              <!-- AFTER SAVING -->
+
+              <ng-template #ratedTpl>
+                <div class="fp-rating-submitted">
+                  <span class="fp-rating-submitted__stars"> ★ </span>
+
+                  Thank you for your review.
+                </div>
+              </ng-template>
+            </div>
+          </div>
         </div>
+
+        <!-- ORDER TOTAL -->
+
         <div class="fp-orders__item-footer">
-          <span>{{ 'TOTAL' | translate }}: ₹{{ order.total }}</span>
+          <span> {{ 'TOTAL' | translate }}: ₹{{ order.grossAmount }} </span>
         </div>
       </div>
     </div>
+
     <ng-template #emptyTpl>
-      <app-empty-state icon="receipt_long" titleKey="NO_ORDERS_TITLE" messageKey="NO_ORDERS_MESSAGE"></app-empty-state>
+      <app-empty-state
+        icon="receipt_long"
+        titleKey="NO_ORDERS_TITLE"
+        messageKey="NO_ORDERS_MESSAGE"
+      >
+      </app-empty-state>
     </ng-template>
   </ng-container>
 
