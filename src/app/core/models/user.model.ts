@@ -48,7 +48,6 @@ export interface AuthResponse {
   token_type: string;
   expires_in: number;
   scope: string;
-
   userCd: number;
   fullName: string;
   mobNo: string;

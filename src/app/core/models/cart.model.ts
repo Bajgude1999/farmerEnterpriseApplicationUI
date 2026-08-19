@@ -52,3 +52,10 @@ export interface OrderResponse {
   data: Order[];
   message:string;
 }
+export interface TaxDto {
+  productCd: number;
+  grossAmount: number;
+  taxName?: string;
+  taxRate?: number;
+  taxAmount?: number;
+}

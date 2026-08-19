@@ -35,27 +35,57 @@
   &__number { font-weight: 700; color: var(--text-primary); }
 
   &__status {
-    margin-left: auto;
-    padding: 2px 10px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    text-transform: capitalize;
-    background: var(--neutral-100);
+  margin-left: auto;
+  padding: 5px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: capitalize;
+  background: var(--neutral-500);
+  color: #fff;
 
-    &[data-status='DELIVERED'] { background: var(--brand-green-100); color: var(--color-success); }
-    &[data-status='CANCELLED'] { background: #fdeaea; color: var(--color-danger); }
-    &[data-status='PENDING'],
-    &[data-status='PLACED'] { background: var(--brand-gold-100); color: var(--brand-gold-700); }
-    &[data-status='CONFIRMED'] { background: var(--color-info); color: #fff; }
-    &[data-status='PACKED'] { background: var(--brand-green-100); color: var(--brand-green-700); }
-    &[data-status='OUT FOR DELIVERY'] { background: var(--brand-gold-100); color: var(--brand-gold-700); }
-    &[data-status='RETURNED'] { background: var(--neutral-100); color: var(--text-muted); }
+  // Neutral, not yet actioned
+  &[data-status='PENDING'],
+  &[data-status='PLACED'] {
+    background: var(--neutral-700);
+    color: #fff;
   }
+
+  // Acknowledged by the seller
+  &[data-status='CONFIRMED'] {
+    background: var(--color-info);
+    color: #fff;
+  }
+
+  // In-progress fulfilment
+  &[data-status='PACKED'] {
+    background: var(--brand-gold-700);
+    color: #fff;
+  }
+
+  // Actively moving — strongest amber, signals urgency
+  &[data-status='OUT FOR DELIVERY'] {
+    background: #b5650c;
+    color: #fff;
+  }
+
+  // Successful terminal state
+  &[data-status='DELIVERED'] {
+    background: var(--brand-green-700);
+    color: #fff;
+  }
+
+  // Negative terminal states
+  &[data-status='CANCELLED'],
+  &[data-status='RETURNED'] {
+    background: var(--color-danger);
+    color: #fff;
+  }
+}
 
   &__loading { color: var(--text-muted); padding: 24px 0; }
 }
 
-// One product line within an order card
 .fp-order-product {
   display: flex;
   flex-direction: column;
@@ -83,7 +113,6 @@
   }
 }
 
-// Rating/review block shown for delivered items
 .fp-product-rating {
   background: var(--surface-alt);
   border: 1px solid var(--border-color);

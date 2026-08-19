@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
-import { environment } from '../../../../../../environments/environment/environment';
+import { environment } from '../../../../../../environments/environment';
 import { Http } from '../../../../common/http';
 import { ProductService } from '../../../../services/ product.service';
 import { CategoryService } from '../../../../services/category.service';

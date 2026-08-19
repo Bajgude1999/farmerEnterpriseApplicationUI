@@ -18,7 +18,7 @@ import { BrandService } from '../../../../services/brand.service';
 import { UnitService } from '../../shared/unit.service';
 import { Category } from '../../../../models/category.model';
 import { Brand } from '../../../../models//brand.model';
-import { UnitOption } from '../../shared/unit.model';
+import { UnitOption } from '../../../../models/unit.model';
 import { Packsizes, ProductMaster } from '../../../../../core/models/product.model';
 import { UploadDto } from '../../../../models/upload.model';
 import { validateProductImage } from '../../shared/image-validation';

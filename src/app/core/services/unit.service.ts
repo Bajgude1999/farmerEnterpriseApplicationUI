@@ -2,15 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Category } from '../models/category.model';
+import { UnitOption } from '../models/unit.model';
+import { Http } from '../common/http';
 
 @Injectable({ providedIn: 'root' })
-export class CategoryService {
-  private http = inject(HttpClient);
+export class UnitService {
+  private http = inject(Http);
 
-  getAll(): Observable<Category[]> {
+  getAll(): Observable<UnitOption[]> {
     return this.http
-      .get<{ data: Category[] }>(`${environment.apiBaseUrl}/v1/category/get-all`)
+      .get<{ data: UnitOption[] }>(`${environment.apiBaseUrl}/v1/unit/get-all`)
       .pipe(map((res) => res.data ?? []));
   }
 }

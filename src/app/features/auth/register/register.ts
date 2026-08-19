@@ -17,7 +17,7 @@ import { CartService } from '../../../core/services/cart.service';
 import { ProductService } from '../../../core/services/ product.service';
 import { RoleService } from '../../../core/services/role.service';
 import { RoleOption } from '../../../core/models/user.model';
-import { environment } from '../../../../environments/environment/environment';
+import { environment } from '../../../../environments/environment';
 import { District, State, Taluka } from '../../../core/models/location.model';
 import { LocationService } from '../../../core/services/location.service';
 

@@ -29,7 +29,7 @@ import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
 import { loadingInterceptor } from './core/interceptors/loading-interceptor';
 
-import { environment } from '../environments/environment/environment';
+import { environment } from '../environments/environment';
 
 import { AppDateAdapter } from './core/date/app-date-adapter';
 

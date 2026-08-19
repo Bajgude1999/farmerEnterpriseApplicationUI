@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable, tap, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment/environment';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginRequest, OtpLoginRequest, RegisterRequest, User } from '../models/user.model';
 import { PendingAction } from '../models/cart.model';
 import * as CryptoJS from 'crypto-js';
@@ -101,6 +101,7 @@ readonly userCd = computed(() => {
     localStorage.removeItem(TOKEN_KEY);
    // localStorage.removeItem(access_token);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     this.currentUserSignal.set(null);
   }
 private persistSession(res: AuthResponse): void {
@@ -109,10 +110,11 @@ private persistSession(res: AuthResponse): void {
     TOKEN_KEY,
     res.access_token
   );
+const encryptedRefreshToken = this.encrypt(res.refresh_token);
 
   localStorage.setItem(
-    this.REFRESH_TOKEN_KEY,
-    res.refresh_token
+  this.REFRESH_TOKEN_KEY,
+     encryptedRefreshToken
   );
 
   const user: User = {
@@ -175,53 +177,113 @@ private startSessionTimer(expiresIn: number): void {
 }
 refreshToken(): Observable<AuthResponse> {
 
-  const refreshToken =
-    localStorage.getItem(this.REFRESH_TOKEN_KEY);
+const encryptedRefreshToken =
+  localStorage.getItem(this.REFRESH_TOKEN_KEY);
 
-  const userJson =
-    localStorage.getItem(USER_KEY);
+if (!encryptedRefreshToken) {
+  this.clearSessionAndRedirect();
+
+  return throwError(
+    () => new Error('Refresh token not found')
+  );
+}
+
+const refreshToken =
+  this.decrypt(encryptedRefreshToken);
+    const userJson = localStorage.getItem(USER_KEY);
 
   if (!refreshToken || !userJson) {
-
     this.clearSessionAndRedirect();
 
-    return throwError(
-      () => new Error('Refresh session information not found')
+    return throwError(() =>
+      new Error('Refresh session information not found')
     );
   }
 
-  const user: User = JSON.parse(userJson);
+  let user: User;
+
+  try {
+    user = JSON.parse(userJson);
+  } catch (error) {
+
+    this.clearSessionAndRedirect();
+
+    return throwError(() =>
+      new Error('Invalid user session information')
+    );
+  }
+
+  if (!user?.mobNo) {
+
+    this.clearSessionAndRedirect();
+
+    return throwError(() =>
+      new Error('User mobile number not found')
+    );
+  }
 
   const payload = {
-    username: user.mobNo,
+    username: this.encrypt(user.mobNo),
     refresh_token: refreshToken
   };
 
-  return this.http
-    .post<{ data: string[] }>(
+
+  return this.httpSecure
+    .postWithPayload<{ data: string[] }>(
       `${environment.apiBaseUrl}/v1/refreshToken`,
-      payload
-    )
+      payload    )
     .pipe(
 
       map((res) => {
 
-        const encrypted = res.data[0];
+        if (
+          !res ||
+          !res.data ||
+          !Array.isArray(res.data) ||
+          res.data.length === 0
+        ) {
+          throw new Error('Invalid refresh token response');
+        }
 
-        const decrypted = this.decrypt(encrypted);
+        const encryptedResponse = res.data[0];
 
-        return JSON.parse(decrypted) as AuthResponse;
+        if (!encryptedResponse) {
+          throw new Error('Empty refresh token response');
+        }
+
+        const decryptedResponse =
+          this.decrypt(encryptedResponse);
+
+        if (!decryptedResponse) {
+          throw new Error('Unable to decrypt refresh token response');
+        }
+
+        const authResponse =
+          JSON.parse(decryptedResponse) as AuthResponse;
+
+        return authResponse;
+      }),
+
+      tap((res: AuthResponse) => {
+
+        console.log('Refresh token successful');
+
+        // Save new access token and refresh token
+        this.persistSession(res);
 
       }),
 
-      tap((res) => {
+      catchError((error) => {
 
-        // Stores new access + refresh token
-        // and restarts expiration timer
-        this.persistSession(res);
+        console.error(
+          'Refresh token API failed:',
+          error
+        );
 
+        this.clearSessionAndRedirect();
+
+        return throwError(() => error);
       })
-
     );
 }
 private showSessionExpiryPopup(): void {
@@ -266,7 +328,7 @@ private showSessionExpiryPopup(): void {
     }
   );
 }
-private clearSessionAndRedirect(): void {
+ clearSessionAndRedirect(): void {
 
   if (this.sessionTimer) {
 

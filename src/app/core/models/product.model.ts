@@ -22,7 +22,7 @@ export interface Product {
   rating: number;
   ratingCount: number;
   stock: number;
-  unit: string; // e.g. "1 kg", "5 L", "50 kg bag"
+  unit: string;
   images: ProductImage[];
   description?: string;
   specifications?: ProductSpecification[];
@@ -42,6 +42,8 @@ export interface Product {
   precaution: string;
   productName:string;
   brandName:string;
+  uomCd: number;
+  packSize: number;
   
   
 }

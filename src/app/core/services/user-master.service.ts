@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { UserMaster } from '../../../models/user.model';
-import { Http } from '../../../common/http';
+import { environment } from '../../../environments/environment';
+import { UserMaster } from '../models/user.model';
+import { Http } from '../common/http';
 
 @Injectable({ providedIn: 'root' })
 export class UserMasterService {

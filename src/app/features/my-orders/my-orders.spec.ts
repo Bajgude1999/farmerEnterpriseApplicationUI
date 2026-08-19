@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { MyOrders } from './my-orders';
-import { environment } from '../../../environments/environment/environment';
+import { environment } from '../../../environments/environment';
 import { Order } from '../../core/models/cart.model';
 
 const mockOrders: Order[] = [

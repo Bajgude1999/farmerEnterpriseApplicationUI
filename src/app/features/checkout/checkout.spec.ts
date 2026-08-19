@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CheckoutComponent } from './checkout';
-import { environment } from '../../../environments/environment/environment';
+import { environment } from '../../../environments/environment';
 
 describe('CheckoutComponent', () => {
   beforeEach(async () => {

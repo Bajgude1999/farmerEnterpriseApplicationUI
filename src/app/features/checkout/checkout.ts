@@ -12,10 +12,11 @@ import { finalize, switchMap } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { CartService } from '../../core/services/cart.service';
-import { environment } from '../../../environments/environment/environment';
-import { TaxDto } from '../../core/services/cart.model';
+import { environment } from '../../../environments/environment';
+import { TaxDto } from '../../core/models/cart.model';
 import { LocationService } from '../../core/services/location.service';
 import { District, State, Taluka } from '../../core/models/location.model';
+import { SalesOrderBatchDtl } from '../../core/models/sales-order.model';
 
 @Component({
   selector: 'fp-checkout',
@@ -510,6 +511,7 @@ onDistrictChange(districtName: string): void {
         ' - ' +
         formValue.pin;
     }
+
     // 2. One call for ALL items
     this.http
       .post<any>(`${environment.apiBaseUrl}/v1/order/calculatetaxes`, taxRequest)
@@ -527,8 +529,12 @@ onDistrictChange(districtName: string): void {
           const discountAmount = mrpAmount > grossAmount ? mrpAmount - grossAmount : 0;
           // Total tax
           const taxAmount = taxes.reduce((total, tax) => total + Number(tax.taxAmount || 0), 0);
-          const netAmount = grossAmount - taxAmount;
-          grossAmount=grossAmount+this.cart.deliveryCharge();
+            const netAmount = taxes
+            .filter(tax => tax.taxName == 'BASIC')
+            .reduce((total, tax) => total + Number(tax.taxAmount || 0), 0);
+          const shippingCharges=this.cart.deliveryCharge();
+         // grossAmount=grossAmount+shippingCharges;
+         // const netAmount = grossAmount - taxAmount;
           // 3. Create final order payload
           const payload = {
             userCd: formValue.userCd,
@@ -544,7 +550,7 @@ onDistrictChange(districtName: string): void {
             discountAmount: discountAmount,
 
             taxAmount: taxAmount,
-            shipingCharges:this.cart.deliveryCharge(),
+            shipingCharges:shippingCharges,
             // Your price is GST-inclusive
             netAmount: netAmount,
 
@@ -559,26 +565,44 @@ onDistrictChange(districtName: string): void {
                   taxRate: tax.taxRate,
                   taxAmount: tax.taxAmount,
                 }));
+                console.log('prod',i.product);
+               const batchDtlList: SalesOrderBatchDtl[] = [];
 
-              return {
-                productCd: Number(i.product.id),
+            batchDtlList.push({
+              batchDtlCd: null,
+              orderDtlCd: null,
+              batchNo: '',
+              mfgDate: '',
+              expiryDate: '',
+              batchQty: i.quantity,
+              batchRate: i.product.price,
+              uomCd: i.product.uomCd,
+              packSize: i.product.packSize,
+              discount:((i.product.mrp- i.product.price)*i.quantity),
+              mrpRate: i.product.mrp
+            });
+                          return {
+                            productCd: Number(i.product.id),
 
-                productName: i.product.name,
+                            productName: i.product.name,
 
-                qty: i.quantity,
+                            qty: i.quantity,
 
-                rate: Number(i.product.price),
+                            rate: Number(i.product.price),
+                            packSize:Number(i.product.packSize),
+                            uomCd:Number(i.product.uomCd),
 
-                discount: Math.max(
-                  0,
-                  Number(i.product.mrp || 0) * i.quantity -
-                    Number(i.product.price || 0) * i.quantity,
-                ),
-                amount: Number(i.product.price) * i.quantity,
+                            discount: Math.max(
+                              0,
+                              Number(i.product.mrp || 0) * i.quantity -
+                                Number(i.product.price || 0) * i.quantity,
+                            ),
+                            amount: Number(i.product.price) * i.quantity,
 
-                active: true,
+                            active: true,
 
-                taxes: itemTaxes,
+                            taxes: itemTaxes,
+                            batchDetails: batchDtlList,
               };
             }),
           };

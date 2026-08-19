@@ -18,6 +18,12 @@ export const routes: Routes = [
   { path: 'policy', loadComponent: () => import('./pages/policy/policy').then((m) => m.PolicyComponent), title: 'Policies' },
   { path: 'contact', loadComponent: () => import('./pages/contact/contact').then((m) => m.ContactComponent), title: 'Contact Us' },
   {
+  path: 'change-password',
+  canActivate: [authGuard],
+  loadComponent: () => import('./features/change-password/change-password').then((m) => m.ChangePassword),
+  title: 'Change Password',
+},
+  {
   path: 'admin',
   loadChildren: () => import('./core/admin/admin.routes').then((m) => m.adminRoutes),
 },

@@ -1,11 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { CartItem } from '../models/cart.model';
+import { CartItem,TaxDto } from '../models/cart.model';
 import { Product } from '../models/product.model';
-import { TaxDto } from './cart.model';
 import { Observable, tap } from 'rxjs';
-import { Http } from '../common/http';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment/environment';
+import { environment } from '../../../environments/environment';
 
 const CART_KEY = 'fp_cart_items';
 const FREE_DELIVERY_THRESHOLD = 749;

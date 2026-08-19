@@ -4,6 +4,7 @@
   "RESET_LINK_SENT": "Password reset link has been sent.",
   "SEND_RESET_LINK": "Send Reset Link",
   "MOBILE_OR_EMAIL": "Mobile Number or Email",
+  "MOBILE": "Mobile Number",
   "FORGOT_PASSWORD_TITLE": "Forgot Password",
   "NO_PRODUCTS_TITLE": "No Products Available",
   "NO_PRODUCTS_MESSAGE": "No products are available at the moment.",
@@ -199,7 +200,12 @@
   "ORDER_STATUS_PLACED":"Order Placed Successfully",
   "ORDER_STATUS_OUT FOR DELIVERY": "Out for Delivery",
   "NOTIF_MARK_ALL_READ": "Mark all as read",
-
+"CHANGE_PASSWORD_TITLE": "Change Password",
+"CONFIRM_NEW_PASSWORD": "Confirm New Password",
+"PASSWORDS_DO_NOT_MATCH": "Passwords do not match",
+"PASSWORD_CHANGED_SUCCESS": "Your password has been changed successfully.",
+"BACK_TO_PROFILE": "Back to Profile",
+"CHANGE_PASSWORD_ERROR": "Failed to change password. Please check your current password and try again.",
 
 
   "ADMIN_PANEL": "Admin Panel",
@@ -302,6 +308,18 @@
   "BATCH_WISE": "Batch Wise",
   "RESERVE_QTY": "Reserve Qty",
   "TOTAL_QTY": "Total Qty",
-  "BATCH_QTY": "Batch Qty"
+  "BATCH_QTY": "Batch Qty",
+  "WHATSAPP_ORDER_PLACED": "Hello!! from Velnexa Crop Solutions! Thank you for your order.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nYour order has been successfully placed and will be processed shortly.\n\nTo track your order, please visit:\nhttps://anthillgroup.in/\n\nThank you for choosing Velnexa Crop Solutions!",
 
+  "WHATSAPP_ORDER_CONFIRMED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been confirmed.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nYour order is now being processed.\n\nTo track your order, please visit:\nhttps://anthillgroup.in/\n\nThank you for choosing Velnexa Crop Solutions!",
+
+  "WHATSAPP_ORDER_PACKED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been packed and is ready for dispatch.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nTo track your order, please visit:\nhttps://anthillgroup.in/\n\nThank you for choosing Velnexa Crop Solutions!",
+
+  "WHATSAPP_ORDER_OUT_FOR_DELIVERY": "Hello!! from Velnexa Crop Solutions!\n\nYour order is out for delivery.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nYour order will be delivered to you shortly.\n\nTo track your order, please visit:\nhttps://anthillgroup.in/\n\nThank you for choosing Velnexa Crop Solutions!",
+
+  "WHATSAPP_ORDER_DELIVERED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been successfully delivered.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nThank you for choosing Velnexa Crop Solutions!\n\nWe value your feedback. Please visit:\nhttps://anthillgroup.in/\n\nand give us a rating. Your feedback helps us serve you better.",
+
+  "WHATSAPP_ORDER_CANCELLED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been cancelled.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nIf you have any questions regarding the cancellation, please contact us.\n\nThank you for choosing Velnexa Crop Solutions.",
+
+  "WHATSAPP_ORDER_RETURNED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been marked as returned.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nIf you have any questions regarding the return, please contact us.\n\nThank you for choosing Velnexa Crop Solutions!"
 }

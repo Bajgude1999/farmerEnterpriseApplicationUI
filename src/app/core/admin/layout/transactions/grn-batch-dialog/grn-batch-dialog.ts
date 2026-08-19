@@ -11,7 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 
 import { GrnBatchDtl } from '../../shared/grn.model';
-import { UnitOption } from '../../shared/unit.model';
+import { UnitOption } from '../../../../models/unit.model';
 import { UnitService } from '../../shared/unit.service';
 import { MatOption } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';

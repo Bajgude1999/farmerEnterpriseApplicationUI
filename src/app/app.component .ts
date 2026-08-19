@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { HeaderComponent } from './shared/components/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner';
-import { environment } from '../environments/environment/environment';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'fp-root',

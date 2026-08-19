@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SalesOrderService } from '../../shared/sales-order.service';
-import { SalesOrder } from '../../shared/sales-order.model';
+import { SalesOrder } from '../../../../models/sales-order.model';
 
 @Component({
   selector: 'app-sales-order-list',
@@ -40,4 +40,19 @@ export class SalesOrderList implements OnInit {
   goToEdit(order: SalesOrder): void {
     this.router.navigate(['/admin/transaction/sales-order/edit', order.orderCd]);
   }
+  viewOrder(order: any): void {
+  console.log('View order:', order);
+}
+
+callCustomer(order: any): void {
+  console.log('Call customer:', order);
+}
+
+whatsappCustomer(order: any): void {
+  console.log('WhatsApp customer:', order);
+}
+
+smsCustomer(order: any): void {
+  console.log('SMS customer:', order);
+}
 }

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment/environment';
+import { environment } from '../../../environments/environment';
 import { WishlistItem } from '../models/wishlist.model';
 import { Http } from '../common/http';
 

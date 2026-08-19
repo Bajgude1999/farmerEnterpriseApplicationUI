@@ -9,10 +9,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AvailableBatch, SalesOrderBatchDtl } from '../../shared/sales-order.model';
+import { AvailableBatch, SalesOrderBatchDtl } from '../../../../models/sales-order.model';
 import { SalesOrderService } from '../../shared/sales-order.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { UnitOption } from '../../shared/unit.model';
+import { UnitOption } from '../../../../models/unit.model';
 import { UnitService } from '../../shared/unit.service';
 
 export interface BatchDialogData {

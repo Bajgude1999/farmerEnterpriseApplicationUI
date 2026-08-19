@@ -5,7 +5,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
-import { environment } from '../../../../../../environments/environment/environment';
+import { environment } from '../../../../../../environments/environment';
 import { Http } from '../../../../common/http';
 
 interface GrnRow {

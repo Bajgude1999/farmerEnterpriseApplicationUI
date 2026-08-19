@@ -21,7 +21,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { UserMasterService } from '../../shared/user-master.service';
 import { UserMaster } from '../../../../models/user.model';
-import { UnitOption } from '../../shared/unit.model';
+import { UnitOption } from '../../../../models/unit.model';
 import { UnitService } from '../../shared/unit.service';
 @Component({
   selector: 'app-grn',

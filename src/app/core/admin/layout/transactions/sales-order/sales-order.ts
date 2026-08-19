@@ -20,17 +20,19 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { SalesOrderService } from '../../shared/sales-order.service';
-import { SalesOrder, SalesOrderDtl, SalesOrderGst } from '../../shared/sales-order.model';
+import { SalesOrder, SalesOrderDtl, SalesOrderGst } from '../../../../models/sales-order.model';
 import { UserMaster } from '../../../../models/user.model';
 import { UserMasterService } from '../../shared/user-master.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BatchDialog, BatchDialogData } from '../batch-dialog/batch-dialog';
-import { SalesOrderBatchDtl } from '../../shared/sales-order.model';
+import { SalesOrderBatchDtl } from '../../../../models/sales-order.model';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { UnitService } from '../../shared/unit.service';
-import { UnitOption } from '../../shared/unit.model';
+import { UnitOption } from '../../../../models/unit.model';
 import { ProductMaster, WhMaster } from '../../../../models/product.model';
 import { ProductService } from '../../../../services/ product.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-sales-order',
@@ -59,6 +61,8 @@ export class SalesOrderComponent implements OnInit {
   private dialog = inject(MatDialog);
   private unitService = inject(UnitService);
   private productService = inject(ProductService);
+  private translate = inject(TranslateService);
+
   constructor(private cdr: ChangeDetectorRef) {}
 
   units = signal<UnitOption[]>([]);
@@ -87,6 +91,8 @@ export class SalesOrderComponent implements OnInit {
     'RETURNED',
   ];
   showPrintButton = false;
+  showMessageButton = false;
+
   form = this.fb.nonNullable.group({
     orderCd: [null as number | null],
     orderNo: [{ value: '', disabled: true }],
@@ -106,7 +112,7 @@ export class SalesOrderComponent implements OnInit {
     items: this.fb.array([]),
     upiPayment:[null as number | null],
     upipaymentRef:[''],
-    shippingCharges:[null as number | null,],
+    shipingCharges:[null as number | null],
   });
 
   get itemRows(): FormArray {
@@ -158,6 +164,9 @@ export class SalesOrderComponent implements OnInit {
   private loadOrder(orderCd: number): void {
     this.salesOrderService.getById(orderCd).subscribe((order) => {
       this.form.patchValue(order);
+      if(order.orderStatus!='PENDING'){
+        this.showMessageButton=true;
+      }
       if (order.invoiceNo) {
         this.showPrintButton = true;
       }
@@ -340,6 +349,117 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
+
+callCustomer(): void {
+          const order = this.form.getRawValue() as unknown as SalesOrder;
+
+  const mobile = order.mobileNo;
+  if (!mobile) return;
+  window.location.href = `tel:${mobile}`;
+}
+
+whatsappCustomer(): void {
+        const order = this.form.getRawValue() as unknown as SalesOrder;
+
+  const mobile = order.mobileNo;
+  if (!mobile) return;
+
+  const message = this.buildOrderMessage(order);
+  const digitsOnly = mobile.replace(/\D/g, '');
+  const phoneWithCountryCode = digitsOnly.length === 10 ? `91${digitsOnly}` : digitsOnly;
+
+  window.open(`https://wa.me/${phoneWithCountryCode}?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+smsCustomer(): void {
+      const order = this.form.getRawValue() as unknown as SalesOrder;
+
+  const mobile =order.mobileNo;
+  if (!mobile) return;
+
+  const message = this.buildOrderMessage(order);
+  // Body is pre-filled only — sending itself stays manual, the user taps Send in their SMS app.
+  window.location.href = `sms:${mobile}?body=${encodeURIComponent(message)}`;
+}
+private buildOrderMessage(order: SalesOrder): string {
+
+  const itemLines = (order.items ?? [])
+    .map((item: any) => {
+
+      // Find matching unit from signal
+      const unit = this.units().find(
+        (u: UnitOption) =>
+          String(u.unitCd) === String(item.uomCd)
+      );
+
+      const unitName = unit?.unitName ?? '';
+
+      // Example: 1 Litre
+      const packInfo = [
+        item.packSize,
+        unitName
+      ]
+        .filter(
+          value =>
+            value !== null &&
+            value !== undefined &&
+            value !== ''
+        )
+        .join(' ');
+
+      return `${item.productName}${packInfo ? ' (' + packInfo + ')' : ''} — Qty: ${item.qty} x ₹${item.rate} = ₹${item.amount}`;
+    })
+    .join('\n');
+
+  // Normalize status
+  const status = String(order.orderStatus ?? '')
+    .trim()
+    .toUpperCase();
+
+  // Select translation key based on order status
+  let messageKey = 'WHATSAPP_MESSAGE';
+
+  switch (status) {
+
+    case 'PLACED':
+      messageKey = 'WHATSAPP_ORDER_PLACED';
+      break;
+
+    case 'CONFIRMED':
+      messageKey = 'WHATSAPP_ORDER_CONFIRMED';
+      break;
+
+    case 'PACKED':
+      messageKey = 'WHATSAPP_ORDER_PACKED';
+      break;
+
+    case 'OUT FOR DELIVERY':
+      messageKey = 'WHATSAPP_ORDER_OUT_FOR_DELIVERY';
+      break;
+
+    case 'DELIVERED':
+      messageKey = 'WHATSAPP_ORDER_DELIVERED';
+      break;
+
+    case 'CANCELLED':
+      messageKey = 'WHATSAPP_ORDER_CANCELLED';
+      break;
+
+    case 'RETURNED':
+      messageKey = 'WHATSAPP_ORDER_RETURNED';
+      break;
+
+    default:
+      messageKey = 'WHATSAPP_MESSAGE';
+      break;
+  }
+
+  return this.translate.instant(messageKey, {
+    orderNo: order.orderNo,
+    items: itemLines,
+    total: order.grossAmount
+  });
+}
   cancel(): void {
     this.router.navigate(['/admin/transaction/sales-order']);
   }
@@ -498,7 +618,8 @@ export class SalesOrderComponent implements OnInit {
 
       totaSalesOrderAmount += amount;
     });
-
+    // const shipingCharges=Number(this.form.get('grossAmount')?.value || 0);
+    // totaSalesOrderAmount=totaSalesOrderAmount+shipingCharges;
     totaSalesOrderAmount = this.round(totaSalesOrderAmount, 2);
 
     const totalAmount = this.round(Number(this.form.get('grossAmount')?.value || 0), 2);
@@ -653,7 +774,7 @@ printInvoice(): void {
 
   const shippingCharges =
     Number(
-      formValue.shippingCharges || 0
+      formValue.shipingCharges || 0
     );
 
 

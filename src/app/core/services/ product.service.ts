@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
-import { environment } from '../../../environments/environment/environment';
+import { environment } from '../../../environments/environment';
 import {
   Packsizes,
   Product,
@@ -171,7 +171,7 @@ export class ProductService {
 
             rating: p.rating,
             ratingCount: p.ratingCount,
-
+            uomCd:defaultPack?.unitCd,
             stock: p.stockQty ?? 0,
             unit: packUnit ?? p.unitName ?? '',
             featured: p.featured,

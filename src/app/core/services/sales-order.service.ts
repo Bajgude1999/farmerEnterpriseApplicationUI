@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { AvailableBatch, SalesOrder } from '../../../models/sales-order.model';
-import { Http } from '../../../common/http';
+import { environment } from '../../../environments/environment';
+import { AvailableBatch, SalesOrder } from '../models/sales-order.model';
+import { Http } from '../common/http';
 
 
 @Injectable({ providedIn: 'root' })

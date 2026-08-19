@@ -6,7 +6,7 @@
       <mat-tab [label]="'LOGIN_WITH_PASSWORD' | translate">
         <form [formGroup]="passwordForm" (ngSubmit)="submitPasswordLogin()" class="fp-auth__form">
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'MOBILE_OR_EMAIL' | translate }}</mat-label>
+            <mat-label>{{ 'MOBILE' | translate }}</mat-label>
             <input matInput formControlName="identifier" autocomplete="username" />
           </mat-form-field>
 
@@ -15,7 +15,7 @@
             <input matInput type="password" formControlName="password" autocomplete="current-password" />
           </mat-form-field>
 
-          <a routerLink="/forgot-password" class="fp-auth__forgot">{{ 'FORGOT_PASSWORD' | translate }}</a>
+          <!-- <a routerLink="/forgot-password" class="fp-auth__forgot">{{ 'FORGOT_PASSWORD' | translate }}</a> -->
 
           <p class="fp-auth__error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
 
@@ -25,7 +25,7 @@
         </form>
       </mat-tab>
 
-      <mat-tab [label]="'LOGIN_WITH_OTP' | translate">
+      <!-- <mat-tab [label]="'LOGIN_WITH_OTP' | translate">
         <form [formGroup]="otpForm" (ngSubmit)="submitOtpLogin()" class="fp-auth__form">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'MOBILE_NUMBER' | translate }}</mat-label>
@@ -52,7 +52,7 @@
             {{ 'VERIFY_AND_LOGIN' | translate }}
           </button>
         </form>
-      </mat-tab>
+      </mat-tab> -->
     </mat-tab-group>
 
     <p class="fp-auth__register-hint">

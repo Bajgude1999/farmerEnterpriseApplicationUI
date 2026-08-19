@@ -3,13 +3,9 @@
     {{ 'MY_ORDERS' | translate }}
   </h1>
 
-  <mat-tab-group (selectedIndexChange)="onTabChange($event)" animationDuration="0ms">
-    <mat-tab *ngFor="let tab of tabs" [label]="'ORDER_STATUS_' + tab | translate"> </mat-tab>
-  </mat-tab-group>
-
   <ng-container *ngIf="!loading(); else loadingTpl">
-    <div class="fp-orders__list" *ngIf="filteredOrders().length; else emptyTpl">
-      <div class="fp-orders__item fp-card" *ngFor="let order of filteredOrders()">
+    <div class="fp-orders__list" *ngIf="orders().length; else emptyTpl">
+      <div class="fp-orders__item fp-card" *ngFor="let order of orders()">
         <!-- ORDER HEADER -->
 
         <div class="fp-orders__item-header">

@@ -8,7 +8,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CartService } from '../../../core/services/cart.service';
 import { AuthService } from '../../../core/services/ auth.service';
-import { environment } from '../../../../environments/environment/environment';
+import { environment } from '../../../../environments/environment';
 import { ProductService } from '../../../core/services/ product.service';
 import { Product } from '../../../core/models/product.model';
 import { SearchService } from '../../../core/services/search.service';
