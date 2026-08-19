@@ -13,7 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error) => {
 
       if (error.status === 401) {
-
+        
         authService.clearSessionAndRedirect();
 
       }

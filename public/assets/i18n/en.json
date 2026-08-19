@@ -321,5 +321,6 @@
 
   "WHATSAPP_ORDER_CANCELLED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been cancelled.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nIf you have any questions regarding the cancellation, please contact us.\n\nThank you for choosing Velnexa Crop Solutions.",
 
-  "WHATSAPP_ORDER_RETURNED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been marked as returned.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nIf you have any questions regarding the return, please contact us.\n\nThank you for choosing Velnexa Crop Solutions!"
+  "WHATSAPP_ORDER_RETURNED": "Hello!! from Velnexa Crop Solutions!\n\nYour order has been marked as returned.\n\nOrder No: {{orderNo}}\n\nOrder Details:\n{{items}}\n\nTotal: ₹{{total}}\n\nIf you have any questions regarding the return, please contact us.\n\nThank you for choosing Velnexa Crop Solutions!",
+"LOGIN_ERROR": "Incorrect mobile number or password. Please try again."
 }
