@@ -1,0 +1,350 @@
+.admin-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 { font-family: var(--font-display); font-size: 20px; }
+}
+
+.product-form {
+  padding: 24px;
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 12px;
+
+    @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    mat-form-field { width: 100%; }
+  }
+
+  .field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__desc { margin-bottom: 16px; }
+
+  &__tax-section {
+    margin: 24px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  &__tax-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    h3 { font-size: 15px; }
+  }
+
+  &__tax-field {
+    width: 100%;
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+ &__details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+&__stock-qty {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+&__min-stock-qty {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+&__active {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+&__desc {
+  grid-column: 2;
+  grid-row: 2;
+  margin-bottom: 0;
+}
+
+&__image {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+
+  @media (max-width: 768px) {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+  }
+}
+&__image-preview {
+  width: 100%;
+  height: 200px;
+  max-height: 200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+&__image-preview img {
+  width: 100%;
+  height: 200px;
+  max-height: 200px;
+
+  object-fit: contain;
+}
+&__pack-section {
+  margin: 24px 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+&__pack-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  h3 { font-size: 15px; }
+}
+
+&__pack-field {
+  width: 100%;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+}
+
+
+
+
+.admin-table {
+  width: 100%;
+}
+
+
+/* =========================================================
+   Mobile Responsive Support
+   Website + Android / Capacitor
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .admin-page__header {
+    margin-bottom: 12px;
+
+    h2 {
+      font-size: 18px;
+    }
+  }
+
+  .product-form {
+    padding: 16px;
+
+    &__details-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 12px;
+    }
+
+    &__stock-qty {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    &__min-stock-qty {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    &__active {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    &__desc {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    &__image {
+      grid-column: 1 / span 2;
+      grid-row: 3;
+    }
+
+    &__image-preview {
+      height: 180px;
+      max-height: 180px;
+
+      img {
+        height: 180px;
+        max-height: 180px;
+      }
+    }
+
+    &__actions {
+      gap: 8px;
+      margin-top: 20px;
+    }
+  }
+}
+
+
+/* =========================================================
+   Small Mobile Phones
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .admin-page__header {
+    flex-wrap: wrap;
+    gap: 8px;
+
+    h2 {
+      font-size: 17px;
+    }
+  }
+
+  .product-form {
+    padding: 12px;
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    &__details-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      gap: 10px;
+    }
+
+    &__stock-qty,
+    &__min-stock-qty,
+    &__active,
+    &__desc,
+    &__image {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    &__image-preview {
+      height: 160px;
+      max-height: 160px;
+
+      img {
+        height: 160px;
+        max-height: 160px;
+      }
+    }
+
+    &__tax-section,
+    &__pack-section {
+      margin: 18px 0;
+      padding-top: 12px;
+    }
+
+    &__tax-header,
+    &__pack-header {
+      gap: 8px;
+
+      h3 {
+        font-size: 14px;
+      }
+    }
+
+    &__actions {
+      flex-direction: column;
+      width: 100%;
+
+      button {
+        width: 100%;
+        min-height: 44px;
+      }
+    }
+  }
+
+  .admin-table {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+
+
+/* =========================================================
+   Very Small Android Screens
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+  .product-form {
+    padding: 10px;
+
+    &__image-preview {
+      height: 140px;
+      max-height: 140px;
+
+      img {
+        height: 140px;
+        max-height: 140px;
+      }
+    }
+
+    .field-label {
+      font-size: 12px;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -298,9 +298,9 @@ searchProducts(keyword: string): Observable<Product[]> {
 
   save(payload: ProductMaster): Observable<unknown> {
     if (payload.productCd) {
-      return this.http.put(`${this.apiUrl}/update`, payload);
+      return this.httpSecure.put(`${this.apiUrl}/update`, payload);
     } else {
-      return this.http.post(`${this.apiUrl}/save`, payload);
+      return this.httpSecure.post(`${this.apiUrl}/save`, payload);
     }
   }
 

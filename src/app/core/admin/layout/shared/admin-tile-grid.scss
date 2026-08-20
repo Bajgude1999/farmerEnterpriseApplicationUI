@@ -14,5 +14,42 @@
     color: var(--text-primary);
   }
 
-  &:hover { box-shadow: var(--shadow-md); }
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* Android / Mobile */
+@media screen and (max-width: 768px) {
+  .admin-tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .admin-tile {
+    padding: 24px 14px;
+  }
+}
+
+/* Small Android phones */
+@media screen and (max-width: 480px) {
+  .admin-tile-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .admin-tile {
+    padding: 22px 14px;
+  }
+}
+
+/* Very small screens */
+@media screen and (max-width: 360px) {
+  .admin-tile-grid {
+    gap: 10px;
+  }
+
+  .admin-tile {
+    padding: 20px 12px;
+  }
 }

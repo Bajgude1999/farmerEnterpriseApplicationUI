@@ -51,6 +51,7 @@ html {
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
+
   --shadow-sm: 0 2px 6px rgba(38, 50, 56, 0.06);
   --shadow-md: 0 6px 20px rgba(38, 50, 56, 0.08);
   --shadow-lg: 0 16px 40px rgba(38, 50, 56, 0.12);
@@ -73,15 +74,24 @@ body {
   height: 100%;
 }
 
-h1, h2, h3, h4, .fp-display {
+h1,
+h2,
+h3,
+h4,
+.fp-display {
   font-family: var(--font-display);
   font-weight: 600;
   margin: 0;
 }
 
-a { color: inherit; text-decoration: none; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 .fp-container {
   max-width: 1846px;
@@ -108,8 +118,15 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border-color);
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: var(--neutral-300); border-radius: 8px; }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neutral-300);
+  border-radius: 8px;
+}
 
 // .mat-mdc-menu-panel {
 //   background: var(--surface) !important;
@@ -119,6 +136,94 @@ a { color: inherit; text-decoration: none; }
 .mat-mdc-menu-item {
   color: var(--brand-gold-700) !important;
 }
+
 .mat-mdc-dialog-container .mdc-dialog__surface {
   border-radius: var(--radius-md) !important;
+}
+/* =========================================================
+   ANGULAR MATERIAL TABLE
+   Mobile Website + Android / Capacitor
+   NO HTML CHANGE REQUIRED
+   ========================================================= */
+
+/* Parent of the Angular Material table */
+div:has(> table.mat-mdc-table.admin-table) {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Mobile */
+@media screen and (max-width: 768px) {
+
+  /* Find the parent containing the table and make it scroll */
+  div:has(> table.mat-mdc-table.admin-table) {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Actual Angular Material table */
+  table.mat-mdc-table.admin-table {
+    display: table !important;
+
+    width: max-content !important;
+    min-width: 700px !important;
+    max-width: none !important;
+
+    table-layout: auto !important;
+
+    overflow: visible !important;
+  }
+
+  /* Header + body cells */
+  table.mat-mdc-table.admin-table th,
+  table.mat-mdc-table.admin-table td {
+    white-space: nowrap !important;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+
+/* =========================================================
+   SMALL ANDROID
+   ========================================================= */
+
+@media screen and (max-width: 480px) {
+
+  div:has(> table.mat-mdc-table.admin-table) {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+
+  table.mat-mdc-table.admin-table {
+    min-width: 650px !important;
+  }
+
+  table.mat-mdc-table.admin-table th,
+  table.mat-mdc-table.admin-table td {
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL ANDROID
+   ========================================================= */
+
+@media screen and (max-width: 360px) {
+
+  table.mat-mdc-table.admin-table {
+    min-width: 600px !important;
+  }
+
+  table.mat-mdc-table.admin-table th,
+  table.mat-mdc-table.admin-table td {
+    padding: 6px;
+    font-size: 11px;
+  }
 }

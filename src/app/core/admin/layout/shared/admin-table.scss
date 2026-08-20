@@ -20,9 +20,6 @@
 .admin-table {
   width: 100%;
   padding: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
 
   &__low {
@@ -31,8 +28,13 @@
   }
 }
 
-/* Android / Mobile */
+
+/* =========================================================
+   Android / Mobile
+   ========================================================= */
+
 @media screen and (max-width: 768px) {
+
   .admin-page {
     width: 100%;
     padding: 0 12px;
@@ -51,27 +53,36 @@
     }
   }
 
-  .admin-table {
-    width: 100%;
-    overflow-x: auto;
-    display: block;
-    white-space: nowrap;
+  /*
+   * IMPORTANT:
+   * Keep Angular Material table as TABLE.
+   * Do NOT use display:block.
+   */
+  table.admin-table.mat-mdc-table {
+    display: table !important;
 
-    table {
-      min-width: 650px;
-      width: max-content;
-    }
+    width: max-content !important;
+    min-width: 650px !important;
+    max-width: none !important;
 
-    th,
-    td {
-      padding: 8px 10px;
-      font-size: 13px;
-    }
+    table-layout: auto !important;
+  }
+
+  table.admin-table.mat-mdc-table th,
+  table.admin-table.mat-mdc-table td {
+    white-space: nowrap !important;
+    padding: 8px 10px;
+    font-size: 13px;
   }
 }
 
-/* Small Android phones */
+
+/* =========================================================
+   Small Android Phones
+   ========================================================= */
+
 @media screen and (max-width: 480px) {
+
   .admin-page {
     padding: 0 8px;
 
@@ -82,26 +93,35 @@
     }
   }
 
-  .admin-table {
-    th,
-    td {
-      padding: 7px 8px;
-      font-size: 12px;
-    }
+  table.admin-table.mat-mdc-table {
+    min-width: 650px !important;
+  }
+
+  table.admin-table.mat-mdc-table th,
+  table.admin-table.mat-mdc-table td {
+    padding: 7px 8px;
+    font-size: 12px;
   }
 }
 
-/* Very small screens */
+
+/* =========================================================
+   Very Small Screens
+   ========================================================= */
+
 @media screen and (max-width: 360px) {
+
   .admin-page {
     padding: 0 6px;
   }
 
-  .admin-table {
-    th,
-    td {
-      padding: 6px;
-      font-size: 11px;
-    }
+  table.admin-table.mat-mdc-table {
+    min-width: 600px !important;
+  }
+
+  table.admin-table.mat-mdc-table th,
+  table.admin-table.mat-mdc-table td {
+    padding: 6px;
+    font-size: 11px;
   }
 }
