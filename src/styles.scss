@@ -159,7 +159,6 @@ div:has(> table.mat-mdc-table.admin-table) {
   div:has(> table.mat-mdc-table.admin-table) {
     width: 100% !important;
     max-width: 100% !important;
-    overflow-x: auto !important;
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
   }

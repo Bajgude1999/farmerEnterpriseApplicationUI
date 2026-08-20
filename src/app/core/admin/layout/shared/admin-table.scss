@@ -1,5 +1,6 @@
 .admin-page {
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 
   &__header {
@@ -37,10 +38,13 @@
 
   .admin-page {
     width: 100%;
+    max-width: 100%;
     padding: 0 12px;
     box-sizing: border-box;
 
     &__header {
+      width: 100%;
+      max-width: 100%;
       align-items: flex-start;
       flex-direction: column;
       gap: 10px;
@@ -54,17 +58,13 @@
   }
 
   /*
-   * IMPORTANT:
-   * Keep Angular Material table as TABLE.
-   * Do NOT use display:block.
+   * Angular Material table
    */
   table.admin-table.mat-mdc-table {
     display: table !important;
-
     width: max-content !important;
     min-width: 650px !important;
     max-width: none !important;
-
     table-layout: auto !important;
   }
 
@@ -85,12 +85,6 @@
 
   .admin-page {
     padding: 0 8px;
-
-    &__header {
-      h2 {
-        font-size: 17px;
-      }
-    }
   }
 
   table.admin-table.mat-mdc-table {

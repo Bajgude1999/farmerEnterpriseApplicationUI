@@ -11,7 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { finalize, Observable } from 'rxjs';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductService } from '../../../../services/ product.service';
 import { CategoryService } from '../../../../services/category.service';
 import { BrandService } from '../../../../services/brand.service';
@@ -53,7 +53,9 @@ export class ProductMasterComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private uploadService = inject(UploadService);
-
+constructor(
+  private snackBar: MatSnackBar
+) {}
   categories = signal<Category[]>([]);
   brands = signal<Brand[]>([]);
   units = signal<UnitOption[]>([]);
@@ -309,6 +311,11 @@ export class ProductMasterComponent implements OnInit {
     this.productService.save(payload).subscribe({
       next: () => {
         this.saving.set(false);
+        this.snackBar.open('Product saved successfully', 'Close', {
+      duration: 3000,
+      horizontalPosition: 'right',
+      verticalPosition: 'top'
+    });
         this.router.navigate(['/admin/master/product']);
       },
       error: () => {
