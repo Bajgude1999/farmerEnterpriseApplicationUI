@@ -70,13 +70,18 @@ userCd: number | null = (() => {
   });
 
 ngOnInit(): void {
-const encryptedUserData = localStorage.getItem('fp_auth_user');
+  const encryptedUserData = localStorage.getItem('fp_auth_user');
 
-if (!encryptedUserData) {
-  return;
-}
+  let userData: any = null;
 
-const userData = JSON.parse(this.decrypt(encryptedUserData));
+  try {
+    if (encryptedUserData) {
+      userData = JSON.parse(this.decrypt(encryptedUserData));
+    }
+  } catch (error) {
+    console.error('Invalid user data in localStorage:', error);
+  }
+
   // Load states first because district loading depends on stateCd
   this.locationService.getStates().subscribe({
     next: (data: State[]) => {
@@ -86,44 +91,37 @@ const userData = JSON.parse(this.decrypt(encryptedUserData));
         return;
       }
 
-      try {
-        const user = JSON.parse(userData);
-        const address = user.addresses?.[0];
+      const address = userData.addresses?.[0];
 
-        // --------------------------------------------------
-        // USER DETAILS
-        // --------------------------------------------------
-        this.addressForm.patchValue({
-          fullName: user.fullName || '',
-          mobNo: user.mobNo || '',
-          email: user.email || '',
-          roleCd: user.roleCd || 5,
-          userCd: user.userId?.toString() || '',
+      // --------------------------------------------------
+      // USER DETAILS
+      // --------------------------------------------------
+      this.addressForm.patchValue({
+        fullName: userData.fullName || '',
+        mobNo: userData.mobNo || '',
+        email: userData.email || '',
+        roleCd: userData.roleCd || 5,
+        userCd: userData.userId?.toString() || '',
 
-          // Address details
-          village: address?.village || '',
-          state: address?.state || '',
-          district: address?.district || '',
-          taluka: address?.taluka || '',
-          pin: address?.pin || '',
-          optionalMobNo: address?.optionalMobNo || '',
-          landmark: address?.landmark || '',
-          address: address?.address || '',
-        });
+        // Address details
+        village: address?.village || '',
+        state: address?.state || '',
+        district: address?.district || '',
+        taluka: address?.taluka || '',
+        pin: address?.pin || '',
+        optionalMobNo: address?.optionalMobNo || '',
+        landmark: address?.landmark || '',
+        address: address?.address || '',
+      });
 
-        // --------------------------------------------------
-        // FIND STATE BY stateName
-        // --------------------------------------------------
-        const selectedState = data.find(
-          (state: State) => state.stateName === address?.state
-        );
+      // --------------------------------------------------
+      // FIND STATE BY stateName
+      // --------------------------------------------------
+      const selectedState = data.find(
+        (state: State) => state.stateName === address?.state
+      );
 
-        if (!selectedState) {
-          this.districts.set([]);
-          this.talukas.set([]);
-          return;
-        }
-
+      if (selectedState) {
         const stateCd = selectedState.stateCd;
 
         // --------------------------------------------------
@@ -139,31 +137,29 @@ const userData = JSON.parse(this.decrypt(encryptedUserData));
                 district.districtName === address?.district
             );
 
-            if (!selectedDistrict) {
+            if (selectedDistrict) {
+              const districtCd = selectedDistrict.districtCd;
+
+              // --------------------------------------------------
+              // LOAD TALUKAS
+              // --------------------------------------------------
+              this.locationService.getTalukas(districtCd).subscribe({
+                next: (talukaData: Taluka[]) => {
+                  this.talukas.set(talukaData);
+
+                  this.addressForm.patchValue({
+                    taluka: address?.taluka || '',
+                  });
+                },
+                error: (err) => {
+                  console.error('Failed to load talukas', err);
+                  this.talukas.set([]);
+                },
+              });
+            } else {
+              // District not found - simply clear talukas
               this.talukas.set([]);
-              return;
             }
-
-            const districtCd = selectedDistrict.districtCd;
-
-            // --------------------------------------------------
-            // LOAD TALUKAS
-            // --------------------------------------------------
-            this.locationService.getTalukas(districtCd).subscribe({
-              next: (talukaData: Taluka[]) => {
-                this.talukas.set(talukaData);
-
-                // No need to patch again because
-                // taluka was already patched above.
-                this.addressForm.patchValue({
-                  taluka: address?.taluka || '',
-                });
-              },
-              error: (err) => {
-                console.error('Failed to load talukas', err);
-                this.talukas.set([]);
-              },
-            });
           },
           error: (err) => {
             console.error('Failed to load districts', err);
@@ -171,11 +167,10 @@ const userData = JSON.parse(this.decrypt(encryptedUserData));
             this.talukas.set([]);
           },
         });
-      } catch (error) {
-        console.error(
-          'Invalid user data in localStorage:',
-          error
-        );
+      } else {
+        // State not found - simply clear districts and talukas
+        this.districts.set([]);
+        this.talukas.set([]);
       }
     },
 
