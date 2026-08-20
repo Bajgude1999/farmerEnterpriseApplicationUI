@@ -4,6 +4,7 @@ import { Product } from '../models/product.model';
 import { Observable, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import * as CryptoJS from 'crypto-js';
 
 const CART_KEY = 'fp_cart_items';
 const FREE_DELIVERY_THRESHOLD = 749;
@@ -14,6 +15,8 @@ export class CartService {
   private itemsSignal = signal<CartItem[]>(this.readStoredCart());
   readonly taxesSignal = signal<TaxDto[]>([]);
   readonly items = this.itemsSignal.asReadonly();
+  private readonly ENCRYPTION_KEY = environment.encriptionKey;
+
   readonly itemCount = computed(() => this.itemsSignal().reduce((sum, i) => sum + i.quantity, 0));
   readonly subtotal = computed(() =>
     this.itemsSignal().reduce((sum, i) => sum + i.product.price * i.quantity, 0),
@@ -25,17 +28,51 @@ export class CartService {
   );
   readonly total = computed(() => this.subtotal() + this.deliveryCharge());
 
-  private readStoredCart(): CartItem[] {
-    const raw = localStorage.getItem(CART_KEY);
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+ private readStoredCart(): CartItem[] {
+  const raw = localStorage.getItem(CART_KEY);
+
+  if (!raw) {
+    return [];
   }
 
+  try {
+    const decryptedData = this.decrypt(raw);
+
+    return JSON.parse(decryptedData) as CartItem[];
+  } catch (error) {
+    console.error('Failed to decrypt cart data:', error);
+
+    localStorage.removeItem(CART_KEY);
+
+    return [];
+  }
+}
+
   private persist(): void {
-    localStorage.setItem(CART_KEY, JSON.stringify(this.itemsSignal()));
+const cartData = JSON.stringify(this.itemsSignal());
+const encryptedCartData = this.encrypt(cartData);
+
+localStorage.setItem(CART_KEY, encryptedCartData);
   }
   isProductInCart(productId: string): boolean {
     return this.itemsSignal().some((item) => item.product.id === productId);
   }
+  private encrypt(value: string): string {
+  // your encryption implementation
+  return CryptoJS.AES.encrypt(
+    value,
+    this.ENCRYPTION_KEY
+  ).toString();
+}
+
+private decrypt(value: string): string {
+  const bytes = CryptoJS.AES.decrypt(
+    value,
+    this.ENCRYPTION_KEY
+  );
+
+  return bytes.toString(CryptoJS.enc.Utf8);
+}
   addItem(product: Product, quantity = 1): void {
     const items = [...this.itemsSignal()];
     const existing = items.find((i) => i.product.id === product.id);

@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { finalize, switchMap } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
+import * as CryptoJS from 'crypto-js';
 
 import { CartService } from '../../core/services/cart.service';
 import { environment } from '../../../environments/environment';
@@ -39,6 +40,8 @@ export class CheckoutComponent {
   private http = inject(HttpClient);
   private router = inject(Router);
   cart = inject(CartService);
+  private readonly ENCRYPTION_KEY = environment.encriptionKey;
+
   private locationService = inject(LocationService);
   states = signal<State[]>([]);
   districts = signal<District[]>([]);
@@ -46,7 +49,10 @@ export class CheckoutComponent {
   placingOrder = signal(false);
   orderPlaced = signal(false);
   orderNumber = signal('');
-  userCd: number = Number(localStorage.getItem('userCd'));
+userCd: number | null = (() => {
+  const value = localStorage.getItem('userCd');
+  return value !== null ? Number(value) : null;
+})();
   addressForm = this.fb.nonNullable.group({
     fullName: ['', [Validators.required, Validators.minLength(3)]],
     mobNo: ['', [Validators.required, Validators.pattern(/^[6-9][0-9]{9}$/)]],
@@ -64,8 +70,13 @@ export class CheckoutComponent {
   });
 
 ngOnInit(): void {
-  const userData = localStorage.getItem('fp_auth_user');
+const encryptedUserData = localStorage.getItem('fp_auth_user');
 
+if (!encryptedUserData) {
+  return;
+}
+
+const userData = JSON.parse(this.decrypt(encryptedUserData));
   // Load states first because district loading depends on stateCd
   this.locationService.getStates().subscribe({
     next: (data: State[]) => {
@@ -173,6 +184,22 @@ ngOnInit(): void {
       this.states.set([]);
     },
   });
+}
+ private encrypt(value: string): string {
+  // your encryption implementation
+  return CryptoJS.AES.encrypt(
+    value,
+    this.ENCRYPTION_KEY
+  ).toString();
+}
+
+private decrypt(value: string): string {
+  const bytes = CryptoJS.AES.decrypt(
+    value,
+    this.ENCRYPTION_KEY
+  );
+
+  return bytes.toString(CryptoJS.enc.Utf8);
 }
   goToOrders(): void {
     this.router.navigate(['/my-orders']);

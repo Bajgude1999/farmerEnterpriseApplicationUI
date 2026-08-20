@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -39,6 +39,9 @@ export class LoginComponent {
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
 
+constructor(
+  private cdr: ChangeDetectorRef
+) {}
   submitting = false;
   otpSent = false;
   errorMessage = '';
@@ -53,21 +56,51 @@ export class LoginComponent {
     otp: [''],
   });
 
+  // submitPasswordLogin(): void {
+  //   if (this.passwordForm.invalid) {
+  //     this.passwordForm.markAllAsTouched();
+  //     return;
+  //   }
+  //   this.errorMessage = '';
+  //   this.submitting = true;
+  //   this.auth
+  //     .login(this.passwordForm.getRawValue())
+  //     .pipe(finalize(() => (this.submitting = false)))
+  //     .subscribe({
+  //       next: () => this.onLoginSuccess(),
+  //       error: () => (this.errorMessage = 'LOGIN_ERROR';        this.cdr.detectChanges()),
+  //     });
+  // }
   submitPasswordLogin(): void {
-    if (this.passwordForm.invalid) {
-      this.passwordForm.markAllAsTouched();
-      return;
-    }
-    this.errorMessage = '';
-    this.submitting = true;
-    this.auth
-      .login(this.passwordForm.getRawValue())
-      .pipe(finalize(() => (this.submitting = false)))
-      .subscribe({
-        next: () => this.onLoginSuccess(),
-        error: () => (this.errorMessage = 'LOGIN_ERROR'),
-      });
+  this.errorMessage = '';
+
+  if (this.passwordForm.invalid) {
+    this.passwordForm.markAllAsTouched();
+    return;
   }
+
+  this.submitting = true;
+
+  this.auth
+    .login(this.passwordForm.getRawValue())
+    .pipe(
+      finalize(() => {
+        this.submitting = false;
+        this.cdr.detectChanges();
+      })
+    )
+    .subscribe({
+      next: () => {
+        this.errorMessage = '';
+        this.onLoginSuccess();
+      },
+
+      error: () => {
+        this.errorMessage = 'LOGIN_ERROR';
+        this.cdr.detectChanges();
+      }
+    });
+}
 
   requestOtp(): void {
     if (this.otpForm.controls.mobile.invalid) {

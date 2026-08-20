@@ -30,9 +30,13 @@ export class SalesOrderService {
   update(payload: SalesOrder): Observable<unknown> {
     return this.http.put(`${this.base}/update`, payload);
   }
-  getAvailableBatches(productCd: number): Observable<AvailableBatch[]> {
+  getAvailableBatches(
+  productCd: number,
+  whCd: number
+): Observable<AvailableBatch[]> {
+
   return this.http.get<AvailableBatch[]>(
-    `${environment.apiBaseUrl}/v1/stock/available-batch/${productCd}`
+    `${environment.apiBaseUrl}/v1/stock/available-batch/${productCd}/${whCd}`
   );
 }
 

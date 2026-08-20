@@ -110,9 +110,9 @@ export class SalesOrderComponent implements OnInit {
     orderDate: [''],
     whCd: ['', Validators.required],
     items: this.fb.array([]),
-    upiPayment:[null as number | null],
-    upipaymentRef:[''],
-    shipingCharges:[null as number | null],
+    upiPayment: [null as number | null],
+    upipaymentRef: [''],
+    shipingCharges: [null as number | null],
   });
 
   get itemRows(): FormArray {
@@ -164,8 +164,8 @@ export class SalesOrderComponent implements OnInit {
   private loadOrder(orderCd: number): void {
     this.salesOrderService.getById(orderCd).subscribe((order) => {
       this.form.patchValue(order);
-      if(order.orderStatus!='PENDING'){
-        this.showMessageButton=true;
+      if (order.orderStatus != 'PENDING') {
+        this.showMessageButton = true;
       }
       if (order.invoiceNo) {
         this.showPrintButton = true;
@@ -349,117 +349,105 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
+  callCustomer(): void {
+    const order = this.form.getRawValue() as unknown as SalesOrder;
 
-callCustomer(): void {
-          const order = this.form.getRawValue() as unknown as SalesOrder;
-
-  const mobile = order.mobileNo;
-  if (!mobile) return;
-  window.location.href = `tel:${mobile}`;
-}
-
-whatsappCustomer(): void {
-        const order = this.form.getRawValue() as unknown as SalesOrder;
-
-  const mobile = order.mobileNo;
-  if (!mobile) return;
-
-  const message = this.buildOrderMessage(order);
-  const digitsOnly = mobile.replace(/\D/g, '');
-  const phoneWithCountryCode = digitsOnly.length === 10 ? `91${digitsOnly}` : digitsOnly;
-
-  window.open(`https://wa.me/${phoneWithCountryCode}?text=${encodeURIComponent(message)}`, '_blank');
-}
-
-smsCustomer(): void {
-      const order = this.form.getRawValue() as unknown as SalesOrder;
-
-  const mobile =order.mobileNo;
-  if (!mobile) return;
-
-  const message = this.buildOrderMessage(order);
-  // Body is pre-filled only — sending itself stays manual, the user taps Send in their SMS app.
-  window.location.href = `sms:${mobile}?body=${encodeURIComponent(message)}`;
-}
-private buildOrderMessage(order: SalesOrder): string {
-
-  const itemLines = (order.items ?? [])
-    .map((item: any) => {
-
-      // Find matching unit from signal
-      const unit = this.units().find(
-        (u: UnitOption) =>
-          String(u.unitCd) === String(item.uomCd)
-      );
-
-      const unitName = unit?.unitName ?? '';
-
-      // Example: 1 Litre
-      const packInfo = [
-        item.packSize,
-        unitName
-      ]
-        .filter(
-          value =>
-            value !== null &&
-            value !== undefined &&
-            value !== ''
-        )
-        .join(' ');
-
-      return `${item.productName}${packInfo ? ' (' + packInfo + ')' : ''} — Qty: ${item.qty} x ₹${item.rate} = ₹${item.amount}`;
-    })
-    .join('\n');
-
-  // Normalize status
-  const status = String(order.orderStatus ?? '')
-    .trim()
-    .toUpperCase();
-
-  // Select translation key based on order status
-  let messageKey = 'WHATSAPP_MESSAGE';
-
-  switch (status) {
-
-    case 'PLACED':
-      messageKey = 'WHATSAPP_ORDER_PLACED';
-      break;
-
-    case 'CONFIRMED':
-      messageKey = 'WHATSAPP_ORDER_CONFIRMED';
-      break;
-
-    case 'PACKED':
-      messageKey = 'WHATSAPP_ORDER_PACKED';
-      break;
-
-    case 'OUT FOR DELIVERY':
-      messageKey = 'WHATSAPP_ORDER_OUT_FOR_DELIVERY';
-      break;
-
-    case 'DELIVERED':
-      messageKey = 'WHATSAPP_ORDER_DELIVERED';
-      break;
-
-    case 'CANCELLED':
-      messageKey = 'WHATSAPP_ORDER_CANCELLED';
-      break;
-
-    case 'RETURNED':
-      messageKey = 'WHATSAPP_ORDER_RETURNED';
-      break;
-
-    default:
-      messageKey = 'WHATSAPP_MESSAGE';
-      break;
+    const mobile = order.mobileNo;
+    if (!mobile) return;
+    window.location.href = `tel:${mobile}`;
   }
 
-  return this.translate.instant(messageKey, {
-    orderNo: order.orderNo,
-    items: itemLines,
-    total: order.grossAmount
-  });
-}
+  whatsappCustomer(): void {
+    const order = this.form.getRawValue() as unknown as SalesOrder;
+
+    const mobile = order.mobileNo;
+    if (!mobile) return;
+
+    const message = this.buildOrderMessage(order);
+    const digitsOnly = mobile.replace(/\D/g, '');
+    const phoneWithCountryCode = digitsOnly.length === 10 ? `91${digitsOnly}` : digitsOnly;
+
+    window.open(
+      `https://wa.me/${phoneWithCountryCode}?text=${encodeURIComponent(message)}`,
+      '_blank',
+    );
+  }
+
+  smsCustomer(): void {
+    const order = this.form.getRawValue() as unknown as SalesOrder;
+
+    const mobile = order.mobileNo;
+    if (!mobile) return;
+
+    const message = this.buildOrderMessage(order);
+    // Body is pre-filled only — sending itself stays manual, the user taps Send in their SMS app.
+    window.location.href = `sms:${mobile}?body=${encodeURIComponent(message)}`;
+  }
+  private buildOrderMessage(order: SalesOrder): string {
+    const itemLines = (order.items ?? [])
+      .map((item: any) => {
+        // Find matching unit from signal
+        const unit = this.units().find((u: UnitOption) => String(u.unitCd) === String(item.uomCd));
+
+        const unitName = unit?.unitName ?? '';
+
+        // Example: 1 Litre
+        const packInfo = [item.packSize, unitName]
+          .filter((value) => value !== null && value !== undefined && value !== '')
+          .join(' ');
+
+        return `${item.productName}${packInfo ? ' (' + packInfo + ')' : ''} — Qty: ${item.qty} x ₹${item.rate} = ₹${item.amount}`;
+      })
+      .join('\n');
+
+    // Normalize status
+    const status = String(order.orderStatus ?? '')
+      .trim()
+      .toUpperCase();
+
+    // Select translation key based on order status
+    let messageKey = 'WHATSAPP_MESSAGE';
+
+    switch (status) {
+      case 'PLACED':
+        messageKey = 'WHATSAPP_ORDER_PLACED';
+        break;
+
+      case 'CONFIRMED':
+        messageKey = 'WHATSAPP_ORDER_CONFIRMED';
+        break;
+
+      case 'PACKED':
+        messageKey = 'WHATSAPP_ORDER_PACKED';
+        break;
+
+      case 'OUT FOR DELIVERY':
+        messageKey = 'WHATSAPP_ORDER_OUT_FOR_DELIVERY';
+        break;
+
+      case 'DELIVERED':
+        messageKey = 'WHATSAPP_ORDER_DELIVERED';
+        break;
+
+      case 'CANCELLED':
+        messageKey = 'WHATSAPP_ORDER_CANCELLED';
+        break;
+
+      case 'RETURNED':
+        messageKey = 'WHATSAPP_ORDER_RETURNED';
+        break;
+
+      default:
+        messageKey = 'WHATSAPP_MESSAGE';
+        break;
+    }
+
+    return this.translate.instant(messageKey, {
+      orderNo: order.orderNo,
+      items: itemLines,
+      total: order.grossAmount,
+    });
+  }
   cancel(): void {
     this.router.navigate(['/admin/transaction/sales-order']);
   }
@@ -557,10 +545,20 @@ private buildOrderMessage(order: SalesOrder): string {
 
     const existingBatches: SalesOrderBatchDtl[] = item.get('batchDetails')?.value ?? [];
     const discount = item.get('discount')?.value ?? 0;
+    const whCd = Number(this.form.get('whCd')?.value);
+
+    // Warehouse is not selected / not found
+    if (!whCd) {
+      const whCdControl = this.form.get('whCd');
+
+      whCdControl?.setErrors({ required: true });
+      whCdControl?.markAsTouched();
+
+      return;
+    }
     const product = this.products().find((p) => p.productCd === productCd);
 
     const productControl = item.get('productCd');
-
     // Product is not selected / not found
     if (!product) {
       productControl?.setErrors({ required: true });
@@ -581,6 +579,7 @@ private buildOrderMessage(order: SalesOrder): string {
           productCd,
           existingBatches,
           discount,
+          whCd,
         },
       },
     );
@@ -684,499 +683,280 @@ private buildOrderMessage(order: SalesOrder): string {
     const factor = Math.pow(10, decimals);
     return Math.round((value + Number.EPSILON) * factor) / factor;
   }
-printInvoice(): void {
+  printInvoice(): void {
+    const formValue = this.form.getRawValue();
 
-  const formValue = this.form.getRawValue();
+    // ============================================================
+    // LOGO
+    // ============================================================
 
-  // ============================================================
-  // LOGO
-  // ============================================================
+    const logoUrl = `${window.location.origin}/assets/images/logo.png`;
 
-  const logoUrl =
-    `${window.location.origin}/assets/images/logo.png`;
+    // ============================================================
+    // CUSTOMER
+    // ============================================================
 
+    const customer = this.users.find((u: any) => u.userId === formValue.userCd);
 
-  // ============================================================
-  // CUSTOMER
-  // ============================================================
+    // ============================================================
+    // WAREHOUSE
+    // warehouses is WritableSignal, therefore use ()
+    // ============================================================
 
-  const customer = this.users.find(
-    (u: any) =>
-      u.userId === formValue.userCd
-  );
+    const whMObj = this.warehouses().find((w: any) => w.whCd === formValue.whCd);
 
+    // ============================================================
+    // PHONE
+    // ============================================================
 
-  // ============================================================
-  // WAREHOUSE
-  // warehouses is WritableSignal, therefore use ()
-  // ============================================================
-
-  const whMObj = this.warehouses().find(
-    (w: any) =>
-      w.whCd === formValue.whCd
-  );
-
-
-  // ============================================================
-  // PHONE
-  // ============================================================
-
-  const phone =
-    customer?.mobNo
-      ? `${customer.mobNo}${
-          customer?.optionalMobNo
-            ? ' / ' + customer.optionalMobNo
-            : ''
-        }`
+    const phone = customer?.mobNo
+      ? `${customer.mobNo}${customer?.optionalMobNo ? ' / ' + customer.optionalMobNo : ''}`
       : customer?.optionalMobNo || '';
 
+    // ============================================================
+    // INVOICE DATE
+    // ============================================================
 
-  // ============================================================
-  // INVOICE DATE
-  // ============================================================
-
-  const invoiceDate =
-    formValue.invoiceDate
-      ? new Date(
-          formValue.invoiceDate
-        ).toLocaleDateString('en-IN')
+    const invoiceDate = formValue.invoiceDate
+      ? new Date(formValue.invoiceDate).toLocaleDateString('en-IN')
       : '';
 
+    // ============================================================
+    // FORM TOTALS
+    // ============================================================
 
-  // ============================================================
-  // FORM TOTALS
-  // ============================================================
+    const grossAmount = Number(formValue.grossAmount || 0);
 
-  const grossAmount =
-    Number(
-      formValue.grossAmount || 0
-    );
+    const discountAmount = Number(formValue.discountAmount || 0);
 
-  const discountAmount =
-    Number(
-      formValue.discountAmount || 0
-    );
+    const upiPayment = Number(formValue.upiPayment || 0);
 
-  const upiPayment =
-    Number(
-      formValue.upiPayment || 0
-    );
+    const netAmount = Number(formValue.netAmount || 0);
 
-  const netAmount =
-    Number(
-      formValue.netAmount || 0
-    );
+    // ============================================================
+    // SHIPPING CHARGES
+    // ============================================================
 
+    const shippingCharges = Number(formValue.shipingCharges || 0);
 
-  // ============================================================
-  // SHIPPING CHARGES
-  // ============================================================
+    // ============================================================
+    // ITEMS
+    // ============================================================
 
-  const shippingCharges =
-    Number(
-      formValue.shipingCharges || 0
-    );
+    const items = this.itemRows.controls;
 
+    // ============================================================
+    // ROUND OFF
+    //
+    // Sum all tax rows where taxName = ROUND OFF
+    // ============================================================
 
-  // ============================================================
-  // ITEMS
-  // ============================================================
+    let roundOff = 0;
 
-  const items =
-    this.itemRows.controls;
+    items.forEach((row: any) => {
+      const taxes = row.get('taxes')?.value || [];
 
+      taxes.forEach((tax: any) => {
+        const taxName = String(tax.taxName || '')
+          .trim()
+          .toUpperCase();
 
-  // ============================================================
-  // ROUND OFF
-  //
-  // Sum all tax rows where taxName = ROUND OFF
-  // ============================================================
-
-  let roundOff = 0;
-
-  items.forEach(
-    (row: any) => {
-
-      const taxes =
-        row.get('taxes')?.value || [];
-
-
-      taxes.forEach(
-        (tax: any) => {
-
-          const taxName =
-            String(
-              tax.taxName || ''
-            )
-              .trim()
-              .toUpperCase();
-
-
-          if (
-            taxName === 'ROUND OFF'
-          ) {
-
-            roundOff += Number(
-              tax.taxAmount || 0
-            );
-
-          }
-
+        if (taxName === 'ROUND OFF') {
+          roundOff += Number(tax.taxAmount || 0);
         }
-      );
+      });
+    });
 
-    }
-  );
+    // ============================================================
+    // ITEM ROWS FOR TAX INVOICE
+    // ============================================================
 
+    const itemRows = items
+      .map((row: any, index: number) => {
+        // ==================================================
+        // PRODUCT
+        // ==================================================
 
-  // ============================================================
-  // ITEM ROWS FOR TAX INVOICE
-  // ============================================================
+        const productCd = row.get('productCd')?.value;
 
-  const itemRows =
-    items
-      .map(
-        (
-          row: any,
-          index: number
-        ) => {
+        const product = this.products().find((p: any) => p.productCd === productCd);
 
+        const productName = product?.productName || '';
 
-          // ==================================================
-          // PRODUCT
-          // ==================================================
+        const hsnCode = product?.hsnCode || '';
 
-          const productCd =
-            row.get(
-              'productCd'
-            )?.value;
+        // ==================================================
+        // ITEM VALUES
+        // ==================================================
 
+        const qty = Number(row.get('qty')?.value || 0);
 
-          const product =
-            this.products().find(
-              (p: any) =>
-                p.productCd ===
-                productCd
-            );
+        const rate = Number(row.get('rate')?.value || 0);
 
+        const amount = Number(row.get('amount')?.value || 0);
 
-          const productName =
-            product?.productName || '';
+        const discount = Number(row.get('discount')?.value || 0);
 
+        // ==================================================
+        // TAXES
+        // ==================================================
 
-          const hsnCode =
-            product?.hsnCode || '';
+        const taxes = row.get('taxes')?.value || [];
 
+        // ==================================================
+        // CGST
+        // ==================================================
 
-          // ==================================================
-          // ITEM VALUES
-          // ==================================================
+        const cgstTax = taxes.find(
+          (tax: any) =>
+            String(tax.taxName || '')
+              .trim()
+              .toUpperCase() === 'CGST',
+        );
 
-          const qty =
-            Number(
-              row.get(
-                'qty'
-              )?.value || 0
-            );
+        // ==================================================
+        // SGST
+        // ==================================================
 
+        const sgstTax = taxes.find(
+          (tax: any) =>
+            String(tax.taxName || '')
+              .trim()
+              .toUpperCase() === 'SGST',
+        );
 
-          const rate =
-            Number(
-              row.get(
-                'rate'
-              )?.value || 0
-            );
+        // ==================================================
+        // IGST
+        // ==================================================
 
+        const igstTax = taxes.find(
+          (tax: any) =>
+            String(tax.taxName || '')
+              .trim()
+              .toUpperCase() === 'IGST',
+        );
 
-          const amount =
-            Number(
-              row.get(
-                'amount'
-              )?.value || 0
-            );
+        // ==================================================
+        // TAX RATES
+        // ==================================================
 
+        const cgstRate = Number(cgstTax?.taxRate || 0);
 
-          const discount =
-            Number(
-              row.get(
-                'discount'
-              )?.value || 0
-            );
+        const sgstRate = Number(sgstTax?.taxRate || 0);
 
+        const igstRate = Number(igstTax?.taxRate || 0);
 
-          // ==================================================
-          // TAXES
-          // ==================================================
+        // ==================================================
+        // GST RATE
+        // ==================================================
 
-          const taxes =
-            row.get(
-              'taxes'
-            )?.value || [];
+        const gstRate = cgstTax || sgstTax ? cgstRate + sgstRate : igstRate;
 
+        // ==================================================
+        // TAX AMOUNTS
+        // ==================================================
 
-          // ==================================================
-          // CGST
-          // ==================================================
+        const cgst = Number(cgstTax?.taxAmount || 0);
 
-          const cgstTax =
-            taxes.find(
-              (tax: any) =>
-                String(
-                  tax.taxName || ''
-                )
-                  .trim()
-                  .toUpperCase() ===
-                'CGST'
-            );
-
-
-          // ==================================================
-          // SGST
-          // ==================================================
-
-          const sgstTax =
-            taxes.find(
-              (tax: any) =>
-                String(
-                  tax.taxName || ''
-                )
-                  .trim()
-                  .toUpperCase() ===
-                'SGST'
-            );
-
+        const sgst = Number(sgstTax?.taxAmount || 0);
 
-          // ==================================================
-          // IGST
-          // ==================================================
+        const igst = Number(igstTax?.taxAmount || 0);
 
-          const igstTax =
-            taxes.find(
-              (tax: any) =>
-                String(
-                  tax.taxName || ''
-                )
-                  .trim()
-                  .toUpperCase() ===
-                'IGST'
-            );
-
-
-          // ==================================================
-          // TAX RATES
-          // ==================================================
-
-          const cgstRate =
-            Number(
-              cgstTax?.taxRate || 0
-            );
-
-
-          const sgstRate =
-            Number(
-              sgstTax?.taxRate || 0
-            );
-
-
-          const igstRate =
-            Number(
-              igstTax?.taxRate || 0
-            );
-
-
-          // ==================================================
-          // GST RATE
-          // ==================================================
-
-          const gstRate =
-            (
-              cgstTax ||
-              sgstTax
-            )
-              ? cgstRate + sgstRate
-              : igstRate;
-
-
-          // ==================================================
-          // TAX AMOUNTS
-          // ==================================================
-
-          const cgst =
-            Number(
-              cgstTax?.taxAmount || 0
-            );
-
-
-          const sgst =
-            Number(
-              sgstTax?.taxAmount || 0
-            );
-
-
-          const igst =
-            Number(
-              igstTax?.taxAmount || 0
-            );
-
-
-          // ==================================================
-          // TAXABLE VALUE
-          //
-          // Amount is GST inclusive.
-          // ==================================================
-
-          const taxableValue =
-            gstRate > 0
-              ? amount /
-                (
-                  1 +
-                  gstRate / 100
-                )
-              : amount;
-
-
-          // ==================================================
-          // BATCH DETAILS
-          // ==================================================
-
-          const batchDetails =
-            row.get(
-              'batchDetails'
-            )?.value || [];
-
-
-          // ==================================================
-          // FALLBACK BATCH
-          // ==================================================
-
-          const batches =
-            batchDetails.length > 0
-              ? batchDetails
-              : [
-                  {
-                    batchNo:
-                      row.get(
-                        'batchNo'
-                      )?.value || '',
-
-                    expiryDate:
-                      row.get(
-                        'expiryDate'
-                      )?.value || '',
-
-                    batchQty:
-                      qty,
-
-                    packSize:
-                      row.get(
-                        'packSize'
-                      )?.value || '',
-
-                    unitCd:
-                      row.get(
-                        'uomCd'
-                      )?.value || ''
-                  }
-                ];
-
-
-          // ==================================================
-          // PRINT EACH BATCH
-          // ==================================================
-
-          return batches
-            .map(
-              (
-                batch: any,
-                batchIndex: number
-              ) => {
-
-                const isFirstBatch =
-                  batchIndex === 0;
-
-
-                // ============================================
-                // BATCH QTY
-                // ============================================
-
-                const batchQty =
-                  Number(
-                    batch.batchQty ??
-                    batch.qty ??
-                    0
-                  );
-
-
-                // ============================================
-                // UNIT
-                // ============================================
-
-                const batchUnitName =
-                  this.units().find(
-                    (u: any) =>
-                      u.unitCd ===
-                      batch.unitCd
-                  )?.unitName || '';
-
-
-                // ============================================
-                // PACK SIZE / UOM
-                // ============================================
-
-                const packUom =
-                  batch.packSize !== null &&
-                  batch.packSize !== undefined &&
-                  batch.packSize !== ''
-                    ? `${batch.packSize} ${batchUnitName}`
-                    : batchUnitName;
-
-
-                // ============================================
-                // ROW
-                // ============================================
-
-                return `
+        // ==================================================
+        // TAXABLE VALUE
+        //
+        // Amount is GST inclusive.
+        // ==================================================
+
+        const taxableValue = gstRate > 0 ? amount / (1 + gstRate / 100) : amount;
+
+        // ==================================================
+        // BATCH DETAILS
+        // ==================================================
+
+        const batchDetails = row.get('batchDetails')?.value || [];
+
+        // ==================================================
+        // FALLBACK BATCH
+        // ==================================================
+
+        const batches =
+          batchDetails.length > 0
+            ? batchDetails
+            : [
+                {
+                  batchNo: row.get('batchNo')?.value || '',
+
+                  expiryDate: row.get('expiryDate')?.value || '',
+
+                  batchQty: qty,
+
+                  packSize: row.get('packSize')?.value || '',
+
+                  unitCd: row.get('uomCd')?.value || '',
+                },
+              ];
+
+        // ==================================================
+        // PRINT EACH BATCH
+        // ==================================================
+
+        return batches
+          .map((batch: any, batchIndex: number) => {
+            const isFirstBatch = batchIndex === 0;
+
+            // ============================================
+            // BATCH QTY
+            // ============================================
+
+            const batchQty = Number(batch.batchQty ?? batch.qty ?? 0);
+
+            // ============================================
+            // UNIT
+            // ============================================
+
+            const batchUnitName =
+              this.units().find((u: any) => u.unitCd === batch.unitCd)?.unitName || '';
+
+            // ============================================
+            // PACK SIZE / UOM
+            // ============================================
+
+            const packUom =
+              batch.packSize !== null && batch.packSize !== undefined && batch.packSize !== ''
+                ? `${batch.packSize} ${batchUnitName}`
+                : batchUnitName;
+
+            // ============================================
+            // ROW
+            // ============================================
+
+            return `
 
                   <tr>
 
                     <td class="center">
-                      ${
-                        isFirstBatch
-                          ? index + 1
-                          : ''
-                      }
+                      ${isFirstBatch ? index + 1 : ''}
                     </td>
 
 
                     <td class="product-name">
-                      ${
-                        isFirstBatch
-                          ? productName
-                          : ''
-                      }
+                      ${isFirstBatch ? productName : ''}
                     </td>
 
 
                     <td class="center">
-                      ${
-                        batch.batchNo || ''
-                      }
+                      ${batch.batchNo || ''}
                     </td>
 
 
                     <td class="center">
-                      ${
-                        batch.expiryDate || ''
-                      }
+                      ${batch.expiryDate || ''}
                     </td>
 
 
                     <td class="center">
-                      ${
-                        isFirstBatch
-                          ? hsnCode
-                          : ''
-                      }
+                      ${isFirstBatch ? hsnCode : ''}
                     </td>
 
 
@@ -1191,134 +971,68 @@ printInvoice(): void {
 
 
                     <td class="right">
-                      ${
-                        isFirstBatch
-                          ? rate.toFixed(2)
-                          : ''
-                      }
+                      ${isFirstBatch ? rate.toFixed(2) : ''}
                     </td>
 
 
                     <td class="center">
-                      ${
-                        isFirstBatch
-                          ? gstRate.toFixed(2) + '%'
-                          : ''
-                      }
+                      ${isFirstBatch ? gstRate.toFixed(2) + '%' : ''}
                     </td>
 
 
                     <td class="right">
-                      ${
-                        isFirstBatch
-                          ? taxableValue.toFixed(2)
-                          : ''
-                      }
+                      ${isFirstBatch ? taxableValue.toFixed(2) : ''}
                     </td>
 
 
                     <td class="right">
-                      ${
-                        isFirstBatch
-                          ? cgst.toFixed(2)
-                          : ''
-                      }
+                      ${isFirstBatch ? cgst.toFixed(2) : ''}
                     </td>
 
 
                     <td class="right">
-                      ${
-                        isFirstBatch
-                          ? sgst.toFixed(2)
-                          : ''
-                      }
+                      ${isFirstBatch ? sgst.toFixed(2) : ''}
                     </td>
 
 
                     <td class="right">
-                      ${
-                        isFirstBatch
-                          ? discount.toFixed(2)
-                          : ''
-                      }
+                      ${isFirstBatch ? discount.toFixed(2) : ''}
                     </td>
 
 
                     <td class="right">
-                      ${
-                        isFirstBatch
-                          ? amount.toFixed(2)
-                          : ''
-                      }
+                      ${isFirstBatch ? amount.toFixed(2) : ''}
                     </td>
 
                   </tr>
 
                 `;
-
-              }
-            )
-            .join('');
-
-        }
-      )
+          })
+          .join('');
+      })
       .join('');
 
+    // ============================================================
+    // SECOND BOX PRODUCTS
+    //
+    // One row per product
+    // ============================================================
 
-  // ============================================================
-  // SECOND BOX PRODUCTS
-  //
-  // One row per product
-  // ============================================================
+    const deliveryProductRows = items
+      .map((row: any) => {
+        const productCd = row.get('productCd')?.value;
 
-  const deliveryProductRows =
-    items
-      .map(
-        (row: any) => {
+        const product = this.products().find((p: any) => p.productCd === productCd);
 
-          const productCd =
-            row.get(
-              'productCd'
-            )?.value;
+        const productName = product?.productName || '-';
 
+        const qty = Number(row.get('qty')?.value || 0);
 
-          const product =
-            this.products().find(
-              (p: any) =>
-                p.productCd ===
-                productCd
-            );
+        const rate = Number(row.get('rate')?.value || 0);
 
+        const amount = Number(row.get('amount')?.value || 0);
 
-          const productName =
-            product?.productName || '-';
-
-
-          const qty =
-            Number(
-              row.get(
-                'qty'
-              )?.value || 0
-            );
-
-
-          const rate =
-            Number(
-              row.get(
-                'rate'
-              )?.value || 0
-            );
-
-
-          const amount =
-            Number(
-              row.get(
-                'amount'
-              )?.value || 0
-            );
-
-
-          return `
+        return `
 
             <tr>
 
@@ -1341,42 +1055,28 @@ printInvoice(): void {
             </tr>
 
           `;
-
-        }
-      )
+      })
       .join('');
 
+    // ============================================================
+    // OPEN PRINT WINDOW
+    // ============================================================
 
-  // ============================================================
-  // OPEN PRINT WINDOW
-  // ============================================================
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
 
-  const printWindow =
-    window.open(
-      '',
-      '_blank',
-      'width=900,height=700'
-    );
+    if (!printWindow) {
+      alert('Please allow popups to print the invoice.');
 
+      return;
+    }
 
-  if (!printWindow) {
+    printWindow.document.open();
 
-    alert(
-      'Please allow popups to print the invoice.'
-    );
+    // ============================================================
+    // PRINT HTML
+    // ============================================================
 
-    return;
-  }
-
-
-  printWindow.document.open();
-
-
-  // ============================================================
-  // PRINT HTML
-  // ============================================================
-
-  printWindow.document.write(`
+    printWindow.document.write(`
 
 <!DOCTYPE html>
 
@@ -1386,11 +1086,7 @@ printInvoice(): void {
 
 <title>
   Invoice -
-  ${
-    formValue.invoiceNo ||
-    formValue.orderNo ||
-    ''
-  }
+  ${formValue.invoiceNo || formValue.orderNo || ''}
 </title>
 
 
@@ -2504,11 +2200,7 @@ td:nth-child(3) {
             Invoice No:
           </span>
 
-          ${
-            formValue.invoiceNo ||
-            formValue.orderNo ||
-            ''
-          }
+          ${formValue.invoiceNo || formValue.orderNo || ''}
 
         </div>
 
@@ -3182,8 +2874,6 @@ window.onload = function () {
 
   `);
 
-
-  printWindow.document.close();
-
-}
+    printWindow.document.close();
+  }
 }

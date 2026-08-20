@@ -196,6 +196,29 @@ priorityClassFor(notification: AppNotification): string {
       return 'notification-bell__priority--low';
   }
 }
+deleteNotification(notification: AppNotification, event: Event): void {
+  event.stopPropagation(); // prevent triggering onNotificationClick's mark-read/navigate
+
+  this.notificationService.delete(notification.notiRecipientId).subscribe({
+    next: () => {
+      this.notifications.update((list) =>
+        list.filter((n) => n.notiRecipientId !== notification.notiRecipientId)
+      );
+    },
+    error: (err) => console.error('Failed to delete notification', err),
+  });
+}
+
+deleteAll(): void {
+  if (!this.userCd) return;
+
+  this.notificationService.deleteAll(this.userCd).subscribe({
+    next: () => {
+      this.notifications.set([]);
+    },
+    error: (err) => console.error('Failed to delete all notifications', err),
+  });
+}
 private requestNotificationPermission(): void {
 
   if (!('Notification' in window)) {

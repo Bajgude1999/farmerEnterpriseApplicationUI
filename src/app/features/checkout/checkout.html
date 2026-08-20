@@ -14,8 +14,15 @@
               formControlName="mobNo"
               maxlength="10"
               [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
-               (input)="onMobileNumber($any($event.target).value)"
+              (input)="onMobileNumber($any($event.target).value)"
             />
+            <mat-error *ngIf="addressForm.get('mobNo')?.hasError('required')">
+              {{ 'MOBILE_NUMBER_REQUIRED' | translate }}
+            </mat-error>
+
+            <mat-error *ngIf="addressForm.get('mobNo')?.hasError('pattern')">
+              {{ 'INVALID_MOBILE_NUMBER' | translate }}
+            </mat-error>
           </mat-form-field>
         </div>
 
@@ -47,6 +54,13 @@
               formControlName="fullName"
               [placeholder]="'ENTER_FULL_NAME' | translate"
             />
+            <mat-error *ngIf="addressForm.get('fullName')?.hasError('required')">
+              {{ 'FULL_NAME_REQUIRED' | translate }}
+            </mat-error>
+
+            <mat-error *ngIf="addressForm.get('fullName')?.hasError('minlength')">
+              {{ 'FULL_NAME_MIN_LENGTH' | translate }}
+            </mat-error>
           </mat-form-field>
         </div>
         <div class="fp-checkout__field">
@@ -66,6 +80,9 @@
                 {{ state.stateName }}
               </mat-option>
             </mat-select>
+            <mat-error *ngIf="addressForm.get('state')?.hasError('required')">
+              {{ 'STATE_REQUIRED' | translate }}
+            </mat-error>
           </mat-form-field>
         </div>
 
@@ -80,6 +97,9 @@
                 {{ district.districtName }}
               </mat-option>
             </mat-select>
+            <mat-error *ngIf="addressForm.get('district')?.hasError('required')">
+              {{ 'DISTRICT_REQUIRED' | translate }}
+            </mat-error>
           </mat-form-field>
         </div>
         <div class="fp-checkout__field">
@@ -90,6 +110,9 @@
                 {{ taluka.talukaName }}
               </mat-option>
             </mat-select>
+            <mat-error *ngIf="addressForm.get('taluka')?.hasError('required')">
+              {{ 'TALUKA_REQUIRED' | translate }}
+            </mat-error>
           </mat-form-field>
         </div>
       </div>
@@ -98,6 +121,9 @@
           <label>{{ 'VILLAGE' | translate }}</label>
           <mat-form-field appearance="outline">
             <input matInput formControlName="village" [placeholder]="'ENTER_VILLAGE' | translate" />
+            <mat-error *ngIf="addressForm.get('village')?.hasError('required')">
+              {{ 'VILLAGE_REQUIRED' | translate }}
+            </mat-error>
           </mat-form-field>
         </div>
         <div class="fp-checkout__field">
@@ -120,6 +146,13 @@
               inputmode="numeric"
               [placeholder]="'ENTER_PIN' | translate"
             />
+            <mat-error *ngIf="addressForm.get('pin')?.hasError('required')">
+              {{ 'PIN_REQUIRED' | translate }}
+            </mat-error>
+
+            <mat-error *ngIf="addressForm.get('pin')?.hasError('pattern')">
+              {{ 'INVALID_PIN' | translate }}
+            </mat-error>
           </mat-form-field>
         </div>
       </div>

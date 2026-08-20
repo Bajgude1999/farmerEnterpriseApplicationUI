@@ -20,4 +20,11 @@ export class NotificationService {
   markAllRead(userCd: number): Observable<unknown> {
     return this.http.put(`${this.base}/read-all?userCd=${userCd}`, null);
   }
+  delete(notiRecipientId: number): Observable<unknown> {
+    return this.http.put(`${this.base}/delete?notiRecipientId=${notiRecipientId}`, null);
+  }
+
+  deleteAll(userCd: number): Observable<unknown> {
+    return this.http.put(`${this.base}/delete-all?userCd=${userCd}`, null);
+  }
 }

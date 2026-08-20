@@ -20,6 +20,7 @@ export interface BatchDialogData {
   productName: string;
   existingBatches: SalesOrderBatchDtl[];
   discount: number;
+  whCd:number;
 }
 
 @Component({
@@ -59,7 +60,7 @@ export class BatchDialog implements OnInit {
   ngOnInit(): void {
         this.unitService.getAll().subscribe((u) => this.units.set(u));
 
-    this.salesOrderService.getAvailableBatches(this.data.productCd).subscribe({
+    this.salesOrderService.getAvailableBatches(this.data.productCd,this.data.whCd).subscribe({
       next: (batches) => {
         this.availableBatches.set(batches);
         this.loading.set(false);

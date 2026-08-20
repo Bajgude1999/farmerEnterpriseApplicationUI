@@ -8,6 +8,14 @@
         <label class="field-label">{{ 'FULL_NAME' | translate }}</label>
         <mat-form-field appearance="outline">
           <input matInput formControlName="fullName" />
+
+  <mat-error *ngIf="form.get('fullName')?.hasError('required')">
+    {{ 'FULL_NAME_REQUIRED' | translate }}
+  </mat-error>
+
+  <mat-error *ngIf="form.get('fullName')?.hasError('minlength')">
+    {{ 'FULL_NAME_MIN_LENGTH' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
 
@@ -15,6 +23,13 @@
         <label class="field-label">{{ 'MOBILE_NUMBER' | translate }}</label>
         <mat-form-field appearance="outline">
           <input matInput formControlName="mobNo" maxlength="10" />
+            <mat-error *ngIf="form.get('mobNo')?.hasError('required')">
+    {{ 'MOBILE_NUMBER_REQUIRED' | translate }}
+  </mat-error>
+
+  <mat-error *ngIf="form.get('mobNo')?.hasError('pattern')">
+    {{ 'INVALID_MOBILE_NUMBER' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
       <div class="field-group">
@@ -25,14 +40,26 @@
             formControlName="optionalMobNo"
             [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
           />
+            <mat-error *ngIf="form.get('mobNo')?.hasError('required')">
+    {{ 'MOBILE_NUMBER_REQUIRED' | translate }}
+  </mat-error>
+
+  <mat-error *ngIf="form.get('mobNo')?.hasError('pattern')">
+    {{ 'INVALID_MOBILE_NUMBER' | translate }}
+  </mat-error>
         </mat-form-field>
+        
       </div>
 
       <div class="field-group">
         <label class="field-label">{{ 'EMAIL_OPTIONAL' | translate }}</label>
         <mat-form-field appearance="outline">
           <input matInput formControlName="email" type="email" />
+           <mat-error *ngIf="form.get('email')?.hasError('email')">
+    {{ 'INVALID_EMAIL' | translate }}
+  </mat-error>
         </mat-form-field>
+
       </div>
     </div>
 
@@ -42,6 +69,13 @@
         <label class="field-label">{{ 'PASSWORD' | translate }}</label>
         <mat-form-field appearance="outline">
           <input matInput type="password" formControlName="password" />
+            <mat-error *ngIf="form.get('password')?.hasError('required')">
+    {{ 'PASSWORD_REQUIRED' | translate }}
+  </mat-error>
+
+  <mat-error *ngIf="form.get('password')?.hasError('minlength')">
+    {{ 'PASSWORD_MIN_LENGTH' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
 
@@ -60,6 +94,10 @@
               {{ role.roleName }}
             </mat-option>
           </mat-select>
+            
+  <mat-error *ngIf="form.get('roleCd')?.hasError('required')">
+    {{ 'ROLE_REQUIRED' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
       <div class="field-group">
@@ -80,6 +118,9 @@
               {{ state.stateName }}
             </mat-option>
           </mat-select>
+            <mat-error *ngIf="form.get('state')?.hasError('required')">
+    {{ 'STATE_REQUIRED' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
 
@@ -91,6 +132,9 @@
               {{ district.districtName }}
             </mat-option>
           </mat-select>
+            <mat-error *ngIf="form.get('district')?.hasError('required')">
+    {{ 'DISTRICT_REQUIRED' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
 
@@ -102,12 +146,18 @@
               {{ taluka.talukaName }}
             </mat-option>
           </mat-select>
+            <mat-error *ngIf="form.get('taluka')?.hasError('required')">
+    {{ 'TALUKA_REQUIRED' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
       <div class="field-group">
         <label class="field-label">{{ 'VILLAGE' | translate }}</label>
         <mat-form-field appearance="outline">
           <input matInput formControlName="village" />
+            <mat-error *ngIf="form.get('village')?.hasError('required')">
+    {{ 'VILLAGE_REQUIRED' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
     </div>
@@ -125,6 +175,14 @@
         <label class="field-label">{{ 'PIN' | translate }}</label>
         <mat-form-field appearance="outline">
           <input matInput formControlName="pin" maxlength="6" />
+
+  <mat-error *ngIf="form.get('pin')?.hasError('required')">
+    {{ 'PIN_REQUIRED' | translate }}
+  </mat-error>
+
+  <mat-error *ngIf="form.get('pin')?.hasError('pattern')">
+    {{ 'INVALID_PIN' | translate }}
+  </mat-error>
         </mat-form-field>
       </div>
 

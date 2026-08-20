@@ -4,7 +4,7 @@
 
 <mat-menu #notificationMenu="matMenu" class="notification-bell__menu">
   <div class="notification-bell__panel" (click)="$event.stopPropagation()">
-    <div class="notification-bell__header-row">
+    <!-- <div class="notification-bell__header-row">
       <div class="notification-bell__tabs">
         <button
           type="button"
@@ -36,10 +36,52 @@
         (click)="markAllRead()">
         {{ 'NOTIF_MARK_ALL_READ' | translate }}
       </button>
-    </div>
+    </div> -->
+<div class="notification-bell__header-row">
+  <div class="notification-bell__tabs">
+    <button
+      type="button"
+      class="notification-bell__tab"
+      [class.notification-bell__tab--active]="activeTab() === 'ALL'"
+      (click)="setTab('ALL')">
+      {{ 'NOTIF_TAB_ALL' | translate }}
+    </button>
+    <button
+      type="button"
+      class="notification-bell__tab"
+      [class.notification-bell__tab--active]="activeTab() === 'ORDER'"
+      (click)="setTab('ORDER')">
+      {{ 'NOTIF_TAB_ORDERS' | translate }}
+    </button>
+    <button
+      type="button"
+      class="notification-bell__tab"
+      [class.notification-bell__tab--active]="activeTab() === 'STOCK'"
+      (click)="setTab('STOCK')">
+      {{ 'NOTIF_TAB_STOCK' | translate }}
+    </button>
+  </div>
 
+  <div class="notification-bell__header-actions">
+    <button
+      type="button"
+      class="notification-bell__delete-all"
+      *ngIf="notifications().length > 0"
+      (click)="deleteAll()">
+      {{ 'NOTIF_DELETE_ALL' | translate }}
+    </button>
+
+    <button
+      type="button"
+      class="notification-bell__mark-all"
+      *ngIf="unreadCount() > 0"
+      (click)="markAllRead()">
+      {{ 'NOTIF_MARK_ALL_READ' | translate }}
+    </button>
+  </div>
+</div>
     <div class="notification-bell__list">
-      <div
+      <!-- <div
         class="notification-bell__item"
         *ngFor="let notification of filtered()"
         [class.notification-bell__item--unread]="!notification.isRead"
@@ -55,8 +97,31 @@
           <p class="notification-bell__item-message">{{ notification.message }}</p>
           <span class="notification-bell__item-time">{{ timeAgo(notification.createdAt) }}</span>
         </div>
-      </div>
-
+      </div> -->
+<div
+  class="notification-bell__item"
+  *ngFor="let notification of filtered()"
+  [class.notification-bell__item--unread]="!notification.isRead"
+  (click)="onNotificationClick(notification)">
+  <span class="notification-bell__dot" [ngClass]="priorityClassFor(notification)"></span>
+  <div class="notification-bell__item-body">
+    <div class="notification-bell__item-title-row">
+      <p class="notification-bell__item-title">{{ notification.title }}</p>
+      <span class="notification-bell__priority-badge" [ngClass]="priorityClassFor(notification)">
+        {{ notification.priority }}
+      </span>
+    </div>
+    <p class="notification-bell__item-message">{{ notification.message }}</p>
+    <span class="notification-bell__item-time">{{ timeAgo(notification.createdAt) }}</span>
+  </div>
+  <button
+    type="button"
+    class="notification-bell__item-delete"
+    [attr.aria-label]="'DELETE' | translate"
+    (click)="deleteNotification(notification, $event)">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
       <p class="notification-bell__empty" *ngIf="!filtered().length">{{ 'NOTIF_EMPTY' | translate }}</p>
     </div>
   </div>

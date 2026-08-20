@@ -7,7 +7,7 @@ import { Http } from '../../../../common/http';
 import { ProductService } from '../../../../services/ product.service';
 import { CategoryService } from '../../../../services/category.service';
 import { BrandService } from '../../../../services/brand.service';
-import { ProductMaster } from '../../../../models/product.model';
+import { ProductMaster, WhMaster } from '../../../../models/product.model';
 import { Category } from '../../../../models/category.model';
 import { Brand } from '../../../../models/brand.model';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -19,6 +19,7 @@ interface ItemWiseStockRow {
   productName: string;
   brandName: string;
   categoryName: string;
+  whName: string;
   availableQty: number;
   reserveQty: number;
   totalQty: number;
@@ -29,6 +30,7 @@ interface BatchWiseStockRow {
   productName: string;
   brandName: string;
   categoryName: string;
+  whName: string;
   packSize: number;
   unitName: string;
   mfgDate: string;
@@ -70,6 +72,7 @@ export class StockReport implements OnInit {
   categories = signal<Category[]>([]);
   brands = signal<Brand[]>([]);
   products = signal<ProductMaster[]>([]);
+  warehouses = signal<WhMaster[]>([]);
 
   itemWiseColumns = ['productName', 'brandName', 'categoryName', 'availableQty', 'reserveQty', 'totalQty'];
   batchWiseColumns = [
@@ -91,6 +94,7 @@ export class StockReport implements OnInit {
     // 1 = ItemWise, 0 = BatchWise — sent directly in the payload as-is.
     itemWise: this.fb.control<number>(1),
     categoryCd: this.fb.control<number | null>(null),
+    whCd: this.fb.control<number | null>(null),
     brandCd: this.fb.control<number | null>(null),
     productCd: this.fb.control<number | null>(null),
     categoryName: this.fb.control<string | null>(null),
@@ -112,6 +116,15 @@ export class StockReport implements OnInit {
     this.categoryService.getAll().subscribe((c) => this.categories.set(c));
     this.brandService.getAll().subscribe((b) => this.brands.set(b));
     this.productService.getAll().subscribe((u) => this.products.set(u));
+      this.productService.getAllWh().subscribe({
+          next: (result: WhMaster[]) => {
+            this.warehouses.set(result);
+            //  this.loading.set(false);
+          },
+          error: () => {
+            //  this.loading.set(false);
+          },
+        });
   }
 
   onModeChange(itemWise: number): void {
@@ -144,6 +157,7 @@ export class StockReport implements OnInit {
     categoryCd: this.stockForm.get('categoryCd')?.value,
     brandCd: this.stockForm.get('brandCd')?.value,
     productCd: this.stockForm.get('productCd')?.value,
+    whCd : this.stockForm.get('whCd')?.value,
   };
 
   this.http

@@ -1,27 +1,56 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import * as CryptoJS from 'crypto-js';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Http {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    
+  }
+  private readonly ENCRYPTION_KEY = environment.encriptionKey;
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('fp_auth_token');
+  const encryptedToken = localStorage.getItem('fp_auth_token');
+
+  if (!encryptedToken) {
+    return new HttpHeaders();
+  }
+
+ 
+
+    const token = this.decrypt(encryptedToken);
+
+    if (!token) {
+      return new HttpHeaders();
+    }
 
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
-  }
+
+
+    return new HttpHeaders();
+  
+}
 
   post(url: string, body: any) {
     return this.http.post(url, body, {
       headers: this.getHeaders()
     });
   }
+  decrypt(encrypted: string): string {
+      const decrypted = CryptoJS.AES.decrypt(encrypted, CryptoJS.enc.Utf8.parse(this.ENCRYPTION_KEY), {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7,
+      });
+  
+      return decrypted.toString(CryptoJS.enc.Utf8);
+    }
   postForMultiFile<T>(url: string, body: any): Observable<T> {
   return this.http.post<T>(url, body, {
     headers: this.getHeaders()
