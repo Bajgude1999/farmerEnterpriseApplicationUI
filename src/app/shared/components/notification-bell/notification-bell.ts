@@ -9,6 +9,8 @@ import { AppNotification, NotificationCategory } from '../../../core/models/noti
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router } from '@angular/router';
 import { NotificationWebSocketService }from '../../../core/services/notification-websocket.service';
+import { environment } from '../../../../environments/environment';
+import * as CryptoJS from 'crypto-js';
 import {
   MatSnackBar,
   MatSnackBarModule
@@ -25,6 +27,8 @@ import {
 export class NotificationBell implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+    private key: string = environment.encriptionKey;
+  
 private notificationWebSocketService =
   inject(NotificationWebSocketService);
   private snackBar = inject(MatSnackBar);
@@ -60,46 +64,36 @@ private notificationWebSocketService =
   );
     this.showBrowserNotification(notification);
 
-}
-  private connectWebSocket(): void {
+}private connectWebSocket(): void {
 
-  const userJson =
-    localStorage.getItem('fp_auth_user');
+  const encryptedUserJson = localStorage.getItem('fp_auth_user');
 
-  if (!userJson) {
-
-    console.warn(
-      'fp_auth_user not found'
-    );
-
+  if (!encryptedUserJson) {
+    console.warn('fp_auth_user not found');
     return;
   }
 
   try {
 
-    const user = JSON.parse(userJson);
+    // Decrypt stored user data first
+    const decryptedUserJson = this.decrypt(encryptedUserJson);
+
+    if (!decryptedUserJson) {
+      console.error('Failed to decrypt fp_auth_user');
+      return;
+    }
+
+    // Parse decrypted JSON
+    const user = JSON.parse(decryptedUserJson);
 
     const userCd = Number(user.userId);
     const roleCd = Number(user.roleCd);
 
-    console.log(
-      'Logged-in user:',
-      user
-    );
-
-    console.log(
-      'userCd:',
-      userCd,
-      'roleCd:',
-      roleCd
-    );
+    console.log('Logged-in user:', user);
+    console.log('userCd:', userCd, 'roleCd:', roleCd);
 
     if (!userCd || !roleCd) {
-
-      console.error(
-        'Invalid userCd or roleCd'
-      );
-
+      console.error('Invalid userCd or roleCd');
       return;
     }
 
@@ -116,30 +110,35 @@ private notificationWebSocketService =
         );
 
         // Add notification at top
-        this.notifications.update(
-          list => [
-            notification,
-            ...list
-          ]
-        );
-         // Show popup
-        this.showNotificationPopup(
-          notification
-        );
-     //   this.showBrowserNotification(notification);
+        this.notifications.update(list => [
+          notification,
+          ...list
+        ]);
 
+        // Show popup
+        this.showNotificationPopup(notification);
+
+        // this.showBrowserNotification(notification);
       }
     );
 
   } catch (error) {
 
     console.error(
-      'Invalid fp_auth_user:',
+      'Invalid or encrypted fp_auth_user:',
       error
     );
 
   }
 }
+  decrypt(encrypted: string): string {
+    const decrypted = CryptoJS.AES.decrypt(encrypted, CryptoJS.enc.Utf8.parse(this.key), {
+      mode: CryptoJS.mode.ECB,
+      padding: CryptoJS.pad.Pkcs7,
+    });
+
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  }
 private showBrowserNotification(
   notification: AppNotification
 ): void {
@@ -239,26 +238,64 @@ private requestNotificationPermission(): void {
   }
 }
 load(): void {
-  const userJson = localStorage.getItem('fp_auth_user');
-    this.notifications.set([]);
-  if (!userJson) {
-    this.notifications.set([]);
+
+  const encryptedUserJson = localStorage.getItem('fp_auth_user');
+
+  this.notifications.set([]);
+
+  if (!encryptedUserJson) {
     return;
   }
 
   try {
-    const user = JSON.parse(userJson);
-    this.userCd=user.userId;
-    this.notificationService.getAll(user.userId, user.roleCd).subscribe({
-  next: (list) => this.notifications.set(list),
-  error: (err) => {
-    console.error('Failed to load notifications', err);
-    this.notifications.set([]);
-  }
-});
+
+    // Decrypt user data
+    const decryptedUserJson = this.decrypt(encryptedUserJson);
+
+    if (!decryptedUserJson) {
+      console.error('Failed to decrypt fp_auth_user');
+      return;
+    }
+
+    // Parse decrypted JSON
+    const user = JSON.parse(decryptedUserJson);
+
+    this.userCd = Number(user.userId);
+
+    const userCd = Number(user.userId);
+    const roleCd = Number(user.roleCd);
+
+    if (!userCd || !roleCd) {
+      console.error('Invalid userId or roleCd');
+      return;
+    }
+
+    this.notificationService
+      .getAll(userCd, roleCd)
+      .subscribe({
+
+        next: (list) => {
+          this.notifications.set(list);
+        },
+
+        error: (err) => {
+          console.error(
+            'Failed to load notifications',
+            err
+          );
+
+          this.notifications.set([]);
+        }
+
+      });
 
   } catch (err) {
-    console.error('Invalid fp_auth_user data', err);
+
+    console.error(
+      'Invalid or encrypted fp_auth_user data',
+      err
+    );
+
     this.notifications.set([]);
   }
 }

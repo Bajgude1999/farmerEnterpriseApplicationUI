@@ -2,9 +2,9 @@
 export const environment = {
   production: false,
  // apiBaseUrl: 'http://10.190.143.90/agrostar',
-   apiBaseUrl: 'https://theorem-cliff-earrings-sunday.trycloudflare.com/agrostar',
+   apiBaseUrl: 'https://mating-assessments-mac-strain.trycloudflare.com/agrostar',
  //  websocketUrl: 'http://10.190.143.90/agrostar',
-websocketUrl: 'https://theorem-cliff-earrings-sunday.trycloudflare.com/agrostar',
+websocketUrl: 'https://mating-assessments-mac-strain.trycloudflare.com/agrostar',
   defaultLanguage: 'en',
 encriptionKey: 'abcd@1234567890xyz123ABCD@123456',
   supportedLanguages: [
