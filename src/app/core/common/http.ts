@@ -85,6 +85,12 @@ postForFile<T>(url: string, body: any): Observable<T> {
     headers: this.getHeaders()
   });
 }
+getWithBlob(url: string) {
+  return this.http.get(url, {
+    headers: this.getHeaders(),
+    responseType: 'blob'
+  });
+}
 getWithPayload<T>(url: string, params?: any) {
   return this.http.get<T>(url, {
     headers: this.getHeaders(),

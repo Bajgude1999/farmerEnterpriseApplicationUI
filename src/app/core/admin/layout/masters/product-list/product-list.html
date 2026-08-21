@@ -1,10 +1,69 @@
 <div class="admin-page">
-  <div class="admin-page__header">
-    <h2>{{ 'PRODUCT_MASTER' | translate }}</h2>
-    <button mat-flat-button class="fp-btn-primary" (click)="goToAdd()">
-      <mat-icon>add</mat-icon> {{ 'ADD_PRODUCT' | translate }}
+ <div class="admin-page__header">
+
+  <h2>{{ 'PRODUCT_MASTER' | translate }}</h2>
+
+  <div class="product-header-actions">
+
+    <!-- Product -->
+    <button
+      mat-flat-button
+      class="fp-btn-primary"
+      (click)="goToAdd()">
+
+      <mat-icon>add</mat-icon>
+
+      {{ 'ADD_PRODUCT' | translate }}
+
     </button>
+
+    <!-- Pack Price Details -->
+    <div class="pack-price-actions">
+
+      <div class="pack-price-label">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Pack Price Details</span>
+      </div>
+
+      <div class="pack-price-buttons">
+
+        <!-- Download -->
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="downloadPackPriceExcel()">
+
+          <mat-icon>download</mat-icon>
+
+          Download
+        </button>
+
+        <!-- Upload -->
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="packPriceFileInput.click()">
+
+          <mat-icon>upload</mat-icon>
+
+          Upload
+        </button>
+
+        <input
+          #packPriceFileInput
+          type="file"
+          accept=".xlsx,.xls"
+          hidden
+          (change)="uploadPackPriceExcel($event)"
+        />
+
+      </div>
+
+    </div>
+
   </div>
+
+</div>
 
   <table mat-table [dataSource]="products()" class="fp-card admin-table" *ngIf="!loading()">
     <ng-container matColumnDef="name">
