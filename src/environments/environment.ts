@@ -2,9 +2,9 @@
 export const environment = {
   production: false,
   // apiBaseUrl: 'http://10.190.143.90/agrostar',
-  apiBaseUrl: 'https://stationery-appointments-lights-selective.trycloudflare.com/agrostar',
+  apiBaseUrl: 'https://and-beginners-edgar-length.trycloudflare.com/agrostar',
   //  websocketUrl: 'http://10.190.143.90/agrostar',
-  websocketUrl: 'https://stationery-appointments-lights-selective.trycloudflare.com/agrostar',
+  websocketUrl: 'https://and-beginners-edgar-length.trycloudflare.com/agrostar',
   defaultLanguage: 'en',
   encriptionKey: 'abcd@1234567890xyz123ABCD@123456',
   supportedLanguages: [
