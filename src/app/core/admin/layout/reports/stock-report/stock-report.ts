@@ -74,13 +74,15 @@ export class StockReport implements OnInit {
   products = signal<ProductMaster[]>([]);
   warehouses = signal<WhMaster[]>([]);
 
-  itemWiseColumns = ['productName', 'brandName', 'categoryName', 'availableQty', 'reserveQty', 'totalQty'];
+  itemWiseColumns = ['productName', 'brandName', 'categoryName','whName', 'availableQty', 'reserveQty', 'totalQty'];
   batchWiseColumns = [
     'productName',
     'brandName',
     'categoryName',
+    'whName',
     'packSize',
     'unitName',
+    'batchNo',
     'mfgDate',
     'expiryDate',
     'batchQty',
@@ -153,7 +155,7 @@ export class StockReport implements OnInit {
   this.loading.set(true);
 
   const payload = {
-    itemWise: this.stockForm.get('itemWise')?.value,
+    isItemWise: this.stockForm.get('itemWise')?.value,
     categoryCd: this.stockForm.get('categoryCd')?.value,
     brandCd: this.stockForm.get('brandCd')?.value,
     productCd: this.stockForm.get('productCd')?.value,

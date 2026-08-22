@@ -1,7 +1,9 @@
 export interface Brand {
-  brandCd: number;
+  brandCd?: number;
   brandName: string;
   logo?: string;
-  brandDesc: string;
-  active?:boolean
+  brandDesc?: string;
+  active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }

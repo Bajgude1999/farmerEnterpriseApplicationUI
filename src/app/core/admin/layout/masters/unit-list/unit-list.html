@@ -1,0 +1,57 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ 'UNIT_MASTER' | translate }}</h2>
+    <button mat-flat-button class="fp-btn-primary add-unit-btn" (click)="goToAdd()">
+      <mat-icon>add</mat-icon> {{ 'ADD_UNIT' | translate }}
+    </button>
+  </div>
+
+  <div class="unit-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="units()" class="fp-card admin-table">
+      <!-- Unit Name Column -->
+      <ng-container matColumnDef="unitName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'UNIT_NAME' | translate }}</th>
+        <td mat-cell *matCellDef="let u">
+          <strong>{{ u.unitName }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Unit Short Name Column -->
+      <ng-container matColumnDef="unitShortName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'UNIT_SHORT_NAME' | translate }}</th>
+        <td mat-cell *matCellDef="let u">{{ u.unitShortName || '-' }}</td>
+      </ng-container>
+
+      <!-- Active Column -->
+      <ng-container matColumnDef="active">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVE' | translate }}</th>
+        <td mat-cell *matCellDef="let u">
+          <mat-icon [class.unit-list__yes]="u.active" [class.unit-list__no]="!u.active">
+            {{ u.active ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ACTIONS' | translate }}</th>
+        <td mat-cell *matCellDef="let u">
+          <button mat-icon-button color="primary" aria-label="Edit" (click)="goToEdit(u)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" aria-label="Delete" (click)="deleteUnit(u)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <div *ngIf="units().length === 0" class="empty-state-card fp-card">
+      <mat-icon class="empty-state-icon">straighten</mat-icon>
+      <p>{{ 'NO_DATA_AVAILABLE' | translate }}</p>
+    </div>
+  </div>
+</div>

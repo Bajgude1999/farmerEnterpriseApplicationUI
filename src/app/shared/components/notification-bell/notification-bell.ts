@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
@@ -8,350 +8,220 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AppNotification, NotificationCategory } from '../../../core/models/notification.model';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router } from '@angular/router';
-import { NotificationWebSocketService }from '../../../core/services/notification-websocket.service';
-import { environment } from '../../../../environments/environment';
-import * as CryptoJS from 'crypto-js';
-import {
-  MatSnackBar,
-  MatSnackBarModule
-} from '@angular/material/snack-bar';
+import { NotificationWebSocketService } from '../../../core/services/notification-websocket.service';
+import { AuthService } from '../../../core/services/ auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatMenuModule, MatBadgeModule, MatTabsModule, TranslatePipe,MatSnackBarModule],
+  imports: [CommonModule, MatIconModule, MatMenuModule, MatBadgeModule, MatTabsModule, TranslatePipe],
   templateUrl: './notification-bell.html',
   styleUrl: './notification-bell.scss',
-    encapsulation: ViewEncapsulation.None,
-
+  encapsulation: ViewEncapsulation.None,
 })
-export class NotificationBell implements OnInit {
+export class NotificationBell implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
   private router = inject(Router);
-    private key: string = environment.encriptionKey;
-  
-private notificationWebSocketService =
-  inject(NotificationWebSocketService);
-  private snackBar = inject(MatSnackBar);
+  private notificationWebSocketService = inject(NotificationWebSocketService);
+  private toastService = inject(ToastService);
+
   notifications = signal<AppNotification[]>([]);
   activeTab = signal<'ALL' | NotificationCategory>('ALL');
 
   unreadCount = computed(() => this.notifications().filter((n) => !n.isRead).length);
-  userCd:any;
+  userCd: number | null = null;
+
   filtered = computed(() => {
     const tab = this.activeTab();
     if (tab === 'ALL') return this.notifications();
     return this.notifications().filter((n) => n.category === tab);
   });
 
+  @ViewChild(MatMenuTrigger)
+  menuTrigger!: MatMenuTrigger;
+
   ngOnInit(): void {
-    this.load();
+    if (this.authService.hasValidSession()) {
+      this.load();
       this.connectWebSocket();
       this.requestNotificationPermission();
-
-  }
-  private showNotificationPopup(
-  notification: AppNotification
-): void {
-
-  this.snackBar.open(
-    notification.message,
-    'VIEW',
-    {
-      duration: 5000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top'
+    } else {
+      this.notifications.set([]);
+      this.notificationWebSocketService.disconnect();
     }
-  );
-    this.showBrowserNotification(notification);
-
-}private connectWebSocket(): void {
-
-  const encryptedUserJson = localStorage.getItem('fp_auth_user');
-
-  if (!encryptedUserJson) {
-    console.warn('fp_auth_user not found');
-    return;
   }
 
-  try {
+  ngOnDestroy(): void {
+    this.notificationWebSocketService.disconnect();
+  }
 
-    // Decrypt stored user data first
-    const decryptedUserJson = this.decrypt(encryptedUserJson);
+  private showNotificationPopup(notification: AppNotification): void {
+    this.toastService.info(notification.message);
+    this.showBrowserNotification(notification);
+  }
 
-    if (!decryptedUserJson) {
-      console.error('Failed to decrypt fp_auth_user');
+  private connectWebSocket(): void {
+    if (!this.authService.hasValidSession()) {
       return;
     }
 
-    // Parse decrypted JSON
-    const user = JSON.parse(decryptedUserJson);
+    const user = this.authService.currentUser();
+    if (!user) {
+      return;
+    }
 
-    const userCd = Number(user.userId);
+    const userCd = Number(user.userCd);
     const roleCd = Number(user.roleCd);
 
-    console.log('Logged-in user:', user);
-    console.log('userCd:', userCd, 'roleCd:', roleCd);
-
     if (!userCd || !roleCd) {
-      console.error('Invalid userCd or roleCd');
       return;
     }
 
     this.userCd = userCd;
 
-    this.notificationWebSocketService.connect(
-      userCd,
-      roleCd,
-      (notification: AppNotification) => {
-
-        console.log(
-          'NEW REAL-TIME NOTIFICATION:',
-          notification
-        );
-
-        // Add notification at top
-        this.notifications.update(list => [
-          notification,
-          ...list
-        ]);
-
-        // Show popup
-        this.showNotificationPopup(notification);
-
-        // this.showBrowserNotification(notification);
-      }
-    );
-
-  } catch (error) {
-
-    console.error(
-      'Invalid or encrypted fp_auth_user:',
-      error
-    );
-
-  }
-}
-  decrypt(encrypted: string): string {
-    const decrypted = CryptoJS.AES.decrypt(encrypted, CryptoJS.enc.Utf8.parse(this.key), {
-      mode: CryptoJS.mode.ECB,
-      padding: CryptoJS.pad.Pkcs7,
+    this.notificationWebSocketService.connect(userCd, roleCd, (notification: AppNotification) => {
+      this.notifications.update((list) => [notification, ...list]);
+      this.showNotificationPopup(notification);
     });
-
-    return decrypted.toString(CryptoJS.enc.Utf8);
-  }
-private showBrowserNotification(
-  notification: AppNotification
-): void {
-
-  if (!('Notification' in window)) {
-    console.log('Browser notifications are not supported');
-    return;
   }
 
-  if (Notification.permission === 'granted') {
-
-    const browserNotification = new Notification(
-      notification.title,
-      {
-        body: notification.message,
-        icon: '/assets/icons/notification.png',
-        tag: `notification-${notification.notiRecipientId}`
-      }
-    );
-
-    browserNotification.onclick = () => {
-
-      window.focus();
-
-      this.router.navigateByUrl(
-        notification.routeLink
-      );
-
-      browserNotification.close();
-    };
-
-  }
-}
-markAllRead(): void {
-  if (!this.userCd) return;
-
-  this.notificationService.markAllRead(this.userCd).subscribe({
-    next: () => {
-      this.notifications.update((list) => list.map((n) => ({ ...n, isRead: true })));
-            this.notifications.set([]);
-
-    },
-    error: (err) => console.error('Failed to mark all as read', err),
-  });
-}
-
-priorityClassFor(notification: AppNotification): string {
-  switch (notification.priority) {
-    case 'HIGH':
-      return 'notification-bell__priority--high';
-    case 'MEDIUM':
-      return 'notification-bell__priority--medium';
-    default:
-      return 'notification-bell__priority--low';
-  }
-}
-deleteNotification(notification: AppNotification, event: Event): void {
-  event.stopPropagation(); // prevent triggering onNotificationClick's mark-read/navigate
-
-  this.notificationService.delete(notification.notiRecipientId).subscribe({
-    next: () => {
-      this.notifications.update((list) =>
-        list.filter((n) => n.notiRecipientId !== notification.notiRecipientId)
-      );
-    },
-    error: (err) => console.error('Failed to delete notification', err),
-  });
-}
-
-deleteAll(): void {
-  if (!this.userCd) return;
-
-  this.notificationService.deleteAll(this.userCd).subscribe({
-    next: () => {
-      this.notifications.set([]);
-    },
-    error: (err) => console.error('Failed to delete all notifications', err),
-  });
-}
-private requestNotificationPermission(): void {
-
-  if (!('Notification' in window)) {
-    return;
-  }
-
-  if (Notification.permission === 'default') {
-
-    Notification.requestPermission().then(permission => {
-
-      console.log(
-        'Notification permission:',
-        permission
-      );
-
-    });
-
-  }
-}
-load(): void {
-
-  const encryptedUserJson = localStorage.getItem('fp_auth_user');
-
-  this.notifications.set([]);
-
-  if (!encryptedUserJson) {
-    return;
-  }
-
-  try {
-
-    // Decrypt user data
-    const decryptedUserJson = this.decrypt(encryptedUserJson);
-
-    if (!decryptedUserJson) {
-      console.error('Failed to decrypt fp_auth_user');
+  private showBrowserNotification(notification: AppNotification): void {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
       return;
     }
 
-    // Parse decrypted JSON
-    const user = JSON.parse(decryptedUserJson);
+    if (Notification.permission === 'granted') {
+      const browserNotification = new Notification(notification.title, {
+        body: notification.message,
+        icon: '/assets/icons/notification.png',
+        tag: `notification-${notification.notiRecipientId}`,
+      });
 
-    this.userCd = Number(user.userId);
+      browserNotification.onclick = () => {
+        window.focus();
+        if (notification.routeLink) {
+          this.router.navigateByUrl(notification.routeLink);
+        }
+        browserNotification.close();
+      };
+    }
+  }
 
-    const userCd = Number(user.userId);
+  markAllRead(): void {
+    if (!this.userCd) return;
+
+    this.notificationService.markAllRead(this.userCd).subscribe({
+      next: () => {
+        this.notifications.update((list) => list.map((n) => ({ ...n, isRead: true })));
+        this.notifications.set([]);
+      },
+      error: (err) => console.error('Failed to mark all as read', err),
+    });
+  }
+
+  priorityClassFor(notification: AppNotification): string {
+    switch (notification.priority) {
+      case 'HIGH':
+        return 'notification-bell__priority--high';
+      case 'MEDIUM':
+        return 'notification-bell__priority--medium';
+      default:
+        return 'notification-bell__priority--low';
+    }
+  }
+
+  deleteNotification(notification: AppNotification, event: Event): void {
+    event.stopPropagation();
+
+    this.notificationService.delete(notification.notiRecipientId).subscribe({
+      next: () => {
+        this.notifications.update((list) =>
+          list.filter((n) => n.notiRecipientId !== notification.notiRecipientId)
+        );
+      },
+      error: (err) => console.error('Failed to delete notification', err),
+    });
+  }
+
+  deleteAll(): void {
+    if (!this.userCd) return;
+
+    this.notificationService.deleteAll(this.userCd).subscribe({
+      next: () => {
+        this.notifications.set([]);
+      },
+      error: (err) => console.error('Failed to delete all notifications', err),
+    });
+  }
+
+  private requestNotificationPermission(): void {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return;
+    }
+
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  load(): void {
+    if (!this.authService.hasValidSession()) {
+      this.notifications.set([]);
+      return;
+    }
+
+    const user = this.authService.currentUser();
+    if (!user) {
+      this.notifications.set([]);
+      return;
+    }
+
+    const userCd = Number(user.userCd);
     const roleCd = Number(user.roleCd);
 
     if (!userCd || !roleCd) {
-      console.error('Invalid userId or roleCd');
+      this.notifications.set([]);
       return;
     }
 
-    this.notificationService
-      .getAll(userCd, roleCd)
-      .subscribe({
+    this.userCd = userCd;
 
-        next: (list) => {
-          this.notifications.set(list);
-        },
-
-        error: (err) => {
-          console.error(
-            'Failed to load notifications',
-            err
-          );
-
-          this.notifications.set([]);
-        }
-
-      });
-
-  } catch (err) {
-
-    console.error(
-      'Invalid or encrypted fp_auth_user data',
-      err
-    );
-
-    this.notifications.set([]);
+    this.notificationService.getAll(userCd, roleCd).subscribe({
+      next: (list) => {
+        this.notifications.set(list || []);
+      },
+      error: (err) => {
+        console.error('Failed to load notifications', err);
+        this.notifications.set([]);
+      },
+    });
   }
-}
+
   setTab(tab: 'ALL' | NotificationCategory): void {
     this.activeTab.set(tab);
   }
 
- markRead(notification: AppNotification): void {
-  console.log('CLICKED NOTIFICATION:', notification);
+  markRead(notification: AppNotification): void {
+    if (notification.isRead) {
+      return;
+    }
 
-  if (notification.isRead) {
-    return;
-  }
-
-  const userJson = localStorage.getItem('fp_auth_user');
-
-  if (!userJson) {
-    return;
-  }
-
-  const user = JSON.parse(userJson);
-
-  this.notificationService
-    .markRead(
-      notification.notiRecipientId    )
-    .subscribe({
+    this.notificationService.markRead(notification.notiRecipientId).subscribe({
       next: () => {
-
         this.notifications.update((list) =>
           list.map((n) =>
             n.notiRecipientId === notification.notiRecipientId
-              ? {
-                  ...n,
-                  isRead: true
-                }
+              ? { ...n, isRead: true }
               : n
           )
         );
-
       },
-
       error: (err) => {
-        console.error(
-          'Failed to mark notification as read',
-          err
-        );
-      }
+        console.error('Failed to mark notification as read', err);
+      },
     });
-}
-  iconFor(category: NotificationCategory): string {
-    return category === 'ORDER' ? 'lens' : 'lens';
-  }
-
-  dotClassFor(notification: AppNotification): string {
-    // Blue for "confirmed/updated" style events, green for "new" events — matches the mockup.
-    return notification.title.toLowerCase().includes('new') ? 'notification-bell__dot--green' : 'notification-bell__dot--blue';
   }
 
   timeAgo(dateStr: string): string {
@@ -365,55 +235,32 @@ load(): void {
     if (diffHr < 24) return `${diffHr} hr ago`;
     return `${Math.floor(diffHr / 24)} day ago`;
   }
-  @ViewChild(MatMenuTrigger)
-menuTrigger!: MatMenuTrigger;
+
   onNotificationClick(notification: AppNotification): void {
-
-  if (!notification.isRead) {
-
-    this.notificationService
-      .markRead(
-        notification.notiRecipientId
-      )
-      .subscribe({
+    if (!notification.isRead) {
+      this.notificationService.markRead(notification.notiRecipientId).subscribe({
         next: () => {
-
           this.notifications.update((list) =>
-          list.map((n) =>
-            n.notiRecipientId === notification.notiRecipientId
-              ? {
-                  ...n,
-                  isRead: true
-                }
-              : n
-          )
-        );
-           // Hide/remove notification immediately
-        this.notifications.update(list =>
-          list.filter(
-            n => n.notiRecipientId !== notification.notiRecipientId
-          )
-        );
-         // Close notification popup first
-    this.menuTrigger.closeMenu();
-
-          this.router.navigateByUrl(
-            notification.routeLink
+            list.filter((n) => n.notiRecipientId !== notification.notiRecipientId)
           );
+          if (this.menuTrigger) {
+            this.menuTrigger.closeMenu();
+          }
+          if (notification.routeLink) {
+            this.router.navigateByUrl(notification.routeLink);
+          }
         },
         error: (err) => {
-          console.error(
-            'Failed to mark notification as read',
-            err
-          );
-        }
+          console.error('Failed to mark notification as read', err);
+        },
       });
-
-  } else {
-
-    this.router.navigateByUrl(
-      notification.routeLink
-    );
+    } else {
+      if (this.menuTrigger) {
+        this.menuTrigger.closeMenu();
+      }
+      if (notification.routeLink) {
+        this.router.navigateByUrl(notification.routeLink);
+      }
+    }
   }
- }
 }

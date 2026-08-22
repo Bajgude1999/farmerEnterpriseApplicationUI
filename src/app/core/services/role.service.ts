@@ -1,14 +1,16 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { RoleOption } from '../models/user.model';
+import { Http } from '../common/http';
 
 @Injectable({ providedIn: 'root' })
 export class RoleService {
-  private http = inject(HttpClient);
+  private http = inject(Http);
 
   getAll(): Observable<RoleOption[]> {
-    return this.http.get<RoleOption[]>(`${environment.apiBaseUrl}/v1/role/get-all`);
+    return this.http
+      .get<{ data: RoleOption[] }>(`${environment.apiBaseUrl}/v1/role/get-all`)
+      .pipe(map((res) => res.data ?? []));
   }
 }

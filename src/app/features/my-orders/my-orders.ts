@@ -7,6 +7,7 @@ import { Order, OrderResponse } from '../../core/models/cart.model';
 import { environment } from '../../../environments/environment';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { Http } from '../../core/common/http';
+import { AuthService } from '../../core/services/ auth.service';
 
 @Component({
   selector: 'fp-my-orders',
@@ -17,6 +18,7 @@ import { Http } from '../../core/common/http';
 })
 export class MyOrders implements OnInit {
   private http = inject(Http);
+  private authService = inject(AuthService);
 
   orders = signal<Order[]>([]);
   loading = signal(true);
@@ -26,21 +28,19 @@ export class MyOrders implements OnInit {
   ratedItems = signal<Set<string>>(new Set());
 
   ngOnInit(): void {
-    const userData = localStorage.getItem('fp_auth_user');
+    const user = this.authService.currentUser();
+    const userCd = user?.userCd;
 
-    if (!userData) {
+    if (!userCd) {
       this.loading.set(false);
       return;
     }
 
-    const user = JSON.parse(userData);
-    const userId = user.userId;
-
     this.http
-      .get<OrderResponse>(`${environment.apiBaseUrl}/v1/salesorder/my-orders/${userId}`)
+      .get<OrderResponse>(`${environment.apiBaseUrl}/v1/salesorder/my-orders/${userCd}`)
       .subscribe({
         next: (orders) => {
-          this.orders.set(orders.data);
+          this.orders.set(orders?.data ?? []);
           this.loading.set(false);
         },
         error: () => {
@@ -87,14 +87,12 @@ export class MyOrders implements OnInit {
 
     if (!rating) return;
 
-    const userData = localStorage.getItem('fp_auth_user');
-    if (!userData) return;
-
-    const user = JSON.parse(userData);
+    const user = this.authService.currentUser();
+    if (!user || !user.userCd) return;
 
     const payload = {
       productCd: Number(item.productCd),
-      userCd: Number(user.userId),
+      userCd: Number(user.userCd),
       orderCd: Number((order as any)?.orderCd),
       rating: Math.round(rating),
       review: review?.trim() || '',

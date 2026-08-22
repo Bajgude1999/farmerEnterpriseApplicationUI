@@ -1,0 +1,55 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ (isEdit() ? 'EDIT_BRAND' : 'ADD_BRAND') | translate }}</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card brand-master-form">
+    <input type="hidden" formControlName="brandCd" />
+
+    <div class="brand-master-form__photo-section">
+      <div class="brand-master-form__photo-preview">
+        <img *ngIf="logoUrl()" [src]="logoUrl()" alt="" />
+        <mat-icon *ngIf="!logoUrl()">business</mat-icon>
+      </div>
+      <div class="field-group">
+        <label class="field-label">{{ 'LOGO' | translate }}</label>
+        <input type="file" accept="image/*" (change)="onLogoSelected($event)" [disabled]="uploadingLogo()" />
+        <span *ngIf="uploadingLogo()" class="brand-master-form__uploading">{{ 'UPLOADING' | translate }}...</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field-group flex-1">
+        <label class="field-label">{{ 'BRAND_NAME' | translate }} *</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="brandName" placeholder="Enter Brand Name" />
+          <mat-error *ngIf="form.get('brandName')?.hasError('required')">
+            {{ 'FIELD_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">{{ 'BRAND_DESC' | translate }}</label>
+      <mat-form-field appearance="outline">
+        <textarea matInput formControlName="brandDesc" rows="3" placeholder="Enter Description"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="brand-master-form__checkboxes">
+      <mat-checkbox formControlName="active">{{ 'ACTIVE' | translate }}</mat-checkbox>
+    </div>
+
+    <div class="brand-master-form__actions">
+      <button type="button" mat-stroked-button (click)="cancel()">{{ 'CANCEL' | translate }}</button>
+      <button
+        type="submit"
+        mat-flat-button
+        class="fp-btn-primary"
+        [disabled]="form.invalid || saving() || uploadingLogo()">
+        {{ (isEdit() ? 'UPDATE_BRAND' : 'SAVE_BRAND') | translate }}
+      </button>
+    </div>
+  </form>
+</div>

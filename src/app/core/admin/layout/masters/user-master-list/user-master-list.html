@@ -1,77 +1,79 @@
 <div class="admin-page">
   <div class="admin-page__header">
     <h2>{{ 'USER_MASTER' | translate }}</h2>
-    <button mat-flat-button class="fp-btn-primary" (click)="goToAdd()">
+    <button mat-flat-button class="fp-btn-primary add-user-btn" (click)="goToAdd()">
       <mat-icon>add</mat-icon> {{ 'ADD_USER' | translate }}
     </button>
   </div>
 
-  <table mat-table [dataSource]="users()" class="fp-card admin-table" *ngIf="!loading()">
-    <ng-container matColumnDef="photo">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let u">
-        <img
-          *ngIf="upload.getFileUrl(u.profilePhoto) as photoUrl; else noPhoto"
-          [src]="photoUrl"
-          class="user-master-list__avatar"
-          alt="" />
-        <ng-template #noPhoto>
-          <span class="user-master-list__avatar user-master-list__avatar--placeholder">{{ u.fullName.charAt(0) }}</span>
-        </ng-template>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="fullName">
-      <th mat-header-cell *matHeaderCellDef>{{ 'FULL_NAME' | translate }}</th>
-      <td mat-cell *matCellDef="let u">{{ u.fullName }}</td>
-    </ng-container>
-    <ng-container matColumnDef="mobNo">
-      <th mat-header-cell *matHeaderCellDef>{{ 'MOBILE_NUMBER' | translate }}</th>
-      <td mat-cell *matCellDef="let u">{{ u.mobNo }}</td>
-    </ng-container>
-    <ng-container matColumnDef="roleName">
-      <th mat-header-cell *matHeaderCellDef>{{ 'ROLE' | translate }}</th>
-      <td mat-cell *matCellDef="let u">{{ u.roleName }}</td>
-    </ng-container>
-    <ng-container matColumnDef="district">
-      <th mat-header-cell *matHeaderCellDef>{{ 'DISTRICT' | translate }}</th>
-      <td mat-cell *matCellDef="let u">{{ u.district }}</td>
-    </ng-container>
-    <ng-container matColumnDef="state">
-      <th mat-header-cell *matHeaderCellDef>{{ 'STATE' | translate }}</th>
-      <td mat-cell *matCellDef="let u">{{ u.state }}</td>
-    </ng-container>
-    <ng-container matColumnDef="verified">
-      <th mat-header-cell *matHeaderCellDef>{{ 'VERIFIED' | translate }}</th>
-      <td mat-cell *matCellDef="let u">
-        <mat-icon [class.user-master-list__yes]="u.verified" [class.user-master-list__no]="!u.verified">
-          {{ u.verified ? 'check_circle' : 'cancel' }}
-        </mat-icon>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="block">
-      <th mat-header-cell *matHeaderCellDef>{{ 'BLOCKED' | translate }}</th>
-      <td mat-cell *matCellDef="let u">
-        <mat-icon [class.user-master-list__no]="u.block" [class.user-master-list__yes]="!u.block">
-          {{ u.block ? 'block' : 'check_circle' }}
-        </mat-icon>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="active">
-      <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVE' | translate }}</th>
-      <td mat-cell *matCellDef="let u">
-        <mat-icon [class.user-master-list__yes]="u.active" [class.user-master-list__no]="!u.active">
-          {{ u.active ? 'check_circle' : 'cancel' }}
-        </mat-icon>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let u">
-        <button mat-icon-button aria-label="Edit" (click)="goToEdit(u)"><mat-icon>edit</mat-icon></button>
-      </td>
-    </ng-container>
+  <div class="user-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="users()" class="fp-card admin-table">
+      <ng-container matColumnDef="photo">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let u">
+          <img
+            *ngIf="upload.getFileUrl(u.profilePhoto) as photoUrl; else noPhoto"
+            [src]="photoUrl"
+            class="user-master-list__avatar"
+            alt="" />
+          <ng-template #noPhoto>
+            <span class="user-master-list__avatar user-master-list__avatar--placeholder">{{ u.fullName.charAt(0) }}</span>
+          </ng-template>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="fullName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'FULL_NAME' | translate }}</th>
+        <td mat-cell *matCellDef="let u">{{ u.fullName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="mobNo">
+        <th mat-header-cell *matHeaderCellDef>{{ 'MOBILE_NUMBER' | translate }}</th>
+        <td mat-cell *matCellDef="let u">{{ u.mobNo }}</td>
+      </ng-container>
+      <ng-container matColumnDef="roleName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ROLE' | translate }}</th>
+        <td mat-cell *matCellDef="let u">{{ u.roleName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="district">
+        <th mat-header-cell *matHeaderCellDef>{{ 'DISTRICT' | translate }}</th>
+        <td mat-cell *matCellDef="let u">{{ u.district }}</td>
+      </ng-container>
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef>{{ 'STATE' | translate }}</th>
+        <td mat-cell *matCellDef="let u">{{ u.state }}</td>
+      </ng-container>
+      <ng-container matColumnDef="verified">
+        <th mat-header-cell *matHeaderCellDef>{{ 'VERIFIED' | translate }}</th>
+        <td mat-cell *matCellDef="let u">
+          <mat-icon [class.user-master-list__yes]="u.verified" [class.user-master-list__no]="!u.verified">
+            {{ u.verified ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="block">
+        <th mat-header-cell *matHeaderCellDef>{{ 'BLOCKED' | translate }}</th>
+        <td mat-cell *matCellDef="let u">
+          <mat-icon [class.user-master-list__no]="u.block" [class.user-master-list__yes]="!u.block">
+            {{ u.block ? 'block' : 'check_circle' }}
+          </mat-icon>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="active">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVE' | translate }}</th>
+        <td mat-cell *matCellDef="let u">
+          <mat-icon [class.user-master-list__yes]="u.active" [class.user-master-list__no]="!u.active">
+            {{ u.active ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let u">
+          <button mat-icon-button aria-label="Edit" (click)="goToEdit(u)"><mat-icon>edit</mat-icon></button>
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
 </div>

@@ -1,0 +1,96 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ 'PROFIT_MARGIN_REPORT' | translate }}</h2>
+  </div>
+
+  <!-- Filter Card -->
+  <form [formGroup]="filterForm" (ngSubmit)="fetchReport()" class="fp-card report-filter-card">
+    <div class="filter-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'FROM_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="fromDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'TO_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="toDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="filter-action">
+        <button type="submit" mat-flat-button class="fp-btn-primary search-btn">
+          <mat-icon>search</mat-icon> {{ 'SHOW_DATA' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Summary KPI Cards -->
+  <div class="kpi-grid" *ngIf="reportData()">
+    <div class="kpi-card fp-card">
+      <span class="kpi-label">{{ 'TOTAL_SALES' | translate }}</span>
+      <span class="kpi-value">₹{{ (reportData()?.totalSales || 0) | number:'1.2-2' }}</span>
+    </div>
+    <div class="kpi-card fp-card">
+      <span class="kpi-label">{{ 'PURCHASE_COST' | translate }}</span>
+      <span class="kpi-value">₹{{ (reportData()?.totalPurchase || 0) | number:'1.2-2' }}</span>
+    </div>
+    <div class="kpi-card fp-card highlight" [class.negative]="(reportData()?.totalProfit || 0) < 0">
+      <span class="kpi-label">{{ 'TOTAL_PROFIT' | translate }}</span>
+      <span class="kpi-value">₹{{ (reportData()?.totalProfit || 0) | number:'1.2-2' }}</span>
+    </div>
+    <div class="kpi-card fp-card" [class.negative]="(reportData()?.overallMarginPercentage || 0) < 0">
+      <span class="kpi-label">{{ 'OVERALL_MARGIN' | translate }}</span>
+      <span class="kpi-value">{{ (reportData()?.overallMarginPercentage || 0) | number:'1.2-2' }}%</span>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="report-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="reportData()?.rows || []" class="fp-card admin-table">
+      <ng-container matColumnDef="period">
+        <th mat-header-cell *matHeaderCellDef>{{ 'PERIOD' | translate }}</th>
+        <td mat-cell *matCellDef="let r"><strong>{{ r.period }}</strong></td>
+      </ng-container>
+
+      <ng-container matColumnDef="salesAmount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'SALES_VALUE' | translate }}</th>
+        <td mat-cell *matCellDef="let r">₹{{ r.salesAmount | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="purchaseCost">
+        <th mat-header-cell *matHeaderCellDef>{{ 'PURCHASE_COST' | translate }}</th>
+        <td mat-cell *matCellDef="let r">₹{{ r.purchaseCost | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="profitAmount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'PROFIT' | translate }}</th>
+        <td mat-cell *matCellDef="let r">
+          <strong [class.profit-positive]="r.profitAmount >= 0" [class.profit-negative]="r.profitAmount < 0">
+            ₹{{ r.profitAmount | number:'1.2-2' }}
+          </strong>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="marginPercentage">
+        <th mat-header-cell *matHeaderCellDef>{{ 'MARGIN_PERCENTAGE' | translate }}</th>
+        <td mat-cell *matCellDef="let r">
+          <span [class.profit-positive]="r.marginPercentage >= 0" [class.profit-negative]="r.marginPercentage < 0">
+            {{ r.marginPercentage | number:'1.2-2' }}%
+          </span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <div *ngIf="!reportData()?.rows?.length" class="empty-state-card fp-card">
+      <mat-icon class="empty-state-icon">query_stats</mat-icon>
+      <p>{{ 'NO_DATA_AVAILABLE' | translate }}</p>
+    </div>
+  </div>
+</div>

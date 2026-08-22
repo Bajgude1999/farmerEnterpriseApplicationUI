@@ -1,21 +1,62 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
 .admin-page {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
 
-    h2 { font-family: var(--font-display); font-size: 20px; }
+    h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
   }
 }
 
 .product-header-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.add-product-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 16px;
+}
+
+.pack-price-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
 }
 
 .pack-price-actions {
@@ -26,6 +67,9 @@
   background: var(--surface-alt);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
+  white-space: nowrap;
+  min-width: max-content;
+  box-sizing: border-box;
 }
 
 .pack-price-label {
@@ -47,14 +91,19 @@
 
 .pack-price-buttons {
   display: flex;
+  align-items: center;
   gap: 8px;
 
   button {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 4px;
     font-size: 13px;
+    font-weight: 500;
     line-height: 1;
+    height: 34px;
+    padding: 0 12px;
+    white-space: nowrap;
 
     mat-icon {
       font-size: 16px;
@@ -64,8 +113,192 @@
   }
 }
 
+/* Dedicated horizontal scroll wrapper for product table */
+.product-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  margin-top: 8px;
+
+  /* Custom subtle scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+  }
+}
+
 .admin-table {
   width: 100%;
-  padding: 0;
-  overflow-x: hidden;
+  min-width: 600px;
+  border-collapse: collapse;
+  background: var(--surface);
+  box-shadow: none;
+  border: none;
+
+  th.mat-header-cell {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    background: var(--surface);
+  }
+
+  td.mat-cell {
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  tr.mat-row:hover {
+    background-color: var(--surface-alt);
+  }
+
+  tr.mat-row:last-child td.mat-cell {
+    border-bottom: none;
+  }
+}
+
+/* =========================================================
+   Responsive Breakpoints
+   ========================================================= */
+
+/* Tablet & Mobile (<= 768px) */
+@media screen and (max-width: 768px) {
+  .admin-page {
+    &__header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      margin-bottom: 16px;
+
+      h2 {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .product-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .add-product-btn {
+    width: 100%;
+    justify-content: center;
+    height: 42px;
+    font-size: 14px;
+  }
+
+  .pack-price-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pack-price-actions {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  .admin-table {
+    min-width: 580px;
+
+    th.mat-header-cell {
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    td.mat-cell {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+  }
+}
+
+/* Small Screens (<= 480px) */
+@media screen and (max-width: 480px) {
+  .admin-page {
+    &__header {
+      h2 {
+        font-size: 17px;
+      }
+    }
+  }
+
+  .pack-price-label {
+    font-size: 12px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .pack-price-buttons button {
+    font-size: 12px;
+    height: 32px;
+    padding: 0 10px;
+  }
+
+  .admin-table {
+    min-width: 540px;
+
+    th.mat-header-cell {
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+
+    td.mat-cell {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+  }
+}
+
+/* Extra Small Screens (<= 360px and 320px) */
+@media screen and (max-width: 360px) {
+  .admin-page {
+    &__header {
+      gap: 10px;
+
+      h2 {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .add-product-btn {
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .admin-table {
+    min-width: 500px;
+
+    th.mat-header-cell,
+    td.mat-cell {
+      padding: 6px 8px;
+    }
+  }
 }

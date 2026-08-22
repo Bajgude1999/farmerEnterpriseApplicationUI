@@ -5,18 +5,21 @@ export interface RoleOption {
 
 export interface Address {
   id?: string;
-  fullName: string;
-  mobile: string;
-  village: string;
-  taluka: string;
-  district: string;
-  state: string;
-  pin: string;
+  fullName?: string;
+  mobile?: string;
+  village?: string;
+  taluka?: string;
+  district?: string;
+  state?: string;
+  pin?: string;
+  optionalMobNo?: string;
+  landmark?: string;
+  address?: string;
   isDefault?: boolean;
 }
 
 export interface User {
-  userId: number;
+  userCd: number;
   fullName: string;
   mobNo: string;
   email?: string;
@@ -58,7 +61,7 @@ export interface AuthResponse {
 }
 
 export interface UserMaster {
-  userId?: number | null;
+  userCd?: number | null;
   fullName: string;
   mobNo: string;
   email?: string;

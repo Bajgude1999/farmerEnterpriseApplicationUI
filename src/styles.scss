@@ -226,3 +226,42 @@ div:has(> table.mat-mdc-table.admin-table) {
     font-size: 11px;
   }
 }
+
+/* =========================================================
+   SNACKBAR / TOAST THEMING
+   ========================================================= */
+.toast-success {
+  --mdc-snackbar-container-color: var(--brand-green-700) !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+  --mdc-snackbar-supporting-text-color: #ffffff !important;
+  font-family: var(--font-body) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.toast-error {
+  --mdc-snackbar-container-color: var(--color-danger) !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+  --mdc-snackbar-supporting-text-color: #ffffff !important;
+  font-family: var(--font-body) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.toast-warning {
+  --mdc-snackbar-container-color: var(--color-warning) !important;
+  --mat-snack-bar-button-color: var(--text-primary) !important;
+  --mdc-snackbar-supporting-text-color: var(--text-primary) !important;
+  font-family: var(--font-body) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.toast-info {
+  --mdc-snackbar-container-color: var(--color-info) !important;
+  --mat-snack-bar-button-color: #ffffff !important;
+  --mdc-snackbar-supporting-text-color: #ffffff !important;
+  font-family: var(--font-body) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+}

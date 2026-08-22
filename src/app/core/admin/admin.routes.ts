@@ -32,6 +32,24 @@ export const adminRoutes: Routes = [
       },
 
       {
+        path: 'products',
+        redirectTo: 'master/product',
+        pathMatch: 'full'
+      },
+
+      {
+        path: 'orders',
+        redirectTo: 'transaction/sales-order-list',
+        pathMatch: 'full'
+      },
+
+      {
+        path: 'users',
+        redirectTo: 'master/user',
+        pathMatch: 'full'
+      },
+
+      {
         path: 'master',
         loadComponent: () =>
           import('./layout/masters/master-home/master-home')
@@ -57,6 +75,69 @@ export const adminRoutes: Routes = [
         loadComponent: () =>
           import('./layout/masters/product-master/product-master')
             .then((m) => m.ProductMasterComponent)
+      },
+
+      {
+        path: 'master/brand',
+        loadComponent: () =>
+          import('./layout/masters/brand-list/brand-list')
+            .then((m) => m.BrandList)
+      },
+
+      {
+        path: 'master/brand/add',
+        loadComponent: () =>
+          import('./layout/masters/brand-master/brand-master')
+            .then((m) => m.BrandMasterComponent)
+      },
+
+      {
+        path: 'master/brand/edit/:id',
+        loadComponent: () =>
+          import('./layout/masters/brand-master/brand-master')
+            .then((m) => m.BrandMasterComponent)
+      },
+
+      {
+        path: 'master/unit',
+        loadComponent: () =>
+          import('./layout/masters/unit-list/unit-list')
+            .then((m) => m.UnitList)
+      },
+
+      {
+        path: 'master/unit/add',
+        loadComponent: () =>
+          import('./layout/masters/unit-master/unit-master')
+            .then((m) => m.UnitMasterComponent)
+      },
+
+      {
+        path: 'master/unit/edit/:id',
+        loadComponent: () =>
+          import('./layout/masters/unit-master/unit-master')
+            .then((m) => m.UnitMasterComponent)
+      },
+
+      {
+        path: 'master/category',
+        loadComponent: () =>
+          import('./layout/masters/category-list/category-list')
+            .then((m) => m.CategoryList)
+      },
+
+      {
+        path: 'master/category/add',
+        loadComponent: () =>
+          import('./layout/masters/category-master/category-master')
+            .then((m) => m.CategoryMasterComponent)
+      },
+
+      {
+        path: 'master/category/edit/:id',
+        loadComponent: () =>
+          import('./layout/masters/category-master/category-master')
+            .then((m) => m.CategoryMasterComponent)
       },
 
       {
@@ -99,6 +180,34 @@ export const adminRoutes: Routes = [
         loadComponent: () =>
           import('./layout/reports/stock-report/stock-report')
             .then((m) => m.StockReport)
+      },
+
+      {
+        path: 'report/sales-summary',
+        loadComponent: () =>
+          import('./layout/reports/sales-summary-report/sales-summary-report')
+            .then((m) => m.SalesSummaryReportComponent)
+      },
+
+      {
+        path: 'report/purchase-summary',
+        loadComponent: () =>
+          import('./layout/reports/purchase-summary-report/purchase-summary-report')
+            .then((m) => m.PurchaseSummaryReportComponent)
+      },
+
+      {
+        path: 'report/profit-margin',
+        loadComponent: () =>
+          import('./layout/reports/profit-margin-report/profit-margin-report')
+            .then((m) => m.ProfitMarginReportComponent)
+      },
+
+      {
+        path: 'report/order-summary',
+        loadComponent: () =>
+          import('./layout/reports/order-summary-report/order-summary-report')
+            .then((m) => m.OrderSummaryReportComponent)
       },
 
       {

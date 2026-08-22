@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -11,12 +10,14 @@ export class WishlistService {
   private base = `${environment.apiBaseUrl}/v1/wishlist`;
 
   add(userCd: number, productCd: number | string): Observable<unknown> {
-    return this.http.post(
-      `${this.base}/save`,
-      { userCd, productCd });
+    return this.http.post(`${this.base}/save`, { userCd, productCd });
   }
 
-  getWishlist(userCd: number): Observable<WishlistItem[]> {
-   return this.http.get<WishlistItem[]>(`${this.base}/${userCd}`);
+  getWishlist(userCd: number): Observable<{ data: WishlistItem[] } | WishlistItem[]> {
+    return this.http.get<any>(`${this.base}/${userCd}`);
+  }
+
+  remove(wishlistCd: number): Observable<unknown> {
+    return this.http.delete(`${this.base}/${wishlistCd}`);
   }
 }

@@ -65,6 +65,9 @@
 
         <mat-form-field appearance="outline">
           <input matInput formControlName="productName" />
+          <mat-error *ngIf="form.controls.productName.hasError('required')">
+            Product Name is required
+          </mat-error>
         </mat-form-field>
       </div>
 

@@ -13,7 +13,7 @@ import { SalesOrder } from '../../../../models/sales-order.model';
   standalone: true,
   imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './sales-order-list.html',
-  styleUrl: '../../shared/admin-table.scss',
+  styleUrls: ['./sales-order-list.scss', '../../shared/admin-table.scss'],
 })
 export class SalesOrderList implements OnInit {
   private salesOrderService = inject(SalesOrderService);

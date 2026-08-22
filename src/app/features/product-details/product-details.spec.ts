@@ -1,73 +1,125 @@
-// import { TestBed } from '@angular/core/testing';
-// import { provideHttpClient } from '@angular/common/http';
-// import { provideHttpClientTesting } from '@angular/common/http/testing';
-// import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
-// import { provideTranslateService } from '@ngx-translate/core';
-// import { of } from 'rxjs';
-// import { ProductDetailsComponent } from './product-details';
-// import { ProductService } from '../../core/services/ product.service';
-// import { AuthService } from '../../core/services/ auth.service';
-// import { Product } from '../../core/models/product.model';
+import '@angular/compiler';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { Injector } from '@angular/core';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { of } from 'rxjs';
+import { ProductDetails } from './product-details';
+import { ProductService } from '../../core/services/ product.service';
+import { CartService } from '../../core/services/cart.service';
+import { AuthService } from '../../core/services/ auth.service';
+import { Product } from '../../core/models/product.model';
 
-// const mockProduct: Product = {
-//   id: 'p1', name: 'DAP Fertilizer', slug: 'dap', brand: 'Coromandel', category: 'fertilizers',
-//   price: 1200, mrp: 1350, rating: 4.5, ratingCount: 88, stock: 3, unit: '50 kg bag',
-//   images: [{ thumbnail: 'a.jpg', medium: 'a.jpg', large: 'a.jpg' }],
-// };
+const mockProduct: Product = {
+  id: '101',
+  name: 'Bio Urea Fertilizer',
+  productName: 'Bio Urea Fertilizer',
+  slug: 'bio-urea-fertilizer',
+  brand: 'UPL_LIMITED',
+  brandName: 'UPL_LIMITED',
+  category: 'Fertilizers',
+  price: 450,
+  mrp: 500,
+  rating: 4.8,
+  ratingCount: 120,
+  stock: 15,
+  unit: '50 kg bag',
+  images: [{ thumbnail: 'a.jpg', medium: 'a.jpg', large: 'a.jpg' }],
+  packsizes: [
+    {
+      packPriceId: 1,
+      productCd: 101,
+      sellingPrice: 450,
+      mrpPrice: 500,
+      packSize: 50,
+      unitCd: 1,
+      unitName: 'kg bag',
+      inStock: true,
+      defaultYn: true,
+      active: true,
+    },
+  ],
+};
 
-// describe('ProductDetailsComponent', () => {
-//   beforeEach(async () => {
-//     await TestBed.configureTestingModule({
-//       imports: [ProductDetailsComponent],
-//       providers: [
-//         provideHttpClient(),
-//         provideHttpClientTesting(),
-//         provideRouter([]),
-//         provideTranslateService(),
-//         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'p1' })) } },
-//       ],
-//     }).compileComponents();
-//   });
+describe('ProductDetails Component — Public Loading & Pack Selection', () => {
+  let component: ProductDetails;
+  let productServiceMock: {
+    getById: ReturnType<typeof vi.fn>;
+    getRelated: ReturnType<typeof vi.fn>;
+  };
+  let cartServiceMock: { addItem: ReturnType<typeof vi.fn> };
+  let authServiceMock: { isLoggedIn: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
-//   it('should load product and related products by id', () => {
-//     const fixture = TestBed.createComponent(ProductDetailsComponent);
-//     const productService = TestBed.inject(ProductService);
-//     vi.spyOn(productService, 'getById').mockReturnValue(of(mockProduct));
-//     vi.spyOn(productService, 'getRelated').mockReturnValue(of([]));
+  beforeEach(() => {
+    productServiceMock = {
+      getById: vi.fn().mockReturnValue(of(mockProduct)),
+      getRelated: vi.fn().mockReturnValue(of([])),
+    };
+    cartServiceMock = {
+      addItem: vi.fn(),
+    };
+    authServiceMock = {
+      isLoggedIn: vi.fn().mockReturnValue(false),
+    };
+    routerMock = {
+      navigate: vi.fn(),
+    };
 
-//     fixture.detectChanges();
+    const activatedRouteMock = {
+      paramMap: of(convertToParamMap({ id: '101' })),
+    };
 
-//     expect(fixture.componentInstance.product()?.id).toBe('p1');
-//   });
+    const injector = Injector.create({
+      providers: [
+        { provide: ProductDetails, useClass: ProductDetails },
+        { provide: ProductService, useValue: productServiceMock },
+        { provide: CartService, useValue: cartServiceMock },
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+      ],
+    });
 
-//   it('should not increase quantity beyond available stock', () => {
-//     const fixture = TestBed.createComponent(ProductDetailsComponent);
-//     const productService = TestBed.inject(ProductService);
-//     vi.spyOn(productService, 'getById').mockReturnValue(of(mockProduct));
-//     vi.spyOn(productService, 'getRelated').mockReturnValue(of([]));
-//     fixture.detectChanges();
+    component = injector.get(ProductDetails);
+  });
 
-//     for (let i = 0; i < 10; i++) fixture.componentInstance.incrementQuantity();
+  it('should load public product details by id using productService.getById', () => {
+    component.ngOnInit();
 
-//     expect(fixture.componentInstance.quantity()).toBe(mockProduct.stock);
-//   });
+    expect(productServiceMock.getById).toHaveBeenCalledWith('101');
+    expect(component.product()?.name).toBe('Bio Urea Fertilizer');
+    expect(component.loading()).toBe(false);
+    expect(component.selectedPackSize()?.packPriceId).toBe(1);
+    expect(component.getSelectedPrice()).toBe(450);
+  });
 
-//   it('should redirect a guest to login and remember the intended Buy Now action', () => {
-//     const fixture = TestBed.createComponent(ProductDetailsComponent);
-//     const productService = TestBed.inject(ProductService);
-//     const auth = TestBed.inject(AuthService);
-//     const router = TestBed.inject(Router);
-//     vi.spyOn(productService, 'getById').mockReturnValue(of(mockProduct));
-//     vi.spyOn(productService, 'getRelated').mockReturnValue(of([]));
-//     fixture.detectChanges();
+  it('should calculate discount percent and stock availability accurately', () => {
+    component.ngOnInit();
 
-//     vi.spyOn(auth, 'isLoggedIn').mockReturnValue(false as any);
-//     vi.spyOn(auth, 'setPendingAction').mockImplementation(() => {});
-//     vi.spyOn(router, 'navigate').mockImplementation(async () => true);
+    expect(component.getDiscountPercent()).toBe(10);
+    expect(component.isSelectedPackInStock()).toBe(true);
+  });
 
-//     fixture.componentInstance.buyNow();
+  it('should increment and decrement quantity within stock bounds', () => {
+    component.ngOnInit();
+    expect(component.quantity()).toBe(1);
 
-//     expect(auth.setPendingAction).toHaveBeenCalledWith({ type: 'BUY_NOW', productId: 'p1', quantity: 1 });
-//     expect(router.navigate).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/checkout' } });
-//   });
-// });
+    component.incrementQuantity();
+    expect(component.quantity()).toBe(2);
+
+    component.decrementQuantity();
+    expect(component.quantity()).toBe(1);
+
+    // cannot decrement below 1
+    component.decrementQuantity();
+    expect(component.quantity()).toBe(1);
+  });
+
+  it('should add item to cart and update isInCart flag', () => {
+    component.ngOnInit();
+    component.addToCart();
+
+    expect(cartServiceMock.addItem).toHaveBeenCalledWith(component.product(), 1);
+    expect(component.isInCart).toBe(true);
+  });
+});

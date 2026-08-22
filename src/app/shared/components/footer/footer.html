@@ -6,9 +6,9 @@
     </div>
     <div>
       <h5>{{ 'FOOTER_QUICK_LINKS' | translate }}</h5>
-      <a routerLink="/products">{{ 'PRODUCTS' | translate }}</a>
-      <a routerLink="/my-orders">{{ 'MY_ORDERS' | translate }}</a>
-      <a routerLink="/profile">{{ 'PROFILE' | translate }}</a>
+      <!-- <a routerLink="/products">{{ 'PRODUCTS' | translate }}</a> -->
+      <!-- <a routerLink="/my-orders">{{ 'MY_ORDERS' | translate }}</a> -->
+      <!-- <a routerLink="/profile">{{ 'PROFILE' | translate }}</a> -->
        <a routerLink="/about">
     {{ 'NAV_ABOUT' | translate }}
   </a>
@@ -44,7 +44,7 @@
     d="M9.545 15.568V8.432L15.818 12l-6.273 3.568Z"/>
 </svg>
         </a>
-        <a href="https://facebook.com/yourpage" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <a href="https://www.facebook.com/share/18A4k7xZbP/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
           <svg
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 24 24"
@@ -152,9 +152,13 @@
   </svg>
 </a>
       </div>
+          <!-- Copyright directly below Support -->
+    <div class="fp-footer__copyright">
+      &copy; {{ year }}
+      {{ 'Copyright' | translate }}
+
+    </div>
     </div>
   </div>
-  <div class="fp-footer__bottom fp-container">
-    <span>&copy; {{ year }} {{ 'BRAND_NAME' | translate }} Crop Solutions</span>
-  </div>
+ 
 </footer>

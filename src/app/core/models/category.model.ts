@@ -1,5 +1,9 @@
 export interface Category {
-  categoryCd: number;
+  categoryCd?: number;
   categoryName: string;
-  categoryDesc: string;
+  categoryDesc?: string;
+  displayOrder?: number;
+  active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }

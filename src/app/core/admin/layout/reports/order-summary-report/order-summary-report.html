@@ -1,0 +1,89 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ 'ORDER_SUMMARY_REPORT' | translate }}</h2>
+  </div>
+
+  <!-- Filter Card -->
+  <form [formGroup]="filterForm" (ngSubmit)="fetchReport()" class="fp-card report-filter-card">
+    <div class="filter-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'FROM_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="fromDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'TO_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="toDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="filter-action">
+        <button type="submit" mat-flat-button class="fp-btn-primary search-btn">
+          <mat-icon>search</mat-icon> {{ 'SHOW_DATA' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Summary KPI Cards -->
+  <div class="kpi-grid" *ngIf="reportData()">
+    <div class="kpi-card fp-card highlight">
+      <span class="kpi-label">{{ 'TOTAL_ORDERS' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.totalOrders || 0 }}</span>
+      <small class="kpi-sub">₹{{ (reportData()?.totalOrderValue || 0) | number:'1.2-2' }}</small>
+    </div>
+    <div class="kpi-card fp-card status-pending">
+      <span class="kpi-label">{{ 'PENDING_ORDERS' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.pendingOrders || 0 }}</span>
+    </div>
+    <div class="kpi-card fp-card status-confirmed">
+      <span class="kpi-label">{{ 'CONFIRMED_ORDERS' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.confirmedOrders || 0 }}</span>
+    </div>
+    <div class="kpi-card fp-card status-shipped">
+      <span class="kpi-label">{{ 'SHIPPED_ORDERS' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.shippedOrders || 0 }}</span>
+    </div>
+    <div class="kpi-card fp-card status-delivered">
+      <span class="kpi-label">{{ 'DELIVERED_ORDERS' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.deliveredOrders || 0 }}</span>
+    </div>
+    <div class="kpi-card fp-card status-cancelled">
+      <span class="kpi-label">{{ 'CANCELLED_ORDERS' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.cancelledOrders || 0 }}</span>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="report-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="reportData()?.statusBreakdown || []" class="fp-card admin-table">
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>{{ 'STATUS' | translate }}</th>
+        <td mat-cell *matCellDef="let r">
+          <span class="status-badge" [ngClass]="r.status?.toLowerCase()">{{ r.status }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="count">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ORDERS_COUNT' | translate }}</th>
+        <td mat-cell *matCellDef="let r"><strong>{{ r.count }}</strong></td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalAmount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'TOTAL_VALUE' | translate }}</th>
+        <td mat-cell *matCellDef="let r">₹{{ r.totalAmount | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <div *ngIf="!reportData()?.statusBreakdown?.length" class="empty-state-card fp-card">
+      <mat-icon class="empty-state-icon">shopping_bag</mat-icon>
+      <p>{{ 'NO_DATA_AVAILABLE' | translate }}</p>
+    </div>
+  </div>
+</div>

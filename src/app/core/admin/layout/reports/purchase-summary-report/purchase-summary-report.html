@@ -1,0 +1,94 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ 'PURCHASE_SUMMARY_REPORT' | translate }}</h2>
+  </div>
+
+  <!-- Filter Card -->
+  <form [formGroup]="filterForm" (ngSubmit)="fetchReport()" class="fp-card report-filter-card">
+    <div class="filter-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'FROM_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="fromDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'TO_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="toDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'SUPPLIER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="supplier" placeholder="Search by supplier name" />
+        </mat-form-field>
+      </div>
+
+      <div class="filter-action">
+        <button type="submit" mat-flat-button class="fp-btn-primary search-btn">
+          <mat-icon>search</mat-icon> {{ 'SHOW_DATA' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Summary KPI Cards -->
+  <div class="kpi-grid" *ngIf="reportData()">
+    <div class="kpi-card fp-card">
+      <span class="kpi-label">{{ 'TOTAL_GRN' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.totalGrnCount || 0 }}</span>
+    </div>
+    <div class="kpi-card fp-card highlight">
+      <span class="kpi-label">{{ 'TOTAL_PURCHASE_VALUE' | translate }}</span>
+      <span class="kpi-value">₹{{ (reportData()?.totalPurchaseValue || 0) | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="report-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="reportData()?.rows || []" class="fp-card admin-table">
+      <ng-container matColumnDef="grnDate">
+        <th mat-header-cell *matHeaderCellDef>{{ 'GRN_DATE' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.grnDate }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="grnNo">
+        <th mat-header-cell *matHeaderCellDef>{{ 'GRN_NO' | translate }}</th>
+        <td mat-cell *matCellDef="let r"><strong>{{ r.grnNo }}</strong></td>
+      </ng-container>
+
+      <ng-container matColumnDef="supplierName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'SUPPLIER_NAME' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.supplierName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="invoiceNo">
+        <th mat-header-cell *matHeaderCellDef>{{ 'INVOICE_NO' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.invoiceNo || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalAmount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'AMOUNT' | translate }}</th>
+        <td mat-cell *matCellDef="let r"><strong>₹{{ r.totalAmount | number:'1.2-2' }}</strong></td>
+      </ng-container>
+
+      <ng-container matColumnDef="grnStatus">
+        <th mat-header-cell *matHeaderCellDef>{{ 'STATUS' | translate }}</th>
+        <td mat-cell *matCellDef="let r">
+          <span class="status-badge" [class.completed]="r.grnStatus === 'COMPLETED'">{{ r.grnStatus }}</span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <div *ngIf="!reportData()?.rows?.length" class="empty-state-card fp-card">
+      <mat-icon class="empty-state-icon">receipt_long</mat-icon>
+      <p>{{ 'NO_DATA_AVAILABLE' | translate }}</p>
+    </div>
+  </div>
+</div>

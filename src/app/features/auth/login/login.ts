@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/services/toast.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
@@ -37,7 +37,7 @@ export class LoginComponent {
   private products = inject(ProductService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
+  private toastService = inject(ToastService);
 
 constructor(
   private cdr: ChangeDetectorRef
@@ -114,7 +114,7 @@ constructor(
       .subscribe({
         next: () => {
           this.otpSent = true;
-          this.snackBar.open('OTP sent to your mobile', 'OK', { duration: 3000 });
+          this.toastService.info('OTP sent to your mobile');
         },
         error: () => (this.errorMessage = 'OTP_SEND_ERROR'),
       });
@@ -143,7 +143,7 @@ constructor(
   private onLoginSuccess(): void {
   const user = this.auth.currentUser();
   if (user?.roleName === 'ADMIN' || user?.roleCd === 2) {
-    this.router.navigateByUrl('/admin');
+    this.router.navigateByUrl('/admin/master');
     return;
   }
 

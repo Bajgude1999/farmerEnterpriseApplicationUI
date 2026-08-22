@@ -1,0 +1,46 @@
+<section class="fp-container fp-wishlist">
+  <div class="fp-wishlist__header">
+    <h1 class="fp-display">{{ 'WISHLIST_TITLE' | translate }}</h1>
+    <span class="fp-wishlist__count" *ngIf="items().length > 0">
+      ({{ items().length }} {{ items().length === 1 ? 'item' : 'items' }})
+    </span>
+  </div>
+
+  <!-- Loading State -->
+  <div class="fp-wishlist__loading" *ngIf="loading()">
+    <p>{{ 'LOADING' | translate }}...</p>
+  </div>
+
+  <!-- Non-empty wishlist grid: renders every product card -->
+  <div class="fp-wishlist__grid" *ngIf="!loading() && items().length > 0">
+    <div class="fp-wishlist__item-container" *ngFor="let item of items()">
+      <button
+        type="button"
+        class="fp-wishlist__delete-btn"
+        (click)="removeItem(item, $event)"
+        [attr.aria-label]="'REMOVE' | translate"
+        title="Remove from wishlist"
+      >
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+      <fp-product-card [product]="item" (wishlistToggled)="removeItem(item)"></fp-product-card>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="fp-wishlist__empty fp-card" *ngIf="!loading() && items().length === 0">
+    <div class="fp-wishlist__empty-icon-wrap">
+      <mat-icon class="fp-wishlist__empty-icon">favorite_border</mat-icon>
+    </div>
+    <h2>{{ 'WISHLIST_EMPTY_TITLE' | translate }}</h2>
+    <p>{{ 'WISHLIST_EMPTY_MESSAGE' | translate }}</p>
+    <button
+      mat-flat-button
+      type="button"
+      class="fp-btn-primary fp-wishlist__continue-btn"
+      (click)="continueShopping()"
+    >
+      {{ 'CONTINUE_SHOPPING' | translate }}
+    </button>
+  </div>
+</section>

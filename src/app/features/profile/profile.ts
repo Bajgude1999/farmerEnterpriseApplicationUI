@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../core/services/toast.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 
@@ -31,7 +31,7 @@ export class Profile {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private toastService = inject(ToastService);
 
   user = this.auth.currentUser;
   savingProfile = signal(false);
@@ -57,7 +57,7 @@ export class Profile {
     this.savingProfile.set(true);
     setTimeout(() => {
       this.savingProfile.set(false);
-      this.snackBar.open('Profile updated', 'OK', { duration: 2500 });
+      this.toastService.success('Profile updated');
     }, 400);
   }
 
@@ -70,7 +70,7 @@ export class Profile {
     setTimeout(() => {
       this.savingPassword.set(false);
       this.passwordForm.reset();
-      this.snackBar.open('Password changed', 'OK', { duration: 2500 });
+      this.toastService.success('Password changed');
     }, 400);
   }
 

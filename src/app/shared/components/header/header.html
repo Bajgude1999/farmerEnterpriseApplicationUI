@@ -1,6 +1,6 @@
 <header class="fp-header">
   <div class="fp-header__row fp-container">
-    <a class="fp-header__logo" routerLink="/">
+    <a class="fp-header__logo" [routerLink]="auth.isAdmin() ? '/admin/master' : '/'">
 <span class="fp-header__logo-mark">
   <img src="assets/images/logo.png" alt="VELNEXA" />
 </span>
@@ -43,7 +43,7 @@
     </div>
 
     <nav class="fp-header__actions">
-              <app-notification-bell></app-notification-bell>
+      <app-notification-bell *ngIf="auth.isLoggedIn()"></app-notification-bell>
 
       <button mat-icon-button [matMenuTriggerFor]="langMenu" aria-label="Change language">
         <mat-icon>translate</mat-icon>
@@ -54,15 +54,19 @@
         </button>
       </mat-menu>
 
+      <a routerLink="/wishlist" class="fp-header__wishlist" aria-label="Wishlist" title="Wishlist">
+        <mat-icon>favorite_border</mat-icon>
+      </a>
+
       <a routerLink="/cart" class="fp-header__cart" aria-label="Cart">
         <mat-icon [matBadge]="cart.itemCount() || null" matBadgeColor="accent">shopping_cart</mat-icon>
-        <!-- <span>{{ 'CART' | translate }}</span> -->
       </a>
       <ng-container *ngIf="auth.isLoggedIn(); else guestActions">
         <button mat-icon-button [matMenuTriggerFor]="profileMenu" aria-label="Profile menu">
           <mat-icon>account_circle</mat-icon>
         </button>
         <mat-menu #profileMenu="matMenu">
+          <a mat-menu-item *ngIf="auth.isAdmin()" routerLink="/admin/master">{{ 'ADMIN_PANEL' | translate }}</a>
           <a mat-menu-item routerLink="/profile">{{ 'PROFILE' | translate }}</a>
           <a mat-menu-item routerLink="/my-orders">{{ 'MY_ORDERS' | translate }}</a>
           <a mat-menu-item routerLink="/change-password">{{ 'CHANGE_PASSWORD' | translate }}</a>
@@ -76,7 +80,7 @@
   </div>
 
   <div class="fp-header__nav fp-container">
-  <a routerLink="/">
+  <a [routerLink]="auth.isAdmin() ? '/admin/master' : '/'">
     {{ 'NAV_HOME' | translate }}
   </a>
 

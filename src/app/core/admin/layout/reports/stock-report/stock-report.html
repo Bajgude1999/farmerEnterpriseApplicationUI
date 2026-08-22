@@ -3,137 +3,200 @@
     <h2>{{ 'STOCK_REPORT' | translate }}</h2>
   </div>
 
-  <form [formGroup]="stockForm" (ngSubmit)="getAvailableStock()" class="fp-card stock-report-form">
+ <form
+  [formGroup]="stockForm"
+  (ngSubmit)="getAvailableStock()"
+  class="fp-card stock-report-form">
 
-   
+  <!-- Product / Category / Brand -->
+  <div class="form-row">
 
-    <div class="form-row">
-      <div class="field-group">
-        <label class="field-label">{{ 'PRODUCT' | translate }}</label>
-        <mat-form-field appearance="outline">
-          <mat-select formControlName="productCd" (selectionChange)="onProductChange($event.value)">
-            <mat-option *ngFor="let product of products()" [value]="product.productCd">
-              {{ product.productName }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+    <div class="field-group">
+      <label class="field-label">
+        {{ 'PRODUCT' | translate }}
+      </label>
 
-      <div class="field-group">
-        <label class="field-label">{{ 'CATEGORY' | translate }}</label>
-        <mat-form-field appearance="outline">
-          <mat-select formControlName="categoryCd" (selectionChange)="onCategoryChange($event.value)">
-            <mat-option *ngFor="let category of categories()" [value]="category.categoryCd">
-              {{ category.categoryName }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-select
+          formControlName="productCd"
+          (selectionChange)="onProductChange($event.value)">
 
-      <div class="field-group">
-        <label class="field-label">{{ 'BRAND' | translate }}</label>
-        <mat-form-field appearance="outline">
-          <mat-select formControlName="brandCd" (selectionChange)="onBrandChange($event.value)">
-            <mat-option *ngFor="let brand of brands()" [value]="brand.brandCd">
-              {{ brand.brandName }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+          <mat-option *ngFor="let product of products()"
+                      [value]="product.productCd">
+            {{ product.productName }}
+          </mat-option>
+
+        </mat-select>
+      </mat-form-field>
     </div>
-     <div class="field-group">
-      <div class="field-group">
-        <label class="field-label">
-        WareHouse
-        </label>
 
-        <mat-form-field appearance="outline">
-          <mat-select formControlName="whCd">
-            <mat-option [value]="null">
-              Select Warehouse
-            </mat-option>
+    <div class="field-group">
+      <label class="field-label">
+        {{ 'CATEGORY' | translate }}
+      </label>
 
-            <mat-option
-              *ngFor="let warehouse of warehouses()"
-              [value]="warehouse.whCd">
-              {{ warehouse.whName }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-     <div class="stock-report-form__top-row">
-      <mat-radio-group formControlName="itemWise" (change)="onModeChange($event.value)">
-        <mat-radio-button [value]="1">{{ 'ITEM_WISE' | translate }}</mat-radio-button>
-        <mat-radio-button [value]="0">{{ 'BATCH_WISE' | translate }}</mat-radio-button>
+      <mat-form-field appearance="outline">
+        <mat-select
+          formControlName="categoryCd"
+          (selectionChange)="onCategoryChange($event.value)">
+
+          <mat-option *ngFor="let category of categories()"
+                      [value]="category.categoryCd">
+            {{ category.categoryName }}
+          </mat-option>
+
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">
+        {{ 'BRAND' | translate }}
+      </label>
+
+      <mat-form-field appearance="outline">
+        <mat-select
+          formControlName="brandCd"
+          (selectionChange)="onBrandChange($event.value)">
+
+          <mat-option *ngFor="let brand of brands()"
+                      [value]="brand.brandCd">
+            {{ brand.brandName }}
+          </mat-option>
+
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+  </div>
+
+  <!-- Warehouse + Item/Batch + Show Data -->
+  <div class="stock-filter-row">
+
+    <!-- Warehouse -->
+    <div class="field-group warehouse-field">
+      <label class="field-label">
+        Warehouse
+      </label>
+
+      <mat-form-field appearance="outline">
+        <mat-select formControlName="whCd">
+
+          <mat-option [value]="null">
+            Select Warehouse
+          </mat-option>
+
+          <mat-option
+            *ngFor="let warehouse of warehouses()"
+            [value]="warehouse.whCd">
+
+            {{ warehouse.whName }}
+
+          </mat-option>
+
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Item / Batch -->
+    <div class="stock-mode">
+      <mat-radio-group
+        formControlName="itemWise"
+        (change)="onModeChange($event.value)">
+
+        <mat-radio-button [value]="1">
+          {{ 'ITEM_WISE' | translate }}
+        </mat-radio-button>
+
+        <mat-radio-button [value]="0">
+          {{ 'BATCH_WISE' | translate }}
+        </mat-radio-button>
+
       </mat-radio-group>
+    </div>
 
-      <button type="submit" mat-flat-button color="primary">
-        <mat-icon>search</mat-icon>
+    <!-- Show Data -->
+    <div class="stock-action">
+      <button
+        type="submit"
+        mat-flat-button
+        class="show-data-btn">
+
+        <!-- <mat-icon>search</mat-icon> -->
+
         {{ 'SHOW_DATA' | translate }}
+
       </button>
     </div>
-    </div>
-  </form>
 
-  <table mat-table [dataSource]="rows()" class="fp-card admin-table" *ngIf="!loading()">
+  </div>
 
-    <!-- shared columns -->
-    <ng-container matColumnDef="productName">
-      <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCT_NAME' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.productName }}</td>
-    </ng-container>
-    <ng-container matColumnDef="brandName">
-      <th mat-header-cell *matHeaderCellDef>{{ 'BRAND' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.brandName }}</td>
-    </ng-container>
-    <ng-container matColumnDef="categoryName">
-      <th mat-header-cell *matHeaderCellDef>{{ 'CATEGORY' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.categoryName }}</td>
-    </ng-container>
-     <ng-container matColumnDef="categoryName">
-      <th mat-header-cell *matHeaderCellDef>WareHouse</th>
-      <td mat-cell *matCellDef="let r">{{ r.whNamw }}</td>
-    </ng-container>
-    <ng-container matColumnDef="availableQty">
-      <th mat-header-cell *matHeaderCellDef>{{ 'AVAILABLE_QTY' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.availableQty }}</td>
-    </ng-container>
-    <ng-container matColumnDef="reserveQty">
-      <th mat-header-cell *matHeaderCellDef>{{ 'RESERVE_QTY' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.reserveQty }}</td>
-    </ng-container>
-    <ng-container matColumnDef="totalQty">
-      <th mat-header-cell *matHeaderCellDef>{{ 'TOTAL_QTY' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.totalQty }}</td>
-    </ng-container>
+</form>
+  <div class="stock-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="rows()" class="fp-card admin-table">
 
-    <!-- batch-wise-only columns -->
-    <ng-container matColumnDef="packSize">
-      <th mat-header-cell *matHeaderCellDef>Pack Size</th>
-      <td mat-cell *matCellDef="let r">{{ r.packSize }}</td>
-    </ng-container>
-    <ng-container matColumnDef="unitName">
-      <th mat-header-cell *matHeaderCellDef>{{ 'UNIT' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.unitName }}</td>
-    </ng-container>
-    <ng-container matColumnDef="mfgDate">
-      <th mat-header-cell *matHeaderCellDef>MFG Date</th>
-      <td mat-cell *matCellDef="let r">{{ r.mfgDate | date: 'mediumDate' }}</td>
-    </ng-container>
-    <ng-container matColumnDef="expiryDate">
-      <th mat-header-cell *matHeaderCellDef>Expiry Date</th>
-      <td mat-cell *matCellDef="let r">{{ r.expiryDate | date: 'mediumDate' }}</td>
-    </ng-container>
-    <ng-container matColumnDef="batchQty">
-      <th mat-header-cell *matHeaderCellDef>{{ 'BATCH_QTY' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.batchQty }}</td>
-    </ng-container>
-    <ng-container matColumnDef="batchRate">
-      <th mat-header-cell *matHeaderCellDef>{{ 'RATE' | translate }}</th>
-      <td mat-cell *matCellDef="let r">{{ r.batchRate }}</td>
-    </ng-container>
+      <!-- shared columns -->
+      <ng-container matColumnDef="productName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCT_NAME' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.productName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="brandName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'BRAND' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.brandName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="categoryName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'CATEGORY' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.categoryName }}</td>
+      </ng-container>
+       <ng-container matColumnDef="whName">
+        <th mat-header-cell *matHeaderCellDef>WareHouse</th>
+        <td mat-cell *matCellDef="let r">{{ r.whName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="availableQty">
+        <th mat-header-cell *matHeaderCellDef>{{ 'AVAILABLE_QTY' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.availableQty }}</td>
+      </ng-container>
+      <ng-container matColumnDef="reserveQty">
+        <th mat-header-cell *matHeaderCellDef>{{ 'RESERVE_QTY' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.reserveQty }}</td>
+      </ng-container>
+      <ng-container matColumnDef="totalQty">
+        <th mat-header-cell *matHeaderCellDef>{{ 'TOTAL_QTY' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.totalQty }}</td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
+      <!-- batch-wise-only columns -->
+       <ng-container matColumnDef="batchNo">
+        <th mat-header-cell *matHeaderCellDef>Batch No.</th>
+        <td mat-cell *matCellDef="let r">{{ r.batchNo }}</td>
+      </ng-container>
+      <ng-container matColumnDef="packSize">
+        <th mat-header-cell *matHeaderCellDef>Pack Size</th>
+        <td mat-cell *matCellDef="let r">{{ r.packSize }}</td>
+      </ng-container>
+      <ng-container matColumnDef="unitName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'UNIT' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.unitName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="mfgDate">
+        <th mat-header-cell *matHeaderCellDef>MFG Date</th>
+        <td mat-cell *matCellDef="let r">{{ r.mfgDate | date: 'mediumDate' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="expiryDate">
+        <th mat-header-cell *matHeaderCellDef>Expiry Date</th>
+        <td mat-cell *matCellDef="let r">{{ r.expiryDate | date: 'mediumDate' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="batchQty">
+        <th mat-header-cell *matHeaderCellDef>{{ 'BATCH_QTY' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.batchQty }}</td>
+      </ng-container>
+      <ng-container matColumnDef="batchRate">
+        <th mat-header-cell *matHeaderCellDef>{{ 'RATE' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.batchRate }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
 </div>

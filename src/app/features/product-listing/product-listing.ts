@@ -17,8 +17,13 @@ const CATEGORIES = [
   'SEEDS',
   'FERTILIZERS',
   'PESTICIDES',
-  'IRRIGATION'
+  'IRRIGATION',
+  'HERBICIDE',
+  'INSECTICIDE',
+  'FUNGICIDE',
+  'GROWTH_PROMOTER',
 ];
+
 const BRANDS = [
   'UPL_LIMITED',
   'PI_INDUSTRIES',
@@ -38,8 +43,9 @@ const BRANDS = [
   'NACL_INDUSTRIES',
   'EXCEL_CROP_CARE',
   'BIOSTADT_INDIA',
-  'SHARDA_CROPCHEM'
+  'SHARDA_CROPCHEM',
 ];
+
 @Component({
   selector: 'fp-product-listing',
   standalone: true,
@@ -65,7 +71,14 @@ export class ProductListing implements OnInit {
   categories = CATEGORIES;
   brands = BRANDS;
 
-  filter: ProductFilter = { category: [], brand: [], inStockOnly: false, minPrice: 0, maxPrice: 50000, minRating: 0 };
+  filter: ProductFilter = {
+    category: [],
+    brand: [],
+    inStockOnly: false,
+    minPrice: 0,
+    maxPrice: 50000,
+    minRating: 0,
+  };
   sort: ProductSortOption = 'POPULARITY';
 
   products = signal<Product[]>([]);
@@ -74,72 +87,99 @@ export class ProductListing implements OnInit {
   pageSize = signal(12);
   loading = signal(true);
 
-ngOnInit(): void {
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      const categoryId = params.get('categoryCd');
+      const category = params.get('category');
+      const brandCd = params.get('brandCd');
+      const keyword = params.get('search') || params.get('q') || params.get('keyword');
 
-  this.route.queryParamMap.subscribe(params => {
+      this.page.set(0);
 
-    const categoryId = params.get('categoryCd');
-    const category = params.get('category');
-    const brandCd = params.get('brandCd');
-
-    if (categoryId) {
-
-      this.loading.set(true);
-
-      this.productService.getProductsByCategory(+categoryId).subscribe({
-        next: (result) => {
-          this.products.set(result.items);
-          this.total.set(result.total);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false)
-      });
-
-    } else if(brandCd){
-      
-      this.loading.set(true);
-
-      this.productService.getProductsByBrand(+brandCd).subscribe({
-        next: (result) => {
-          this.products.set(result.items);
-          this.total.set(result.total);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false)
-      });
-    }
-     else if(category == 'all'){
-
-      this.loading.set(true);
-
-      this.productService.getAllCategory().subscribe({
-        next: (result) => {
-          this.products.set(result.items);
-          this.total.set(result.total);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false)
-      });
-
-    }
-    else {
-      this.fetch();
-    }
-
-  });
-
-}
+      if (keyword) {
+        this.loading.set(true);
+        this.productService.searchProducts(keyword).subscribe({
+          next: (items) => {
+            this.products.set(items);
+            this.total.set(items.length);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.products.set([]);
+            this.total.set(0);
+            this.loading.set(false);
+          },
+        });
+      } else if (categoryId) {
+        this.loading.set(true);
+        this.productService.getProductsByCategory(+categoryId).subscribe({
+          next: (result) => {
+            this.products.set(result.items);
+            this.total.set(result.total);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.products.set([]);
+            this.total.set(0);
+            this.loading.set(false);
+          },
+        });
+      } else if (brandCd) {
+        this.loading.set(true);
+        this.productService.getProductsByBrand(+brandCd).subscribe({
+          next: (result) => {
+            this.products.set(result.items);
+            this.total.set(result.total);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.products.set([]);
+            this.total.set(0);
+            this.loading.set(false);
+          },
+        });
+      } else if (category && category !== 'all') {
+        this.filter = {
+          category: [category],
+          brand: [],
+          inStockOnly: false,
+          minPrice: 0,
+          maxPrice: 50000,
+          minRating: 0,
+        };
+        this.fetch();
+      } else {
+        // Clean navigation without query params (e.g. from Wishlist -> Continue Shopping)
+        this.filter = {
+          category: [],
+          brand: [],
+          inStockOnly: false,
+          minPrice: 0,
+          maxPrice: 50000,
+          minRating: 0,
+        };
+        this.sort = 'POPULARITY';
+        this.fetch();
+      }
+    });
+  }
 
   fetch(): void {
     this.loading.set(true);
-    this.productService.list(this.filter, this.sort, this.page() + 1, this.pageSize()).subscribe({
-      next: (result) => {
-        this.products.set(result.items);
-        this.total.set(result.total);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.productService
+      .list(this.filter, this.sort, this.page() + 1, this.pageSize())
+      .subscribe({
+        next: (result) => {
+          this.products.set(result.items);
+          this.total.set(result.total);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.products.set([]);
+          this.total.set(0);
+          this.loading.set(false);
+        },
+      });
   }
 
   onSortChange(): void {

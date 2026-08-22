@@ -1,0 +1,50 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ (isEdit() ? 'EDIT_CATEGORY' : 'ADD_CATEGORY') | translate }}</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card category-master-form">
+    <input type="hidden" formControlName="categoryCd" />
+
+    <div class="form-row">
+      <div class="field-group flex-2">
+        <label class="field-label">{{ 'CATEGORY_NAME' | translate }} *</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="categoryName" placeholder="Enter Category Name" />
+          <mat-error *ngIf="form.get('categoryName')?.hasError('required')">
+            {{ 'FIELD_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group flex-1">
+        <label class="field-label">{{ 'DISPLAY_ORDER' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="number" formControlName="displayOrder" placeholder="e.g. 1, 2, 3" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">{{ 'CATEGORY_DESC' | translate }}</label>
+      <mat-form-field appearance="outline">
+        <textarea matInput formControlName="categoryDesc" rows="3" placeholder="Enter Description"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="category-master-form__checkboxes">
+      <mat-checkbox formControlName="active">{{ 'ACTIVE' | translate }}</mat-checkbox>
+    </div>
+
+    <div class="category-master-form__actions">
+      <button type="button" mat-stroked-button (click)="cancel()">{{ 'CANCEL' | translate }}</button>
+      <button
+        type="submit"
+        mat-flat-button
+        class="fp-btn-primary"
+        [disabled]="form.invalid || saving()">
+        {{ (isEdit() ? 'UPDATE_CATEGORY' : 'SAVE_CATEGORY') | translate }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -217,9 +217,9 @@ export class SalesOrderComponent implements OnInit {
       batchDetails: [item?.batchDetails ?? []],
     });
   }
-  onSelectCustomer(userId: number): void {
-    console.log('Selected Customer ID:', userId);
-    const user = this.users.find((u) => u.userId === userId);
+  onSelectCustomer(userCd: number): void {
+    console.log('Selected Customer ID:', userCd);
+    const user = this.users.find((u) => u.userCd === userCd);
     const address = user?.address;
     this.form.patchValue({
       mobileNo: user?.mobNo,
@@ -696,7 +696,7 @@ export class SalesOrderComponent implements OnInit {
     // CUSTOMER
     // ============================================================
 
-    const customer = this.users.find((u: any) => u.userId === formValue.userCd);
+    const customer = this.users.find((u: any) => u.userCd === formValue.userCd);
 
     // ============================================================
     // WAREHOUSE

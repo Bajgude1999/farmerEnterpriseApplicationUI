@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -13,21 +12,32 @@ export class UserMasterService {
   getAll(): Observable<UserMaster[]> {
     return this.http.get<{ data: UserMaster[] }>(`${this.base}/get-all`).pipe(map((res) => res.data ?? []));
   }
-getAllActiveUserByRoleCode(roleCd: number): Observable<UserMaster[]> {
 
-  return this.http
-    .get<{ data: UserMaster[] }>(
-      `${this.base}/get-by-role/${roleCd}`
-    )
-    .pipe(
-      map((res) => res.data ?? [])
-    );
-}
-  getById(userId: number): Observable<UserMaster> {
-    return this.http.get<{ data: UserMaster }>(`${this.base}/${userId}`).pipe(map((res) => res.data));
+  getAllActiveUserByRoleCode(roleCd: number): Observable<UserMaster[]> {
+    return this.http
+      .get<{ data: UserMaster[] }>(
+        `${this.base}/get-by-role/${roleCd}`
+      )
+      .pipe(
+        map((res) => res.data ?? [])
+      );
+  }
+
+  getById(userCd: number): Observable<UserMaster> {
+    return this.http
+      .get<{ data: UserMaster[] | UserMaster }>(`${this.base}/get/${userCd}`)
+      .pipe(map((res) => (Array.isArray(res.data) ? res.data[0] : (res.data ?? (res as any)))));
+  }
+
+  delete(userCd: number): Observable<unknown> {
+    return this.http.post(`${this.base}/delete/${userCd}`, {});
   }
 
   save(payload: UserMaster): Observable<unknown> {
     return this.http.post(`${this.base}/save`, payload);
+  }
+
+  update(payload: UserMaster): Observable<unknown> {
+    return this.http.put(`${this.base}/update`, payload);
   }
 }

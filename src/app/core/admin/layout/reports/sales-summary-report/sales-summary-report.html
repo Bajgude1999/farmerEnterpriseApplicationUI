@@ -1,0 +1,99 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ 'SALES_SUMMARY_REPORT' | translate }}</h2>
+  </div>
+
+  <!-- Filter Card -->
+  <form [formGroup]="filterForm" (ngSubmit)="fetchReport()" class="fp-card report-filter-card">
+    <div class="filter-row">
+      <div class="field-group">
+        <label class="field-label">{{ 'GROUP_BY' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="groupBy" (selectionChange)="fetchReport()">
+            <mat-option value="DAY">{{ 'DAY' | translate }}</mat-option>
+            <mat-option value="MONTH">{{ 'MONTH' | translate }}</mat-option>
+            <mat-option value="YEAR">{{ 'YEAR' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'FROM_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="fromDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">{{ 'TO_DATE' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput type="date" formControlName="toDate" />
+        </mat-form-field>
+      </div>
+
+      <div class="filter-action">
+        <button type="submit" mat-flat-button class="fp-btn-primary search-btn">
+          <mat-icon>search</mat-icon> {{ 'SHOW_DATA' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Summary KPI Cards -->
+  <div class="kpi-grid" *ngIf="reportData()">
+    <div class="kpi-card fp-card">
+      <span class="kpi-label">{{ 'TOTAL_ORDERS' | translate }}</span>
+      <span class="kpi-value">{{ reportData()?.totalOrders || 0 }}</span>
+    </div>
+    <div class="kpi-card fp-card">
+      <span class="kpi-label">{{ 'GROSS_AMOUNT' | translate }}</span>
+      <span class="kpi-value">₹{{ (reportData()?.totalGrossAmount || 0) | number:'1.2-2' }}</span>
+    </div>
+    <div class="kpi-card fp-card">
+      <span class="kpi-label">{{ 'DISCOUNT' | translate }}</span>
+      <span class="kpi-value discount">₹{{ (reportData()?.totalDiscountAmount || 0) | number:'1.2-2' }}</span>
+    </div>
+    <div class="kpi-card fp-card highlight">
+      <span class="kpi-label">{{ 'NET_SALES' | translate }}</span>
+      <span class="kpi-value">₹{{ (reportData()?.totalNetAmount || 0) | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="report-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="reportData()?.rows || []" class="fp-card admin-table">
+      <ng-container matColumnDef="period">
+        <th mat-header-cell *matHeaderCellDef>{{ 'PERIOD' | translate }}</th>
+        <td mat-cell *matCellDef="let r"><strong>{{ r.period }}</strong></td>
+      </ng-container>
+
+      <ng-container matColumnDef="orderCount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ORDERS_COUNT' | translate }}</th>
+        <td mat-cell *matCellDef="let r">{{ r.orderCount }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalGrossAmount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'GROSS_AMOUNT' | translate }}</th>
+        <td mat-cell *matCellDef="let r">₹{{ r.totalGrossAmount | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalDiscountAmount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'DISCOUNT' | translate }}</th>
+        <td mat-cell *matCellDef="let r">₹{{ r.totalDiscountAmount | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalNetAmount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'NET_SALES' | translate }}</th>
+        <td mat-cell *matCellDef="let r"><strong>₹{{ r.totalNetAmount | number:'1.2-2' }}</strong></td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <div *ngIf="!reportData()?.rows?.length" class="empty-state-card fp-card">
+      <mat-icon class="empty-state-icon">insights</mat-icon>
+      <p>{{ 'NO_DATA_AVAILABLE' | translate }}</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,63 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ 'CATEGORY_MASTER' | translate }}</h2>
+    <button mat-flat-button class="fp-btn-primary add-category-btn" (click)="goToAdd()">
+      <mat-icon>add</mat-icon> {{ 'ADD_CATEGORY' | translate }}
+    </button>
+  </div>
+
+  <div class="category-table-wrapper" *ngIf="!loading()">
+    <table mat-table [dataSource]="categories()" class="fp-card admin-table">
+      <!-- Category Name Column -->
+      <ng-container matColumnDef="categoryName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'CATEGORY_NAME' | translate }}</th>
+        <td mat-cell *matCellDef="let c">
+          <strong>{{ c.categoryName }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Category Description Column -->
+      <ng-container matColumnDef="categoryDesc">
+        <th mat-header-cell *matHeaderCellDef>{{ 'CATEGORY_DESC' | translate }}</th>
+        <td mat-cell *matCellDef="let c">{{ c.categoryDesc || '-' }}</td>
+      </ng-container>
+
+      <!-- Display Order Column -->
+      <ng-container matColumnDef="displayOrder">
+        <th mat-header-cell *matHeaderCellDef>{{ 'DISPLAY_ORDER' | translate }}</th>
+        <td mat-cell *matCellDef="let c">{{ c.displayOrder ?? '-' }}</td>
+      </ng-container>
+
+      <!-- Active Column -->
+      <ng-container matColumnDef="active">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVE' | translate }}</th>
+        <td mat-cell *matCellDef="let c">
+          <mat-icon [class.category-list__yes]="c.active !== false" [class.category-list__no]="c.active === false">
+            {{ c.active !== false ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'ACTIONS' | translate }}</th>
+        <td mat-cell *matCellDef="let c">
+          <button mat-icon-button color="primary" aria-label="Edit" (click)="goToEdit(c)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" aria-label="Delete" (click)="deleteCategory(c)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <div *ngIf="categories().length === 0" class="empty-state-card fp-card">
+      <mat-icon class="empty-state-icon">category</mat-icon>
+      <p>{{ 'NO_DATA_AVAILABLE' | translate }}</p>
+    </div>
+  </div>
+</div>

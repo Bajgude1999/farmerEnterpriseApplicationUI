@@ -1,31 +1,73 @@
-.stock-report-form {
-  padding: 20px 20px 4px;
-  margin-bottom: 16px;
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
 
-  &__mode {
-    margin-bottom: 16px;
+.admin-page {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
-    mat-radio-button {
-      margin-right: 24px;
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
     }
   }
+}
+
+.stock-report-form {
+  padding: 20px 20px 8px;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 
   .form-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     margin-bottom: 4px;
+    width: 100%;
+    box-sizing: border-box;
 
-    @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 600px) { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
   }
 
   .field-group {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 
-    mat-form-field { width: 100%; }
+    mat-form-field {
+      width: 100%;
+    }
   }
 
   .field-label {
@@ -34,26 +76,253 @@
     color: var(--text-primary);
   }
 
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    padding-bottom: 16px;
-
- &__top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-
-  mat-radio-button {
-    margin-right: 24px;
+  .stock-filter-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: center;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  button {
+  .warehouse-field {
+    width: 100%;
+  }
+
+  .stock-mode {
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    white-space: nowrap;
+
+    mat-radio-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    mat-radio-button {
+      margin-right: 0;
+    }
+  }
+
+  .stock-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .show-data-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-left: 30px;
+    background: #fbc02d !important;
+    color: #ffffff !important;
+
+    min-height: 44px;
+    padding: 0 20px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    box-shadow: none;
+
+    transition:
+      background 0.2s ease,
+      transform 0.15s ease;
+
+    &:hover {
+      background: #f9b800 !important;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .stock-filter-row {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .show-data-btn {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 14px 14px 4px;
+
+    .stock-filter-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .stock-mode {
+      justify-content: flex-start;
+      margin: 4px 0 8px;
+    }
+
+    .stock-action {
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .show-data-btn {
+      width: 100%;
+      margin-left: 0;
+      justify-content: center;
+      height: 42px;
+    }
   }
 }
+
+/* Dedicated horizontal scroll wrapper for stock report table */
+.stock-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  margin-top: 8px;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+  }
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  background: var(--surface);
+  box-shadow: none;
+  border: none;
+
+  th.mat-header-cell {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    background: var(--surface);
+  }
+
+  td.mat-cell {
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  tr.mat-row:hover {
+    background-color: var(--surface-alt);
+  }
+
+  tr.mat-row:last-child td.mat-cell {
+    border-bottom: none;
+  }
+}
+
+/* =========================================================
+   Responsive Breakpoints
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+  .admin-page {
+    &__header {
+      margin-bottom: 16px;
+
+      h2 {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .admin-table {
+    min-width: 820px;
+
+    th.mat-header-cell {
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    td.mat-cell {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .admin-page {
+    &__header {
+      h2 {
+        font-size: 17px;
+      }
+    }
+  }
+
+  .admin-table {
+    min-width: 760px;
+
+    th.mat-header-cell {
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+
+    td.mat-cell {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .admin-page {
+    &__header {
+      gap: 10px;
+
+      h2 {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .admin-table {
+    min-width: 700px;
+
+    th.mat-header-cell,
+    td.mat-cell {
+      padding: 6px 8px;
+    }
   }
 }

@@ -1,6 +1,10 @@
 .admin-shell {
   min-height: 100vh;
   background: var(--surface-alt);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 
   &__header {
     background: var(--brand-green-700);
@@ -8,6 +12,7 @@
     padding: 14px 24px;
     font-weight: 600;
     font-family: var(--font-display);
+    box-sizing: border-box;
   }
 
   &__tabs {
@@ -16,6 +21,15 @@
     background: var(--surface);
     border-bottom: 1px solid var(--border-color);
     padding: 0 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    scrollbar-width: none;
+    box-sizing: border-box;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   &__tab {
@@ -24,6 +38,9 @@
     font-weight: 600;
     color: var(--text-muted);
     border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    text-decoration: none;
+    flex-shrink: 0;
 
     &--active {
       color: var(--brand-green-700);
@@ -33,5 +50,65 @@
 
   &__content {
     padding: 24px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .admin-shell {
+    &__header {
+      padding: 12px 16px;
+    }
+
+    &__tabs {
+      padding: 0 16px;
+      gap: 2px;
+    }
+
+    &__tab {
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+
+    &__content {
+      padding: 16px;
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .admin-shell {
+    &__tabs {
+      padding: 0 12px;
+    }
+
+    &__tab {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    &__content {
+      padding: 12px 8px;
+    }
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .admin-shell {
+    &__tabs {
+      padding: 0 8px;
+    }
+
+    &__tab {
+      padding: 10px 8px;
+      font-size: 12px;
+    }
+
+    &__content {
+      padding: 10px 6px;
+    }
   }
 }

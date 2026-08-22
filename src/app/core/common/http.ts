@@ -38,8 +38,8 @@ export class Http {
   
 }
 
-  post(url: string, body: any) {
-    return this.http.post(url, body, {
+  post<T = any>(url: string, body: any): Observable<T> {
+    return this.http.post<T>(url, body, {
       headers: this.getHeaders()
     });
   }
@@ -56,8 +56,8 @@ export class Http {
     headers: this.getHeaders()
   });
 }
-  put(url: string, body: any) {
-  return this.http.put(url, body, {
+  put<T = any>(url: string, body: any): Observable<T> {
+  return this.http.put<T>(url, body, {
     headers: this.getHeaders()
   });
 }
@@ -99,6 +99,11 @@ getWithPayload<T>(url: string, params?: any) {
 }
 postWithPayload<T>(url: string, payload: any) {
   return this.http.post<T>(url, payload, {
+    headers: this.getHeaders()
+  });
+}
+delete<T>(url: string): Observable<T> {
+  return this.http.delete<T>(url, {
     headers: this.getHeaders()
   });
 }

@@ -1,0 +1,46 @@
+.category-master-form {
+  padding: 24px;
+  max-width: 650px;
+  margin: 0 auto;
+
+  &__checkboxes {
+    margin: 16px 0 24px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+
+  .flex-1 {
+    flex: 1;
+  }
+
+  .flex-2 {
+    flex: 2;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+
+  .field-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #333;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}

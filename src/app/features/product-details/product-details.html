@@ -16,10 +16,10 @@
     <h1 class="fp-display">{{ p.name }}</h1>
     <div class="fp-details__pack-size" *ngIf="p.packsizes?.length">
       <div class="fp-details__pack-size-header">
-        <span class="fp-details__pack-size-label"> Pack Size </span>
+        <span class="fp-details__pack-size-label"> {{ 'PACK_SIZE' | translate }} </span>
 
         <span class="fp-details__selected-pack" *ngIf="selectedPackSize() as selected">
-          Selected: {{ selected.packSize }} {{ selected.unitName }}
+          {{ 'SELECTED' | translate }}: {{ selected.packSize }} {{ selected.unitName }}
         </span>
       </div>
 
@@ -39,13 +39,13 @@
 
           <span class="fp-details__pack-size-price"> ₹{{ pack.sellingPrice }} </span>
           <span class="fp-details__pack-size-save" *ngIf="pack.mrpPrice > pack.sellingPrice">
-            You Save ₹{{ pack.mrpPrice - pack.sellingPrice }}
+            {{ 'YOU_SAVE' | translate }} ₹{{ pack.mrpPrice - pack.sellingPrice }}
           </span>
           <span
             class="fp-details__pack-size-stock"
             [class.fp-details__pack-size-stock--out]="!pack.inStock"
           >
-            {{ pack.inStock ? 'In Stock' : 'Out of Stock' }}
+            {{ (pack.inStock ? 'IN_STOCK' : 'OUT_OF_STOCK') | translate }}
           </span>
         </button>
       </div>
@@ -60,17 +60,17 @@
       </span>
 
       <span class="fp-details__discount" *ngIf="getDiscountPercent() > 0">
-        {{ getDiscountPercent() }}% OFF
+        {{ getDiscountPercent() }}% {{ 'OFF' | translate }}
       </span>
 
       <span class="fp-details__unit"> / {{ selectedPackSize()?.unitName || p.unit }} </span>
     </div>
     <div class="fp-details__save" *ngIf="selectedPackSize() && selectedPackSize()!.mrpPrice > selectedPackSize()!.sellingPrice" >
-      You Save ₹{{ selectedPackSize()!.mrpPrice - selectedPackSize()!.sellingPrice }}
+      {{ 'YOU_SAVE' | translate }} ₹{{ selectedPackSize()!.mrpPrice - selectedPackSize()!.sellingPrice }}
     </div>
     <div class="fp-details__stock" [class.fp-details__stock--out]="!isSelectedPackInStock()">
       <span class="fp-details__stock-dot"></span>
-      {{ 'IN_STOCK' | translate }}
+      {{ (isSelectedPackInStock() ? 'IN_STOCK' : 'OUT_OF_STOCK') | translate }}
     </div>
 
     <div class="fp-details__quantity">
@@ -86,7 +86,7 @@
 
     <div class="fp-details__actions">
       <button mat-stroked-button color="primary" (click)="isInCart ? goToCart() : addToCart()" [disabled]="p.stock === 0">
-  {{ isInCart ? ('GO_TO_CART' | translate) : ('ADD_TO_CART' | translate) }}
+        {{ isInCart ? ('GO_TO_CART' | translate) : ('ADD_TO_CART' | translate) }}
       </button>
       <button mat-flat-button class="fp-btn-accent" (click)="buyNow()" [disabled]="p.stock === 0">
         {{ 'BUY_NOW' | translate }}
@@ -102,17 +102,17 @@
   <mat-tab [label]="'SPECIFICATIONS' | translate">
     <table class="fp-details__specs">
       <tr>
-        <td>Usage : </td>
+        <td>{{ 'USAGE' | translate }} : </td>
         <td>{{ p.usage }}</td>
       </tr>
 
       <tr>
-        <td>Dose : </td>
+        <td>{{ 'DOSE' | translate }} : </td>
         <td>{{ p.dose }}</td>
       </tr>
 
       <tr>
-        <td>Precaution : </td>
+        <td>{{ 'PRECAUTION' | translate }} : </td>
         <td>{{ p.precaution }}</td>
       </tr>
     </table>

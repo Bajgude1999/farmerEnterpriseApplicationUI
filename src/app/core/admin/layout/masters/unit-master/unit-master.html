@@ -1,0 +1,43 @@
+<div class="admin-page">
+  <div class="admin-page__header">
+    <h2>{{ (isEdit() ? 'EDIT_UNIT' : 'ADD_UNIT') | translate }}</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="fp-card unit-master-form">
+    <input type="hidden" formControlName="unitCd" />
+
+    <div class="form-row">
+      <div class="field-group flex-1">
+        <label class="field-label">{{ 'UNIT_NAME' | translate }} *</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="unitName" placeholder="e.g. Kilogram, Liter, Bag" />
+          <mat-error *ngIf="form.get('unitName')?.hasError('required')">
+            {{ 'FIELD_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="field-group flex-1">
+        <label class="field-label">{{ 'UNIT_SHORT_NAME' | translate }}</label>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="unitShortName" placeholder="e.g. KG, LTR, BAG" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="unit-master-form__checkboxes">
+      <mat-checkbox formControlName="active">{{ 'ACTIVE' | translate }}</mat-checkbox>
+    </div>
+
+    <div class="unit-master-form__actions">
+      <button type="button" mat-stroked-button (click)="cancel()">{{ 'CANCEL' | translate }}</button>
+      <button
+        type="submit"
+        mat-flat-button
+        class="fp-btn-primary"
+        [disabled]="form.invalid || saving()">
+        {{ (isEdit() ? 'UPDATE_UNIT' : 'SAVE_UNIT') | translate }}
+      </button>
+    </div>
+  </form>
+</div>

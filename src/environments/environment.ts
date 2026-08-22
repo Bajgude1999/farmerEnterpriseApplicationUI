@@ -1,12 +1,12 @@
 
 export const environment = {
   production: false,
- // apiBaseUrl: 'http://10.190.143.90/agrostar',
-   apiBaseUrl: 'https://lie-representations-eleven-manufacturing.trycloudflare.com/agrostar',
- //  websocketUrl: 'http://10.190.143.90/agrostar',
-websocketUrl: 'https://lie-representations-eleven-manufacturing.trycloudflare.com/agrostar',
+  // apiBaseUrl: 'http://10.190.143.90/agrostar',
+  apiBaseUrl: 'http://localhost:8082/agrostar',
+  //  websocketUrl: 'http://10.190.143.90/agrostar',
+  websocketUrl: 'http://localhost:8082/agrostar',
   defaultLanguage: 'en',
-encriptionKey: 'abcd@1234567890xyz123ABCD@123456',
+  encriptionKey: 'abcd@1234567890xyz123ABCD@123456',
   supportedLanguages: [
     'en',
     'hi',

@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./features/home/home').then((m) => m.Home), title: 'VELNEXA — Home' },
+  { path: 'home', redirectTo: '', pathMatch: 'full' },
   { path: 'login', loadComponent: () => import('./features/auth/login/login').then((m) => m.LoginComponent), title: 'Login' },
   { path: 'register', loadComponent: () => import('./features/auth/register/register').then((m) => m.Register), title: 'Register' },
   { path: 'forgot-password', loadComponent: () => import('./features/auth/forget-password/forget-password').then((m) => m.ForgotPasswordComponent), title: 'Forgot Password' },
@@ -10,6 +11,7 @@ export const routes: Routes = [
   { path: 'products/:id', loadComponent: () => import('./features/product-details/product-details').then((m) => m.ProductDetails), title: 'Product Details' },
   { path: 'cart', loadComponent: () => import('./features/cart/cart').then((m) => m.CartComponent), title: 'My Cart' },
   { path: 'checkout', loadComponent: () => import('./features/checkout/checkout').then((m) => m.CheckoutComponent), title: 'Checkout' },
+  { path: 'wishlist', canActivate: [authGuard], loadComponent: () => import('./features/wishlist/wishlist').then((m) => m.WishlistComponent), title: 'My Wishlist' },
   { path: 'my-orders', canActivate: [authGuard], loadComponent: () => import('./features/my-orders/my-orders').then((m) => m.MyOrders), title: 'My Orders' },
   { path: 'profile', canActivate: [authGuard], loadComponent: () => import('./features/profile/profile').then((m) => m.Profile), title: 'My Profile' },
   { path: 'unauthorized', loadComponent: () => import('./pages/unauthorized/unauthorized').then((m) => m.UnauthorizedComponent), title: 'Unauthorized' },

@@ -2,169 +2,292 @@
   <h1 class="fp-display">{{ 'CHECKOUT' | translate }}</h1>
 
   <div class="fp-checkout__layout">
-    <form [formGroup]="addressForm" class="fp-checkout__address fp-card">
-      <h3>{{ 'DELIVERY_ADDRESS' | translate }}</h3>
-
-      <div class="fp-checkout__row fp-checkout__row--three">
-        <div class="fp-checkout__field">
-          <label>{{ 'MOBILE_NUMBER' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              formControlName="mobNo"
-              maxlength="10"
-              [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
-              (input)="onMobileNumber($any($event.target).value)"
-            />
-            <mat-error *ngIf="addressForm.get('mobNo')?.hasError('required')">
-              {{ 'MOBILE_NUMBER_REQUIRED' | translate }}
-            </mat-error>
-
-            <mat-error *ngIf="addressForm.get('mobNo')?.hasError('pattern')">
-              {{ 'INVALID_MOBILE_NUMBER' | translate }}
-            </mat-error>
-          </mat-form-field>
+    <form [formGroup]="addressForm" class="fp-checkout__form-container">
+      <!-- GUEST STEP 1: MOBILE NUMBER ENTRY -->
+      <div class="fp-checkout__guest-card fp-card" *ngIf="!isLoggedIn() && !guestStepCompleted()">
+        <div class="fp-checkout__card-header">
+          <mat-icon>phone_android</mat-icon>
+          <div>
+            <h3>{{ 'GUEST_CHECKOUT' | translate }}</h3>
+            <p class="fp-checkout__card-subtitle">Enter your mobile number to proceed with delivery</p>
+          </div>
         </div>
 
-        <div class="fp-checkout__field">
-          <label>{{ 'OPTIONAL_PHONE' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              formControlName="optionalMobNo"
-              maxlength="10"
-              [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
-            />
-          </mat-form-field>
-        </div>
+        <div class="fp-checkout__guest-input-row">
+          <div class="fp-checkout__field">
+            <label>{{ 'MOBILE_NUMBER' | translate }} *</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                formControlName="mobNo"
+                maxlength="10"
+                inputmode="numeric"
+                [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
+                (keyup.enter)="checkGuestMobile()"
+              />
+              <mat-error *ngIf="addressForm.get('mobNo')?.hasError('required')">
+                {{ 'MOBILE_NUMBER_REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="addressForm.get('mobNo')?.hasError('pattern')">
+                {{ 'INVALID_MOBILE_NUMBER' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-        <div class="fp-checkout__field">
-          <label>{{ 'EMAIL' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input matInput formControlName="email" [placeholder]="'ENTER_EMAIL' | translate" />
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="fp-checkout__row">
-        <div class="fp-checkout__field">
-          <label>{{ 'FULL_NAME' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              formControlName="fullName"
-              [placeholder]="'ENTER_FULL_NAME' | translate"
-            />
-            <mat-error *ngIf="addressForm.get('fullName')?.hasError('required')">
-              {{ 'FULL_NAME_REQUIRED' | translate }}
-            </mat-error>
-
-            <mat-error *ngIf="addressForm.get('fullName')?.hasError('minlength')">
-              {{ 'FULL_NAME_MIN_LENGTH' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-        <div class="fp-checkout__field">
-          <label>{{ 'ADDRESS' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input matInput formControlName="address" [placeholder]="'ENTER_ADDRESS' | translate" />
-          </mat-form-field>
+          <button
+            mat-flat-button
+            type="button"
+            class="fp-btn-primary fp-checkout__continue-btn"
+            (click)="checkGuestMobile()"
+            [disabled]="checkingMobile()"
+          >
+            <mat-icon *ngIf="!checkingMobile()">arrow_forward</mat-icon>
+            <span *ngIf="!checkingMobile()">{{ 'CONTINUE' | translate }}</span>
+            <span *ngIf="checkingMobile()">{{ 'LOADING' | translate }}...</span>
+          </button>
         </div>
       </div>
 
-      <div class="fp-checkout__row fp-checkout__row--three">
-        <div class="fp-checkout__field">
-          <label>{{ 'STATE' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <mat-select formControlName="state" (selectionChange)="onStateChange($event.value)">
-              <mat-option *ngFor="let state of states()" [value]="state.stateName">
-                {{ state.stateName }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="addressForm.get('state')?.hasError('required')">
-              {{ 'STATE_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
+      <!-- MAIN ADDRESS & PAYMENT SECTION (Shown for logged-in users OR after guest enters mobile) -->
+      <div class="fp-checkout__address fp-card" *ngIf="isLoggedIn() || guestStepCompleted()">
+        <!-- Guest Mobile Banner -->
+        <div class="fp-checkout__guest-banner" *ngIf="!isLoggedIn() && guestStepCompleted()">
+          <div class="fp-checkout__guest-info">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <strong>{{ 'MOBILE_NUMBER' | translate }}:</strong> {{ addressForm.get('mobNo')?.value }}
+              <span class="fp-checkout__guest-badge" *ngIf="isExistingGuest()">Existing Customer</span>
+            </div>
+          </div>
+          <button type="button" class="fp-checkout__change-btn" (click)="changeGuestMobile()">
+            {{ 'CHANGE_NUMBER' | translate }}
+          </button>
         </div>
 
-        <div class="fp-checkout__field">
-          <label>{{ 'DISTRICT' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <mat-select
-              formControlName="district"
-              (selectionChange)="onDistrictChange($event.value)"
-            >
-              <mat-option *ngFor="let district of districts()" [value]="district.districtName">
-                {{ district.districtName }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="addressForm.get('district')?.hasError('required')">
-              {{ 'DISTRICT_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-        <div class="fp-checkout__field">
-          <label>{{ 'TALUKA' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <mat-select formControlName="taluka">
-              <mat-option *ngFor="let taluka of talukas()" [value]="taluka.talukaName">
-                {{ taluka.talukaName }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="addressForm.get('taluka')?.hasError('required')">
-              {{ 'TALUKA_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="fp-checkout__row fp-checkout__row--three">
-        <div class="fp-checkout__field">
-          <label>{{ 'VILLAGE' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input matInput formControlName="village" [placeholder]="'ENTER_VILLAGE' | translate" />
-            <mat-error *ngIf="addressForm.get('village')?.hasError('required')">
-              {{ 'VILLAGE_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-        <div class="fp-checkout__field">
-          <label>{{ 'LANDMARK' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              formControlName="landmark"
-              [placeholder]="'ENTER_LANDMARK' | translate"
-            />
-          </mat-form-field>
-        </div>
-        <div class="fp-checkout__field">
-          <label>{{ 'PIN' | translate }}</label>
-          <mat-form-field appearance="outline">
-            <input
-              matInput
-              formControlName="pin"
-              maxlength="6"
-              inputmode="numeric"
-              [placeholder]="'ENTER_PIN' | translate"
-            />
-            <mat-error *ngIf="addressForm.get('pin')?.hasError('required')">
-              {{ 'PIN_REQUIRED' | translate }}
-            </mat-error>
+        <h3>{{ 'DELIVERY_ADDRESS' | translate }}</h3>
 
-            <mat-error *ngIf="addressForm.get('pin')?.hasError('pattern')">
-              {{ 'INVALID_PIN' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
+        <!-- Logged-in Customer Fields (Full Name, Phone, Email) -->
+        <div class="fp-checkout__row fp-checkout__row--three" *ngIf="isLoggedIn()">
+          <div class="fp-checkout__field">
+            <label>{{ 'MOBILE_NUMBER' | translate }}</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                formControlName="mobNo"
+                maxlength="10"
+                [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
+              />
+              <mat-error *ngIf="addressForm.get('mobNo')?.hasError('required')">
+                {{ 'MOBILE_NUMBER_REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="addressForm.get('mobNo')?.hasError('pattern')">
+                {{ 'INVALID_MOBILE_NUMBER' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-      <div class="fp-checkout__payment">
-        <h4>{{ 'PAYMENT_MODE' | translate }}</h4>
-        <mat-radio-group value="COD">
-          <mat-radio-button value="COD">{{ 'CASH_ON_DELIVERY' | translate }}</mat-radio-button>
-        </mat-radio-group>
+          <div class="fp-checkout__field">
+            <label>{{ 'OPTIONAL_PHONE' | translate }}</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                formControlName="optionalMobNo"
+                maxlength="10"
+                [placeholder]="'ENTER_MOBILE_NUMBER' | translate"
+              />
+            </mat-form-field>
+          </div>
+
+          <div class="fp-checkout__field">
+            <label>{{ 'EMAIL' | translate }}</label>
+            <mat-form-field appearance="outline">
+              <input matInput formControlName="email" [placeholder]="'ENTER_EMAIL' | translate" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="fp-checkout__row" *ngIf="isLoggedIn()">
+          <div class="fp-checkout__field">
+            <label>{{ 'FULL_NAME' | translate }}</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                formControlName="fullName"
+                [placeholder]="'ENTER_FULL_NAME' | translate"
+              />
+              <mat-error *ngIf="addressForm.get('fullName')?.hasError('required')">
+                {{ 'FULL_NAME_REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="addressForm.get('fullName')?.hasError('minlength')">
+                {{ 'FULL_NAME_MIN_LENGTH' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="fp-checkout__field">
+            <label>{{ 'ADDRESS' | translate }}</label>
+            <mat-form-field appearance="outline">
+              <input matInput formControlName="address" [placeholder]="'ENTER_ADDRESS' | translate" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- NEW GUEST CUSTOMER FIELDS (Required for new customers; hidden for existing guests) -->
+        <div class="fp-checkout__row fp-checkout__row--two" *ngIf="!isLoggedIn() && guestStepCompleted() && !isExistingGuest()">
+          <div class="fp-checkout__field">
+            <label>{{ 'FULL_NAME' | translate }} *</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                formControlName="fullName"
+                [placeholder]="'ENTER_FULL_NAME' | translate"
+              />
+              <mat-error *ngIf="addressForm.get('fullName')?.hasError('required')">
+                {{ 'FULL_NAME_REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="addressForm.get('fullName')?.hasError('minlength')">
+                {{ 'FULL_NAME_MIN_LENGTH' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="fp-checkout__field">
+            <label>{{ 'EMAIL' | translate }} (Optional)</label>
+            <mat-form-field appearance="outline">
+              <input matInput formControlName="email" [placeholder]="'ENTER_EMAIL' | translate" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Address Line 1 for Guest Checkout -->
+        <div class="fp-checkout__row" *ngIf="!isLoggedIn() && guestStepCompleted()">
+          <div class="fp-checkout__field">
+            <label>{{ 'ADDRESS' | translate }}</label>
+            <mat-form-field appearance="outline">
+              <input matInput formControlName="address" [placeholder]="'ENTER_ADDRESS' | translate" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- State, District, Taluka -->
+        <div class="fp-checkout__row fp-checkout__row--three">
+          <div class="fp-checkout__field">
+            <label>{{ 'STATE' | translate }} *</label>
+            <mat-form-field appearance="outline">
+              <mat-select formControlName="state" (selectionChange)="onStateChange($event.value)">
+                <mat-option *ngFor="let state of states()" [value]="state.stateName">
+                  {{ state.stateName }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="addressForm.get('state')?.hasError('required')">
+                {{ 'STATE_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="fp-checkout__field">
+            <label>{{ 'DISTRICT' | translate }} *</label>
+            <mat-form-field appearance="outline">
+              <mat-select
+                formControlName="district"
+                (selectionChange)="onDistrictChange($event.value)"
+              >
+                <mat-option *ngFor="let district of districts()" [value]="district.districtName">
+                  {{ district.districtName }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="addressForm.get('district')?.hasError('required')">
+                {{ 'DISTRICT_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="fp-checkout__field">
+            <label>{{ 'TALUKA' | translate }} *</label>
+            <mat-form-field appearance="outline">
+              <mat-select formControlName="taluka">
+                <mat-option *ngFor="let taluka of talukas()" [value]="taluka.talukaName">
+                  {{ taluka.talukaName }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="addressForm.get('taluka')?.hasError('required')">
+                {{ 'TALUKA_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Village, Landmark, Pin -->
+        <div class="fp-checkout__row fp-checkout__row--three">
+          <div class="fp-checkout__field">
+            <label>{{ 'VILLAGE' | translate }} *</label>
+            <mat-form-field appearance="outline">
+              <input matInput formControlName="village" [placeholder]="'ENTER_VILLAGE' | translate" />
+              <mat-error *ngIf="addressForm.get('village')?.hasError('required')">
+                {{ 'VILLAGE_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="fp-checkout__field">
+            <label>{{ 'LANDMARK' | translate }}</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                formControlName="landmark"
+                [placeholder]="'ENTER_LANDMARK' | translate"
+              />
+            </mat-form-field>
+          </div>
+
+          <div class="fp-checkout__field">
+            <label>{{ 'PIN' | translate }} *</label>
+            <mat-form-field appearance="outline">
+              <input
+                matInput
+                formControlName="pin"
+                maxlength="6"
+                inputmode="numeric"
+                [placeholder]="'ENTER_PIN' | translate"
+              />
+              <mat-error *ngIf="addressForm.get('pin')?.hasError('required')">
+                {{ 'PIN_REQUIRED' | translate }}
+              </mat-error>
+              <mat-error *ngIf="addressForm.get('pin')?.hasError('pattern')">
+                {{ 'INVALID_PIN' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- PAYMENT METHOD SELECTION -->
+        <div class="fp-checkout__payment">
+          <h4>{{ 'PAYMENT_MODE' | translate }}</h4>
+          <mat-radio-group [value]="selectedPaymentMode()" (change)="onPaymentModeChange($event.value)" class="fp-checkout__payment-modes">
+            <mat-radio-button value="COD">{{ 'CASH_ON_DELIVERY' | translate }}</mat-radio-button>
+            <mat-radio-button value="ONLINE">{{ 'ONLINE_PAYMENT' | translate }}</mat-radio-button>
+          </mat-radio-group>
+
+          <!-- QR CODE FOR ONLINE PAYMENT -->
+          <div class="fp-checkout__qr-section" *ngIf="selectedPaymentMode() === 'ONLINE'">
+            <div class="fp-checkout__qr-card">
+              <div class="fp-checkout__qr-img-wrapper">
+                <img
+                  src="assets/images/payment_qr.jpeg"
+                  alt="Online Payment QR Code"
+                  class="fp-checkout__qr-img"
+                />
+              </div>
+              <p class="fp-checkout__qr-caption">
+                <mat-icon>qr_code_scanner</mat-icon>
+                <span>{{ 'SCAN_QR_CODE' | translate }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </form>
 
+    <!-- ORDER SUMMARY ASIDE -->
     <aside class="fp-checkout__summary fp-card">
       <h3>{{ 'ORDER_SUMMARY' | translate }}</h3>
       <div class="fp-checkout__summary-item" *ngFor="let item of cart.items()">
@@ -189,9 +312,10 @@
         mat-flat-button
         class="fp-btn-primary fp-checkout__place-btn"
         (click)="placeOrder()"
-        [disabled]="placingOrder()"
+        [disabled]="placingOrder() || (!isLoggedIn() && !guestStepCompleted())"
       >
-        {{ 'PLACE_ORDER' | translate }}
+        <span *ngIf="!placingOrder()">{{ 'PLACE_ORDER' | translate }}</span>
+        <span *ngIf="placingOrder()">{{ 'LOADING' | translate }}...</span>
       </button>
     </aside>
   </div>
@@ -199,12 +323,15 @@
 
 <ng-template #confirmationTpl>
   <section class="fp-container fp-checkout__confirmation">
+    <div class="fp-checkout__success-icon">
+      <mat-icon>check_circle</mat-icon>
+    </div>
     <h1 class="fp-display">{{ 'ORDER_PLACED_TITLE' | translate }}</h1>
     <p>
       {{ 'ORDER_PLACED_MESSAGE' | translate }} — <strong>{{ orderNumber() }}</strong>
     </p>
     <button mat-flat-button class="fp-btn-primary" (click)="goToOrders()">
-      {{ 'VIEW_MY_ORDERS' | translate }}
+      {{ isLoggedIn() ? ('VIEW_MY_ORDERS' | translate) : ('CONTINUE_SHOPPING' | translate) }}
     </button>
   </section>
 </ng-template>

@@ -11,7 +11,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { finalize, Observable } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../../services/toast.service';
+import { extractSuccessMessage } from '../../../../models/api-response.model';
 import { ProductService } from '../../../../services/ product.service';
 import { CategoryService } from '../../../../services/category.service';
 import { BrandService } from '../../../../services/brand.service';
@@ -53,8 +54,8 @@ export class ProductMasterComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private uploadService = inject(UploadService);
+  private toastService = inject(ToastService);
 constructor(
-  private snackBar: MatSnackBar
 ) {}
   categories = signal<Category[]>([]);
   brands = signal<Brand[]>([]);
@@ -116,7 +117,7 @@ constructor(
   }
   taxTableRows: any[] = [];
   private loadProduct(productCd: number): void {
-    this.productService.getByProductCd(productCd).subscribe((product) => {
+    this.productService.getProductMaster(productCd).subscribe((product) => {
       this.form.patchValue(product);
       this.taxRows.clear();
       this.imagePreviewUrl.set(this.uploadService.getFileUrl(product.imagePath));
@@ -271,7 +272,10 @@ constructor(
       .save(payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: () => this.router.navigate(['/admin/master/product']),
+        next: (res: any) => {
+          this.toastService.success(extractSuccessMessage(res, 'Product saved successfully'));
+          this.router.navigate(['/admin/master/product']);
+        },
       });
   }
 
@@ -280,11 +284,12 @@ constructor(
     const initialPayload = this.form.getRawValue() as unknown as ProductMaster;
 
     this.productService.save(initialPayload).subscribe({
-      next: (created) => {
-        const newProductCd = (created as ProductMaster)?.productCd;
+      next: (created: any) => {
+        const newProductCd = (created as ProductMaster)?.productCd ?? created?.data?.[0]?.productCd;
 
         if (!this.selectedImageFile() || !newProductCd) {
           this.saving.set(false);
+          this.toastService.success(extractSuccessMessage(created, 'Product saved successfully'));
           this.router.navigate(['/admin/master/product']);
           return;
         }
@@ -309,13 +314,9 @@ constructor(
     const payload = this.form.getRawValue() as unknown as ProductMaster;
 
     this.productService.save(payload).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.saving.set(false);
-        this.snackBar.open('Product saved successfully', 'Close', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top'
-    });
+        this.toastService.success(extractSuccessMessage(res, 'Product saved successfully'));
         this.router.navigate(['/admin/master/product']);
       },
       error: () => {

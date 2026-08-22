@@ -14,7 +14,7 @@ import { UserMaster } from '../../../../models/user.model';
   standalone: true,
   imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './user-master-list.html',
-  styleUrl: '../../shared/admin-table.scss',
+  styleUrls: ['./user-master-list.scss', '../../shared/admin-table.scss'],
 })
 export class UserMasterList implements OnInit {
   private userService = inject(UserMasterService);
@@ -40,6 +40,6 @@ export class UserMasterList implements OnInit {
   }
 
   goToEdit(user: UserMaster): void {
-    this.router.navigate(['/admin/master/user/edit', user.userId]);
+    this.router.navigate(['/admin/master/user/edit', user.userCd]);
   }
 }

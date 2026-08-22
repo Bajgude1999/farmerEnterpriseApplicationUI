@@ -13,7 +13,7 @@ import { GrnHdr } from '../../shared/grn.model';
   standalone: true,
   imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './grn-list.html',
-  styleUrl: '../../shared/admin-table.scss',
+  styleUrls: ['./grn-list.scss', '../../shared/admin-table.scss'],
 })
 export class GrnList implements OnInit {
   private grnService = inject(GrnService);
