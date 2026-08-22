@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import { AppNotification } from '../models/notification.model';
-
+import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
@@ -34,7 +34,7 @@ export class NotificationWebSocketService {
 
     this.client = new Client({
 
-      brokerURL: 'ws://localhost:8082/agrostar/ws',
+      brokerURL: environment.brokerURL,
 
       reconnectDelay: 5000,
 

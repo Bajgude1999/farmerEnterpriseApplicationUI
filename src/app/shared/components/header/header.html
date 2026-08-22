@@ -1,45 +1,30 @@
 <header class="fp-header">
   <div class="fp-header__row fp-container">
     <a class="fp-header__logo" [routerLink]="auth.isAdmin() ? '/admin/master' : '/'">
-<span class="fp-header__logo-mark">
-  <img src="assets/images/logo.png" alt="VELNEXA" />
-</span>
-      <span class="fp-header__logo-text fp-display">{{ 'BRAND_NAME' | translate }}</span>
+      <span class="fp-header__logo-mark">
+        <img src="assets/images/logo.png" alt="VELNEXA" />
+      </span>
+      <span class="fp-header__logo-text fp-display">{{ 'COMPANY_NAME' | translate }}</span>
     </a>
 
     <div class="fp-header__search">
-      <input
-        type="text"
-        [(ngModel)]="searchQuery"
-        (keyup.enter)="onSearch()"
-        (input)="onSearchChange($event)"
-        [placeholder]="'SEARCH_PLACEHOLDER' | translate"
-        aria-label="Search products" />
+      <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" (input)="onSearchChange($event)"
+        [placeholder]="'SEARCH_PLACEHOLDER' | translate" aria-label="Search products" />
       <button type="button" (click)="onSearch()" aria-label="Search">
         <mat-icon>search</mat-icon>
       </button>
       <!-- SEARCH RESULTS -->
- <div
-  class="search-dropdown"
-  *ngIf="showSearchResults() && searchResults().length > 0"
->
-  <div
-    class="search-item"
-    *ngFor="let product of searchResults()"
-    (click)="openProduct(product)"
-  >
-    <div class="search-product-image">
-      <img
-        [src]="product.images?.[0]?.thumbnail"
-        [alt]="product.name"
-      />
-    </div>
+      <div class="search-dropdown" *ngIf="showSearchResults() && searchResults().length > 0">
+        <div class="search-item" *ngFor="let product of searchResults()" (click)="openProduct(product)">
+          <div class="search-product-image">
+            <img [src]="product.images?.[0]?.thumbnail" [alt]="product.name" />
+          </div>
 
-    <div class="search-product-name">
-      {{ product.name }}
-    </div>
-  </div>
-</div>
+          <div class="search-product-name">
+            {{ product.name }}
+          </div>
+        </div>
+      </div>
     </div>
 
     <nav class="fp-header__actions">
@@ -80,45 +65,33 @@
   </div>
 
   <div class="fp-header__nav fp-container">
-  <a [routerLink]="auth.isAdmin() ? '/admin/master' : '/'">
-    {{ 'NAV_HOME' | translate }}
-  </a>
-
-  <span
-    class="fp-header__nav-dropdown"
-    [matMenuTriggerFor]="categoryMenu"
-  >
-    {{ 'NAV_SHOP' | translate }}
-    <mat-icon class="fp-header__nav-caret">expand_more</mat-icon>
-  </span>
-
-  <mat-menu #categoryMenu="matMenu" class="fp-header__category-menu">
-    <a
-      mat-menu-item
-      routerLink="/products"
-      [queryParams]="{ category: 'all', categoryCd: null }"
-    >
-      {{ 'ALL_CATEGORIES' | translate }}
+    <a [routerLink]="auth.isAdmin() ? '/admin/master' : '/'">
+      {{ 'NAV_HOME' | translate }}
     </a>
 
-    <a
-      mat-menu-item
-      routerLink="/products"
-      *ngFor="let category of categories()"
-      [queryParams]="{
+    <span class="fp-header__nav-dropdown" [matMenuTriggerFor]="categoryMenu">
+      {{ 'NAV_SHOP' | translate }}
+      <mat-icon class="fp-header__nav-caret">expand_more</mat-icon>
+    </span>
+
+    <mat-menu #categoryMenu="matMenu" class="fp-header__category-menu">
+      <a mat-menu-item routerLink="/products" [queryParams]="{ category: 'all', categoryCd: null }">
+        {{ 'ALL_CATEGORIES' | translate }}
+      </a>
+
+      <a mat-menu-item routerLink="/products" *ngFor="let category of categories()" [queryParams]="{
         category: category.categoryName,
         categoryCd: category.categoryCd
-      }"
-    >
-      {{ category.categoryName }}
+      }">
+        {{ category.categoryName }}
+      </a>
+    </mat-menu>
+
+    <a routerLink="/brands">
+      {{ 'NAV_SHOP_BY_BRAND' | translate }}
     </a>
-  </mat-menu>
 
-  <a routerLink="/brands">
-    {{ 'NAV_SHOP_BY_BRAND' | translate }}
-  </a>
-
-  <!-- <a routerLink="/about">
+    <!-- <a routerLink="/about">
     {{ 'NAV_ABOUT' | translate }}
   </a>
 
@@ -129,37 +102,30 @@
   <a routerLink="/contact">
     {{ 'NAV_CONTACT' | translate }}
   </a> -->
-</div>
+  </div>
 
 
-<!-- NEW CATEGORY BAR BELOW NAVIGATION -->
-<div class="fp-header__category-bar fp-container">
+  <!-- NEW CATEGORY BAR BELOW NAVIGATION -->
+  <div class="fp-header__category-bar fp-container">
 
-  <!-- All Categories -->
-  <a
-    routerLink="/products"
-    [queryParams]="{
+    <!-- All Categories -->
+    <a routerLink="/products" [queryParams]="{
       category: 'all',
       categoryCd: null
-    }"
-  >
-    {{ 'ALL_CATEGORIES' | translate }}
-  </a>
+    }">
+      {{ 'ALL_CATEGORIES' | translate }}
+    </a>
 
-  <!-- Categories -->
-  <a
-    *ngFor="let category of categories()"
-    routerLink="/products"
-    [queryParams]="{
+    <!-- Categories -->
+    <a *ngFor="let category of categories()" routerLink="/products" [queryParams]="{
       category: category.categoryName,
       categoryCd: category.categoryCd
-    }"
-  >
-   {{ category.categoryName | translate }}
-  </a>
+    }">
+      {{ category.categoryName | translate }}
+    </a>
 
-</div>
-  
+  </div>
+
 </header>
 <!-- <span
   class="fp-header__nav-dropdown"
@@ -170,4 +136,3 @@
   {{ 'NAV_SHOP' | translate }}
   <mat-icon class="fp-header__nav-caret">expand_more</mat-icon>
 </span> -->
- 

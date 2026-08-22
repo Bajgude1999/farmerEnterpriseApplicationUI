@@ -7,6 +7,7 @@ export const environment = {
   websocketUrl: 'https://amber-schema-handbook-respected.trycloudflare.com/agrostar',
   defaultLanguage: 'en',
   encriptionKey: 'abcd@1234567890xyz123ABCD@123456',
+  brokerURL: 'wss://amber-schema-handbook-respected.trycloudflare.com/agrostar/ws',
   supportedLanguages: [
     'en',
     'hi',
