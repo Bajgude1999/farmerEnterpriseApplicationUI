@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Velnexa Crop Solutin</string>
+    <string name="title_activity_main">Velnexa Crop Solutin</string>
+    <string name="package_name">com.farmerenterprise.app</string>
+    <string name="custom_url_scheme">com.farmerenterprise.app</string>
+</resources>

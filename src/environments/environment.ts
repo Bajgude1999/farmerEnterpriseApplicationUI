@@ -2,9 +2,9 @@
 export const environment = {
   production: false,
   // apiBaseUrl: 'http://10.190.143.90/agrostar',
-  apiBaseUrl: 'https://betty-oldest-leon-procedures.trycloudflare.com/agrostar',
+  apiBaseUrl: 'https://borders-discrete-handles-choosing.trycloudflare.comagrostar',
   //  websocketUrl: 'http://10.190.143.90/agrostar',
-  websocketUrl: 'https://betty-oldest-leon-procedures.trycloudflare.com/agrostar',
+  websocketUrl: 'https://borders-discrete-handles-choosing.trycloudflare.com/agrostar',
   defaultLanguage: 'en',
   encriptionKey: 'abcd@1234567890xyz123ABCD@123456',
   supportedLanguages: [
